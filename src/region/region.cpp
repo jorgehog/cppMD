@@ -28,11 +28,9 @@ void Region::append(int i)
 bool Region::equals(const Region &region) const
 {
 
-       umat A = region.topology == topology;
-
        for (int i = 0; i < 2; ++i) {
            for (int j = 0; j < DIM; ++j) {
-               if (A(i,j) == 0) {
+               if (region.topology(i, j) != this->topology(i, j)) {
                    return false;
                }
            }

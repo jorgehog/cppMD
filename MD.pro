@@ -11,14 +11,14 @@ SOURCES += main.cpp \
     src/solver/solver.cpp \
     src/Ensemble/ensemble.cpp \
     src/region/region.cpp \
-    src/field/meshField.cpp
+    src/meshField/meshField.cpp
 
 HEADERS += \
     src/solver/solver.h \
     src/Ensemble/ensemble.h \
     src/defines.h \
     src/region/region.h \
-    src/field/meshField.h
+    src/meshField/meshField.h
 
 ## MPI Settings
 #QMAKE_CXX = mpicxx
