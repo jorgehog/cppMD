@@ -1,8 +1,7 @@
 #include "meshField.h"
 
-#include <string>
+#include <sstream>
 #include "../region/region.h"
-
 
 std::string meshField::dumpString()
 {

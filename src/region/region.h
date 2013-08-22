@@ -1,8 +1,12 @@
-#ifndef REGION_H
-#define REGION_H
+#ifndef MD_REGION_H
+#define MD_REGION_H
 
 #include "../defines.h"
 #include <vector>
+#include <string>
+#include <armadillo>
+
+using namespace arma;
 
 class Ensemble;
 
@@ -38,8 +42,8 @@ private:
 
     std::vector<int> atoms;
 
-    mat::fixed<2, DIM> topology;
+    mat::fixed<2, MD_DIM> topology;
 
 };
 
-#endif // REGION_H
+#endif // MD_REGION_H

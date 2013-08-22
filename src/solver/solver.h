@@ -1,9 +1,8 @@
-#ifndef SOLVER_H
-#define SOLVER_H
+#ifndef MD_SOLVER_H
+#define MD_SOLVER_H
 
 class Ensemble;
 class Mesh;
-
 
 class solver
 {
@@ -26,4 +25,4 @@ private:
 
 };
 
-#endif // SOLVER_H
+#endif // MD_SOLVER_H

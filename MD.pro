@@ -3,7 +3,7 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-LIBS += -llapack -lblas -larmadillo -I/usr/lib/libarmadillo.so
+LIBS += -llapack -lblas -larmadillo -I/usr/lib/libarmadillo.so -lconfig++
 
 INCLUDEPATH += /usr/include
 
@@ -19,6 +19,8 @@ HEADERS += \
     src/defines.h \
     src/region/region.h \
     src/meshField/meshField.h
+
+OTHER_FILES += configMD.cfg
 
 ## MPI Settings
 #QMAKE_CXX = mpicxx

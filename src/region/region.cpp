@@ -13,7 +13,7 @@ void Region::append(int i)
 {
 
     //Check whether atom 'i' is outside any of the region's bounds
-    for (int j = 0; j < DIM; ++j) {
+    for (int j = 0; j < MD_DIM; ++j) {
         if (ensemble->pos(i, j) < topology(0, j)){
             return;
         } else if (ensemble->pos(i, j) > topology(1, j)) {
@@ -29,7 +29,7 @@ bool Region::equals(const Region &region) const
 {
 
        for (int i = 0; i < 2; ++i) {
-           for (int j = 0; j < DIM; ++j) {
+           for (int j = 0; j < MD_DIM; ++j) {
                if (region.topology(i, j) != this->topology(i, j)) {
                    return false;
                }

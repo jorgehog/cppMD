@@ -1,7 +1,7 @@
-#ifndef FIELD_H
-#define FIELD_H
+#ifndef MD_MESHFIELD_H
+#define MD_MESHFIELD_H
 
-#include <ostream>
+#include <string>
 
 class Region;
 
@@ -32,4 +32,4 @@ public:
 
 };
 
-#endif // FIELD_H
+#endif // MD_MESHFIELD_H

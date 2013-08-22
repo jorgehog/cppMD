@@ -1,11 +1,7 @@
-#ifndef DEFINES_H
-#define DEFINES_H
+#ifndef MD_DEFINES_H
+#define MD_DEFINES_H
 
-#include <armadillo>
-
-using namespace arma;
-
-#define DIM 2
-#define N   100
+#define MD_DIM 2
+#define MD_N   100
 
 #endif // DEFINES_H
