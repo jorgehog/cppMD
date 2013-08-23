@@ -10,37 +10,37 @@ using namespace arma;
 #include <vector>
 
 class Ensemble;
+class Event;
 
-class meshField
+class MeshField
 {
 
 private:
 
     std::string description;
 
-//    std::string type;
-//    std::string unit;
-
+    int nEvents;
     double volume;
 
     Ensemble *ensemble;
 
-    std::vector<int> atoms;
-
     mat::fixed<2, MD_DIM> topology;
+    std::vector<int> atoms;
+    std::vector<Event*> events;
+
 
 public:
 
-    meshField(const mat & topology, Ensemble *ensemble,
+    MeshField(const mat & topology, Ensemble *ensemble,
               std::string description = "");
 
-    virtual void update() = 0;
+    virtual bool isWithinThis(int i);
 
-    virtual double getMeasurement(){
-        return 0.0;
+    void addEvent(Event* event);
+
+    void append(int i) {
+        if (isWithinThis(i)) atoms.push_back(i);
     }
-
-    void append(int i);
 
     void reset(){
         atoms.clear();

@@ -1,13 +1,15 @@
-#include "meshField.h"
+#include "meshfield.h"
 
 #include <sstream>
 #include "../Ensemble/ensemble.h"
+#include "../Event/event.h"
 
 
 
-meshField::meshField(const mat &topology, Ensemble *ensemble, std::string description):
+MeshField::MeshField(const mat &topology, Ensemble *ensemble, std::string description):
     topology(topology),
-    description(description)
+    description(description),
+    nEvents(0)
 {
     this->ensemble = ensemble;
 }
@@ -32,18 +34,23 @@ meshField::meshField(const mat &topology, Ensemble *ensemble, std::string descri
 
 
 
-void meshField::append(int i)
-{
+bool MeshField::isWithinThis(int i) {
 
-    //Check whether atom 'i' is outside any of the region's bounds
     for (int j = 0; j < MD_DIM; ++j) {
         if (ensemble->pos(i, j) < topology(0, j)){
-            return;
+            return false;
         } else if (ensemble->pos(i, j) > topology(1, j)) {
-            return;
+            return false;
         }
     }
 
-    atoms.push_back(i);
+    return true;
 
+}
+
+void MeshField::addEvent(Event *event)
+{
+    event->setMeshField(this);
+    event->setEnsemble(ensemble);
+    events.push_back(event);
 }

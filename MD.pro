@@ -10,13 +10,15 @@ INCLUDEPATH += /usr/include
 SOURCES += main.cpp \
     src/Solver/solver.cpp \
     src/Ensemble/ensemble.cpp \
-    src/MeshField/meshfield.cpp
+    src/MeshField/meshfield.cpp \
+    src/Event/event.cpp
 
 HEADERS += \
     src/Solver/solver.h \
     src/Ensemble/ensemble.h \
     src/defines.h \
-    src/MeshField/meshfield.h
+    src/MeshField/meshfield.h \
+    src/Event/event.h
 
 OTHER_FILES += configMD.cfg
 

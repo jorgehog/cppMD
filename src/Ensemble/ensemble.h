@@ -2,14 +2,14 @@
 #define MD_ENSEMBLE_H
 
 #include "../defines.h"
-#include "../meshField/meshField.h"
+#include "../MeshField/meshfield.h"
 
 class Ensemble
 {
 public:
     Ensemble(int nSpecies, const double *sigmas, const double *epses);
 
-    friend void meshField::append(int i);
+    friend bool MeshField::isWithinThis(int i);
 
 private:
 

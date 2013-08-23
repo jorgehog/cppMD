@@ -3,7 +3,7 @@
 
 using namespace libconfig;
 
-#include "src/solver/solver.h"
+#include "src/Solver/solver.h"
 #include "src/Ensemble/ensemble.h"
 
 
