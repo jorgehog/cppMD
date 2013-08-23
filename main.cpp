@@ -29,7 +29,7 @@ int main()
         epses[i] = root["ensembleParameters"]["epses"][i];
     }
 
-    Ensemble e(NULL, nSpecies, sigmas, epses);
+    Ensemble e(nSpecies, sigmas, epses);
 
     return 0;
 }

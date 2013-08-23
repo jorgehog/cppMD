@@ -2,9 +2,8 @@
 #include "ensemble.h"
 #include <math.h>
 
-Ensemble::Ensemble(Thermostat *thermostat, int nSpecies, const double *sigmas, const double *epses):
-    nSpecies(nSpecies),
-    thermostat(thermostat)
+Ensemble::Ensemble(int nSpecies, const double *sigmas, const double *epses):
+    nSpecies(nSpecies)
 {
 
     sigmaTable.set_size(nSpecies, nSpecies);
