@@ -15,6 +15,8 @@ public:
 
     void updateContainments();
 
+    friend class SolverEvent;
+
 };
 
 #endif // MAINMESH_H

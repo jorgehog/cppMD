@@ -5,6 +5,8 @@
 using namespace arma;
 using namespace libconfig;
 
+#include "src/defines.h"
+
 #include "src/Ensemble/ensemble.h"
 #include "src/MeshField/meshfield.h"
 #include "src/MeshField/MainMesh/mainmesh.h"
@@ -15,15 +17,9 @@ using namespace libconfig;
 
 class countAtoms : public Event{
 public:
-    int n;
-
-    void reset() {
-        n = 0;
-
-    }
 
     void execute(){
-        value = (meshField->atoms.size()/(double)MD_N)/(meshField->getVolume());
+        value = (meshField->getPopulation()/(double)MD_N)/(meshField->getVolume());
     }
 
 };
@@ -97,6 +93,7 @@ int main()
     M4.addEvent(event4);
     M5.addEvent(event5);
 
+    std::cout << "starting exec" << std::endl;
     solver.execute();
 
     return 0;

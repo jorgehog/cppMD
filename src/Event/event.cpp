@@ -9,6 +9,7 @@ Event::Event(std::string type, std::string unit):
     unit(unit)
 {
     value = 0;
+    initialize();
     reset();
 }
 

@@ -29,6 +29,8 @@ public:
 
     virtual void execute() = 0;
 
+    virtual void initialize(){}
+
     virtual void reset(){}
 
     virtual double getMeasurement(){

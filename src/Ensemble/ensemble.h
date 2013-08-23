@@ -23,6 +23,9 @@ private:
     mat::fixed<MD_N, MD_DIM> vel;
     mat::fixed<MD_N, MD_DIM> forces;
 
+
+
+
 };
 
 #endif // MD_ENSEMBLE_H

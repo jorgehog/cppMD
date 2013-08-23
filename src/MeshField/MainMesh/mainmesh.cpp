@@ -9,7 +9,8 @@
 MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble, SolverEvent  & solver):
     MeshField(topology, ensemble, "MainMesh")
 {
-    this->solver = solver;
+    this->solver = &solver;
+    solver.mainMesh = this;
 
 //    srand(time(NULL));
 

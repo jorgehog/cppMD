@@ -36,8 +36,6 @@ protected:
 
     bool checkSubFields(int i);
 
-    virtual bool isWithinThis(int i);
-
     void resetSubFields();
     void resetEvents();
     void executeEvents();
@@ -76,12 +74,18 @@ public:
 
     void addSubField(MeshField &subField);
 
+    virtual bool isWithinThis(int i);
+
     const vec & getShape() const {
         return shape;
     }
 
     const double & getVolume() const {
         return volume;
+    }
+
+    int getPopulation() const {
+        return atoms.size();
     }
 
     friend class MainMesh;
