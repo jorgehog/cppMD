@@ -20,6 +20,10 @@ private:
 
 public:
 
+    virtual bool isSolverEvent(){
+        return false;
+    }
+
     Event(std::string type = "Event", std::string unit = "");
 
     virtual void apply(int i) = 0;

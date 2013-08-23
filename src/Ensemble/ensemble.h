@@ -10,6 +10,7 @@ public:
     Ensemble(int nSpecies, const double *sigmas, const double *epses);
 
     friend bool MeshField::isWithinThis(int i);
+    friend class MainMesh;
 
 private:
 

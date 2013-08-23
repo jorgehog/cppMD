@@ -4,12 +4,26 @@
 #include "../Ensemble/ensemble.h"
 #include "../Event/event.h"
 
-MeshField::MeshField(const mat &topology, Ensemble *ensemble, const std::string description):
+MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::string description):
     topology(topology),
     description(description),
     nEvents(0)
 {
-    this->ensemble = ensemble;
+    this->ensemble = &ensemble;
+
+    //Evil haxx for changing const values
+    vec * vecPtr;
+    vecPtr = (vec*)(&shape);
+    *vecPtr = topology.col(1) - topology.col(0);;
+
+    //Calculate the volume
+    volume = 1;
+    for (int i = 0; i < MD_DIM; ++i) {
+        volume *= shape(i);
+    }
+
+
+    //Necessary?
     parent = NULL;
     depth = 1;
 
@@ -31,20 +45,7 @@ bool MeshField::isWithinThis(int i) {
 }
 
 
-void MeshField::updateContainments()
-{
-    if (depth != 1) {
-        std::cout << "updateContainments must be used on the main mesh only." << std::endl;
-    }
 
-    resetSubFields();
-
-    for (int i = 0; i < MD_N; ++i) {
-        (void)checkSubFields(i);
-    }
-
-
-}
 
 void MeshField::resetSubFields()
 {
@@ -58,10 +59,15 @@ void MeshField::resetSubFields()
 bool MeshField::checkSubFields(int i){
 
     bool matchedInSubLevel = false;
+    bool matchInSubField;
 
+    bool verbose = false;
 
     for (MeshField* subField : subFields){
-        matchedInSubLevel = matchedInSubLevel || subField->checkSubFields(i);
+
+        matchInSubField = subField->checkSubFields(i);
+        matchedInSubLevel = matchedInSubLevel || matchInSubField;
+
     }
 
     if (matchedInSubLevel) {
@@ -70,18 +76,20 @@ bool MeshField::checkSubFields(int i){
         matchedInSubLevel = append(i);
     }
 
+
+    if (verbose) std::cout << i << " checked by " << description << "\t:  " << matchedInSubLevel << std::endl;
     return matchedInSubLevel;
 
 }
 
 
 
-bool MeshField::notCompatible(MeshField *subField)
+bool MeshField::notCompatible(MeshField & subField)
 {
 
-    if (subField == this) return true;
+    if (&subField == this) return true;
 
-    const mat & sft = subField->topology;
+    const mat & sft = subField.topology;
     const mat & tft = this->topology;
 
 #if MD_DIM == 2
@@ -115,24 +123,33 @@ bool MeshField::notCompatible(MeshField *subField)
 }
 
 
-void MeshField::addEvent(Event *event)
+void MeshField::addEvent(Event & event)
 {
-    event->setMeshField(this);
-    event->setEnsemble(ensemble);
-    events.push_back(event);
+    event.setMeshField(this);
+    event.setEnsemble(ensemble);
+    events.push_back(&event);
 
     nEvents++;
 }
 
-void MeshField::addSubField(MeshField *subField)
+void MeshField::addSubField(MeshField  & subField)
 {
 
-    if (notCompatible(subField)) return;
+    if (notCompatible(subField)) {
+        std::cout << "subfield " << subField.description << " not compatible on " << description << std::endl;
+        std::cout << "CONFLICT:\nsubField\n" << subField.topology << " is out of bounds or similar to parent\n" << topology << std::endl;
+        mat issue = (-topology + subField.topology);
+        issue.col(1)*=-1;
 
-    std::cout << "added subfield" << std::endl;
+        std::cout << "Issue at negative region:\n" << issue << std::endl;
+        exit(1);
+        return;
+    }
 
-    subField->setParent(this);
-    subFields.push_back(subField);
+//    std::cout << "added subfield" << std::endl;
+
+    subField.setParent(this);
+    subFields.push_back(&subField);
 
     nSubFields++;
 

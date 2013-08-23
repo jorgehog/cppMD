@@ -27,7 +27,9 @@ protected:
     Ensemble *ensemble;
     MeshField* parent;
 
-    mat::fixed<MD_DIM, 2> topology;
+    const mat::fixed<MD_DIM, 2> topology;
+    const vec::fixed<MD_DIM> shape;
+
     std::vector<int> atoms;
     std::vector<Event*> events;
     std::vector<MeshField*> subFields;
@@ -36,22 +38,20 @@ protected:
 
 public:
 
-    MeshField(const mat & topology, Ensemble *ensemble,
-              const std::string description = "");
+    MeshField(const mat & topology, Ensemble &ensemble,
+              const std::string description = "meshField");
 
     const std::string description;
 
     virtual bool isWithinThis(int i);
 
-    void updateContainments();
-
     void resetSubFields();
 
-    bool notCompatible(MeshField* subField);
+    bool notCompatible(MeshField & subField);
 
-    void addEvent(Event* event);
+    void addEvent(Event & event);
 
-    void addSubField(MeshField* subField);
+    void addSubField(MeshField &subField);
 
     void setParent(MeshField* parent){
         this->parent = parent;
@@ -59,7 +59,12 @@ public:
     }
 
     bool append(int i) {
-        if (isWithinThis(i)) atoms.push_back(i); return true;
+
+        if (isWithinThis(i)){
+            atoms.push_back(i);
+            return true;
+        }
+
         return false;
     }
 
@@ -67,13 +72,15 @@ public:
         atoms.clear();
     }
 
-    rowvec getShape() const {
-        return topology.row(1) - topology.row(0);
+    const vec & getShape() const {
+        return shape;
     }
 
-    double getVolume() const {
+    const double & getVolume() const {
         return volume;
     }
+
+    friend class MainMesh;
 
 
 };
