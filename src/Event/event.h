@@ -8,8 +8,9 @@ class Ensemble;
 
 class Event
 {
+protected:
 
-private:
+    double value;
 
     MeshField* meshField;
     Ensemble* ensemble;
@@ -26,10 +27,12 @@ public:
 
     Event(std::string type = "Event", std::string unit = "");
 
-    virtual void apply(int i) = 0;
+    virtual void execute() = 0;
+
+    virtual void reset(){}
 
     virtual double getMeasurement(){
-        return 0.0;
+        return value;
     }
 
     void setEnsemble(Ensemble* ensemble){

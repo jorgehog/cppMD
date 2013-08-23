@@ -8,7 +8,8 @@ Event::Event(std::string type, std::string unit):
     type(type),
     unit(unit)
 {
-
+    value = 0;
+    reset();
 }
 
 

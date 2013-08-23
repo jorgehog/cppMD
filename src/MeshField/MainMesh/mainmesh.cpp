@@ -9,7 +9,7 @@
 MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble, SolverEvent  & solver):
     MeshField(topology, ensemble, "MainMesh")
 {
-    addEvent(solver);
+    this->solver = solver;
 
 //    srand(time(NULL));
 
@@ -37,3 +37,4 @@ void MainMesh::updateContainments()
     }
 
 }
+

@@ -2,9 +2,14 @@
 #define SOLVEREVENT_H
 
 #include "../event.h"
+#include "../../MeshField/MainMesh/mainmesh.h"
 
 class SolverEvent : public Event
 {
+protected:
+    MainMesh * meshField;
+
+
 public:
 
     SolverEvent();
@@ -13,10 +18,12 @@ public:
         return true;
     }
 
-    void apply(int i){
-
+    void execute(){
+        meshField->resetEvents();
+        meshField->updateContainments();
+        meshField->executeEvents();
+        meshField->dumpEvents();
     }
-
 
 };
 

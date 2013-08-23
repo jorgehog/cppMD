@@ -36,27 +36,12 @@ protected:
 
     bool checkSubFields(int i);
 
-public:
-
-    MeshField(const mat & topology, Ensemble &ensemble,
-              const std::string description = "meshField");
-
-    const std::string description;
-
     virtual bool isWithinThis(int i);
 
     void resetSubFields();
-
-    bool notCompatible(MeshField & subField);
-
-    void addEvent(Event & event);
-
-    void addSubField(MeshField &subField);
-
-    void setParent(MeshField* parent){
-        this->parent = parent;
-        depth = parent->depth + 1;
-    }
+    void resetEvents();
+    void executeEvents();
+    void dumpEvents();
 
     bool append(int i) {
 
@@ -68,9 +53,28 @@ public:
         return false;
     }
 
-    void reset(){
+
+    bool notCompatible(MeshField & subField);
+
+    void resetContents(){
         atoms.clear();
     }
+
+    void setParent(MeshField* parent){
+        this->parent = parent;
+        depth = parent->depth + 1;
+    }
+
+public:
+
+    MeshField(const mat & topology, Ensemble &ensemble,
+              const std::string description = "meshField");
+
+    const std::string description;
+
+    void addEvent(Event & event);
+
+    void addSubField(MeshField &subField);
 
     const vec & getShape() const {
         return shape;
@@ -84,13 +88,6 @@ public:
 
 
 };
-
-
-
-/*
-    INLINE FUNCTION IMPLEMENTATIONS
-*/
-
 
 
 

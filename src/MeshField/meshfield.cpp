@@ -45,15 +45,46 @@ bool MeshField::isWithinThis(int i) {
 }
 
 
-
-
 void MeshField::resetSubFields()
 {
     for (MeshField* subField : subFields){
         subField->resetSubFields();
     }
 
-    reset();
+    resetContents();
+}
+
+void MeshField::dumpEvents()
+{
+    for (Event* event : events){
+        std::cout << event->dumpString() << std::endl;
+    }
+
+    for (MeshField* subfield : subFields){
+        subfield->dumpEvents();
+    }
+}
+
+void MeshField::executeEvents()
+{
+    for (Event* event : events){
+        event->execute();
+    }
+
+    for (MeshField* subfield : subFields){
+        subfield->executeEvents();
+    }
+}
+
+void MeshField::resetEvents()
+{
+    for (MeshField* subfield : subFields){
+        subfield->resetEvents();
+    }
+
+    for (Event* event : events){
+        event->reset();
+    }
 }
 
 bool MeshField::checkSubFields(int i){

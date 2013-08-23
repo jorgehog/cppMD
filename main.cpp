@@ -12,6 +12,22 @@ using namespace libconfig;
 #include "src/Event/event.h"
 #include "src/Event/SolverEvent/solverevent.h"
 
+
+class countAtoms : public Event{
+public:
+    int n;
+
+    void reset() {
+        n = 0;
+
+    }
+
+    void execute(){
+        value = (meshField->atoms.size()/(double)MD_N)/(meshField->getVolume());
+    }
+
+};
+
 int main()
 {
 
@@ -31,6 +47,13 @@ int main()
     }
 
     Ensemble e(nSpecies, sigmas, epses);
+
+    countAtoms event;
+    countAtoms event2;
+    countAtoms event3;
+    countAtoms event4;
+    countAtoms event5;
+
 
     mat topology(2, 2);
     topology << 0 << 1 << endr << 0 << 1;
@@ -68,7 +91,13 @@ int main()
     M3.addSubField(M5);
     M3.addSubField(M4);
 
-    M.updateContainments();
+    M.addEvent(event);
+    M2.addEvent(event2);
+    M3.addEvent(event3);
+    M4.addEvent(event4);
+    M5.addEvent(event5);
+
+    solver.execute();
 
     return 0;
 }
