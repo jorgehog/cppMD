@@ -1,11 +1,13 @@
 #include <iostream>
 #include <libconfig.h++>
+#include <armadillo>
 
+using namespace arma;
 using namespace libconfig;
 
 #include "src/Solver/solver.h"
 #include "src/Ensemble/ensemble.h"
-
+#include "src/MeshField/meshfield.h"
 
 int main()
 {
@@ -30,6 +32,17 @@ int main()
     }
 
     Ensemble e(nSpecies, sigmas, epses);
+
+    mat A(2, 2);
+    A << 0 << 1 << endr << 0 << 1;
+    MeshField M(A, &e);
+
+    A.reset();
+    A << 0 << 0.5 << endr << 0.5 << 1;
+
+    MeshField M2(A, &e);
+
+    M.addSubField(&M2);
 
     return 0;
 }

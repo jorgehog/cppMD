@@ -15,31 +15,52 @@ class Event;
 class MeshField
 {
 
-private:
+protected:
 
-    std::string description;
+    int depth;
 
+    int nSubFields;
     int nEvents;
+
     double volume;
 
     Ensemble *ensemble;
+    MeshField* parent;
 
-    mat::fixed<2, MD_DIM> topology;
+    mat::fixed<MD_DIM, 2> topology;
     std::vector<int> atoms;
     std::vector<Event*> events;
+    std::vector<MeshField*> subFields;
 
+    bool checkSubFields(int i);
 
 public:
 
     MeshField(const mat & topology, Ensemble *ensemble,
-              std::string description = "");
+              const std::string description = "");
+
+    const std::string description;
 
     virtual bool isWithinThis(int i);
 
+    void updateContainments();
+
+    void resetSubFields();
+
+    bool notCompatible(MeshField* subField);
+
     void addEvent(Event* event);
 
-    void append(int i) {
-        if (isWithinThis(i)) atoms.push_back(i);
+    void addSubField(MeshField* subField);
+
+    void setParent(MeshField* parent){
+        this->parent = parent;
+        depth = parent->depth + 1;
+    }
+
+    bool append(int i) {
+        if (isWithinThis(i)) atoms.push_back(i); return true;
+        return false;
     }
 
     void reset(){
@@ -54,9 +75,17 @@ public:
         return volume;
     }
 
-//    std::string dumpString();
-
 
 };
+
+
+
+/*
+    INLINE FUNCTION IMPLEMENTATIONS
+*/
+
+
+
+
 
 #endif // MD_MESHFIELD_H

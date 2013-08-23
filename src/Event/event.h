@@ -20,9 +20,13 @@ private:
 
 public:
 
-    Event(std::string type, std::string unit);
+    Event(std::string type = "Event", std::string unit = "");
 
     virtual void apply(int i) = 0;
+
+    virtual double getMeasurement(){
+        return 0.0;
+    }
 
     void setEnsemble(Ensemble* ensemble){
         this->ensemble = ensemble;
@@ -32,6 +36,8 @@ public:
         this->meshField = meshField;
     }
 
+
+    std::string dumpString();
 
 };
 
