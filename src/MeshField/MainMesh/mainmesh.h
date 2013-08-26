@@ -16,8 +16,9 @@ public:
     void updateContainments();
 
     int getPopulation() const {
-        return MD_N;
+        return ENS_N;
     }
+
 
     friend class SolverEvent;
 

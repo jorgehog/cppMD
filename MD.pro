@@ -8,11 +8,13 @@ LIBS += -llapack -lblas -larmadillo -I/usr/lib/libarmadillo.so -lconfig++
 INCLUDEPATH += /usr/include
 
 SOURCES += main.cpp \
-    src/Ensemble/ensemble.cpp \
     src/MeshField/meshfield.cpp \
     src/Event/event.cpp \
     src/MeshField/MainMesh/mainmesh.cpp \
-    src/Event/SolverEvent/solverevent.cpp
+    src/Event/SolverEvent/solverevent.cpp \
+    src/MD/mdsolver.cpp \
+    src/MD/mdEvents/calculateForces/calculateforces.cpp \
+    src/Event/predefinedEvents/predefinedevents.cpp
 
 HEADERS += \
     src/Ensemble/ensemble.h \
@@ -20,7 +22,10 @@ HEADERS += \
     src/MeshField/meshfield.h \
     src/Event/event.h \
     src/MeshField/MainMesh/mainmesh.h \
-    src/Event/SolverEvent/solverevent.h
+    src/Event/SolverEvent/solverevent.h \
+    src/MD/mdsolver.h \
+    src/MD/mdEvents/calculateForces/calculateforces.h \
+    src/Event/predefinedEvents/predefinedevents.h
 
 OTHER_FILES += configMD.cfg
 

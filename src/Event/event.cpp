@@ -7,9 +7,10 @@
 
 Event::Event(std::string type, std::string unit):
     type(type),
-    unit(unit)
+    unit(unit),
+    value(new double(0)),
+    valueInitialized(false)
 {
-    value = 0;
     initialize();
     reset();
 }
@@ -22,11 +23,14 @@ std::string Event::dumpString()
     s << "<"
 
       << type << "@"
-      << meshField->description << ";\t"
-      << "value: " << std::setprecision(3) << getMeasurement() << " "
-      << unit
+      << meshField->description;
+    if (valueInitialized){
+      s << ";\t" << "value: " << std::setprecision(3) << getMeasurement() << " " << unit;
+    }
 
-      << " >";
+     s << " >";
+
+     valueInitialized = false;
 
     return s.str();
 }

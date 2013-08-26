@@ -2,6 +2,7 @@
 #define EVENT_H
 
 #include <string>
+#include <iostream>
 
 class MeshField;
 class Ensemble;
@@ -10,7 +11,7 @@ class Event
 {
 protected:
 
-    double value;
+    double* value;
 
     MeshField* meshField;
     Ensemble* ensemble;
@@ -18,12 +19,9 @@ protected:
     std::string type;
     std::string unit;
 
+    bool valueInitialized;
 
 public:
-
-    virtual bool isSolverEvent(){
-        return false;
-    }
 
     Event(std::string type = "Event", std::string unit = "");
 
@@ -34,7 +32,12 @@ public:
     virtual void reset(){}
 
     virtual double getMeasurement(){
-        return value;
+        return *value;
+    }
+
+    void setValue(double value){
+        valueInitialized = true;
+        *(this->value) = value;
     }
 
     void setEnsemble(Ensemble* ensemble){

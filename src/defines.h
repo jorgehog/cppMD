@@ -1,11 +1,24 @@
-#ifndef MD_DEFINES_H
-#define MD_DEFINES_H
+#ifndef ENS_DEFINES_H
+#define ENS_DEFINES_H
 
-#define MD_DIM 2
+#define ENS_DIM 2
 
-#define MD_NX 100
-#define MD_NY 100
+#define ENS_NX 100
+#define ENS_NY 100
 
-#define MD_N MD_NX*MD_NY
+#if ENS_DIM == 3
+
+#define ENS_NZ 100
+#define ENS_N ENS_NX*ENS_NY*ENS_NZ
+
+#else
+
+#define ENS_N ENS_NX*ENS_NY
+
+#define ENS_PERIODIC_X
+#define ENS_PERIODIC_Y
+
+
+#endif
 
 #endif // DEFINES_H

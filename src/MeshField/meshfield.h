@@ -27,9 +27,6 @@ protected:
     Ensemble *ensemble;
     MeshField* parent;
 
-    const mat::fixed<MD_DIM, 2> topology;
-    const vec::fixed<MD_DIM> shape;
-
     std::vector<int> atoms;
     std::vector<Event*> events;
     std::vector<MeshField*> subFields;
@@ -67,6 +64,9 @@ public:
 
     MeshField(const mat & topology, Ensemble &ensemble,
               const std::string description = "meshField");
+
+    const mat::fixed<ENS_DIM, 2> topology;
+    const vec::fixed<ENS_DIM> shape;
 
     const std::string description;
 

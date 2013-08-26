@@ -7,23 +7,25 @@
 class SolverEvent : public Event
 {
 protected:
+
+    const int N;
+    const double dt;
+
+    double T;
+
+
+    std::vector<Event*> solverSpecificEvents;
     MainMesh * mainMesh;
 
+    void setMainMesh(MainMesh* mainMesh);
+
+    virtual void initialize(){}
 
 public:
 
-    SolverEvent();
+    SolverEvent(double dt, int N);
 
-    bool isSolverEvent(){
-        return true;
-    }
-
-    void execute(){
-        mainMesh->resetEvents();
-        mainMesh->updateContainments();
-        mainMesh->executeEvents();
-        mainMesh->dumpEvents();
-    }
+    void execute();
 
     friend MainMesh::MainMesh(const mat &, Ensemble &, SolverEvent &);
 

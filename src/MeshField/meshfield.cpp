@@ -18,7 +18,7 @@ MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::strin
 
     //Calculate the volume
     volume = 1;
-    for (int i = 0; i < MD_DIM; ++i) {
+    for (int i = 0; i < ENS_DIM; ++i) {
         volume *= shape(i);
     }
 
@@ -32,7 +32,7 @@ MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::strin
 
 bool MeshField::isWithinThis(int i) {
 
-    for (int j = 0; j < MD_DIM; ++j) {
+    for (int j = 0; j < ENS_DIM; ++j) {
         if (ensemble->pos(i, j) < topology(j, 0)){
             return false;
         } else if (ensemble->pos(i, j) > topology(j, 1)) {
@@ -123,7 +123,7 @@ bool MeshField::notCompatible(MeshField & subField)
     const mat & sft = subField.topology;
     const mat & tft = this->topology;
 
-#if MD_DIM == 2
+#if ENS_DIM == 2
     bool outsideMesh =  (sft(0, 0) < tft(0, 0)) ||
                         (sft(0, 1) > tft(0, 1)) ||
                         (sft(1, 0) < tft(1, 0)) ||
@@ -133,7 +133,7 @@ bool MeshField::notCompatible(MeshField & subField)
                         (sft(0, 1) == tft(0, 1)) &&
                         (sft(1, 0) == tft(1, 0)) &&
                         (sft(1, 1) == tft(1, 1));
-#elif MD_DIM == 3
+#elif ENS_DIM == 3
     bool outsideMesh =  (sft(0, 0) < tft(0, 0)) ||
                         (sft(0, 1) > tft(0, 1)) ||
                         (sft(1, 0) < tft(1, 0)) ||

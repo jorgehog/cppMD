@@ -12,17 +12,11 @@ using namespace libconfig;
 #include "src/MeshField/MainMesh/mainmesh.h"
 
 #include "src/Event/event.h"
+#include "src/Event/predefinedEvents/predefinedevents.h"
 #include "src/Event/SolverEvent/solverevent.h"
+#include "src/MD/mdsolver.h"
 
 
-class countAtoms : public Event{
-public:
-
-    void execute(){
-        value = (meshField->getPopulation()/double(MD_N))/(meshField->getVolume());
-    }
-
-};
 
 int main()
 {
@@ -42,7 +36,7 @@ int main()
         epses[i] = root["ensembleParameters"]["epses"][i];
     }
 
-    Ensemble e(nSpecies, sigmas, epses);
+    Ensemble e;
 
     countAtoms event;
     countAtoms event2;
@@ -54,7 +48,7 @@ int main()
     mat topology(2, 2);
     topology << 0 << 1 << endr << 0 << 1;
 
-    SolverEvent solver;
+    mdSolver solver(0.1, 1000, nSpecies, sigmas, epses);
 
     MainMesh M(topology, e, solver);
 
