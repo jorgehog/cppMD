@@ -21,6 +21,8 @@ using namespace libconfig;
 int main()
 {
 
+    wall_clock timer;
+
     Config cfg;
     cfg.readFile("../MD/configMD.cfg");
 
@@ -48,7 +50,7 @@ int main()
     mat topology(2, 2);
     topology << 0 << 1 << endr << 0 << 1;
 
-    mdSolver solver(0.1, 1000, nSpecies, sigmas, epses);
+    mdSolver solver(0.01, 1000, nSpecies, sigmas, epses);
 
     MainMesh M(topology, e, solver);
 
@@ -87,7 +89,9 @@ int main()
     M4.addEvent(event4);
     M5.addEvent(event5);
 
+    timer.tic();
     solver.execute();
+    std::cout << "Execution time: " << timer.toc() << std::endl;
 
     return 0;
 }

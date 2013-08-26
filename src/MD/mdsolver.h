@@ -10,7 +10,7 @@ public:
     mdSolver(double dt, int N, int nSpecies, const double *sigmas, const double *epses);
 
 
-
+    friend class LennardJonesForce;
 
 private:
 

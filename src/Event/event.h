@@ -13,6 +13,7 @@ protected:
 
     double* value;
 
+
     MeshField* meshField;
     Ensemble* ensemble;
 
@@ -23,7 +24,9 @@ protected:
 
 public:
 
-    Event(std::string type = "Event", std::string unit = "");
+    Event(std::string type = "Event", std::string unit = "", bool doOutput=true);
+
+    const bool doOutput;
 
     virtual void execute() = 0;
 

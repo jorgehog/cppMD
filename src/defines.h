@@ -3,8 +3,12 @@
 
 #define ENS_DIM 2
 
-#define ENS_NX 100
-#define ENS_NY 100
+#define ENS_NX 10
+#define ENS_NY 10
+
+/*
+ *
+ */
 
 #if ENS_DIM == 3
 
@@ -15,10 +19,26 @@
 
 #define ENS_N ENS_NX*ENS_NY
 
-#define ENS_PERIODIC_X
-#define ENS_PERIODIC_Y
-
-
 #endif
+
+/*
+ *
+ */
+
+#define ENS_PERIODIC_X
+//#define ENS_PERIODIC_Y
+
+
+
+/*
+ *
+ */
+
+#if ENS_DIM == 2 && defined (ENS_PERIODIC_Z)
+#undef ENS_PERIODIC_Z
+#endif
+
+
+
 
 #endif // DEFINES_H

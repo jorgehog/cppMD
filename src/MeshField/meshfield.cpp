@@ -5,9 +5,9 @@
 #include "../Event/event.h"
 
 MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::string description):
+    nEvents(0),
     topology(topology),
-    description(description),
-    nEvents(0)
+    description(description)
 {
     this->ensemble = &ensemble;
 
@@ -33,9 +33,9 @@ MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::strin
 bool MeshField::isWithinThis(int i) {
 
     for (int j = 0; j < ENS_DIM; ++j) {
-        if (ensemble->pos(i, j) < topology(j, 0)){
+        if (ensemble->pos(j, i) < topology(j, 0)){
             return false;
-        } else if (ensemble->pos(i, j) > topology(j, 1)) {
+        } else if (ensemble->pos(j, i) > topology(j, 1)) {
             return false;
         }
     }
@@ -57,7 +57,7 @@ void MeshField::resetSubFields()
 void MeshField::dumpEvents()
 {
     for (Event* event : events){
-        std::cout << event->dumpString() << std::endl;
+        if (event->doOutput) std::cout << event->dumpString() << std::endl;
     }
 
     for (MeshField* subfield : subFields){

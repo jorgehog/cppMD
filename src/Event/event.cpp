@@ -5,11 +5,12 @@
 #include <sstream>
 #include <iomanip>
 
-Event::Event(std::string type, std::string unit):
+Event::Event(std::string type, std::string unit, bool doOutput):
+    value(new double(0)),
     type(type),
     unit(unit),
-    value(new double(0)),
-    valueInitialized(false)
+    valueInitialized(false),
+    doOutput(doOutput)
 {
     initialize();
     reset();

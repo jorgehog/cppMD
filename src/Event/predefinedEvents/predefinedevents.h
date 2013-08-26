@@ -5,6 +5,9 @@
 #include "../../Event/event.h"
 #include "../../Ensemble/ensemble.h"
 #include "../../MeshField/meshfield.h"
+#include "../../MeshField/MainMesh/mainmesh.h"
+#include "../../MD/mdsolver.h"
+
 
 /*
  *
@@ -14,26 +17,73 @@
 
 class periodicScaling : public Event {
 public:
+
+    periodicScaling() : Event("PS", "", false) {}
+
+
     //Hey, what I mean to say is that I rescale all positions to fit the mesh _if_ they are set to
     //periodic. If not, you have to add an event to take care of collisions with walls.
     void execute()
     {
-#ifdef ENS_PERIODIC_X || ENS_PERIODIC_Y || ENS_PERIODIC_Z
+
+#if defined (ENS_PERIODIC_X) || defined (ENS_PERIODIC_Y) || defined (ENS_PERIODIC_Z)
         for (int i = 0; i < ENS_N; ++i) {
 #ifdef ENS_PERIODIC_X
-            ensemble->pos(i, 0) = fmod(ensemble->pos(i,0), meshField->topology(0, 1));
+            ensemble->pos(0, i) = fmod(ensemble->pos(0, i), meshField->topology(0, 1));
 #endif
 #ifdef ENS_PERIODIC_Y
-            ensemble->pos(i, 1) = fmod(ensemble->pos(i,1), meshField->topology(1, 1));
+            ensemble->pos(1, i) = fmod(ensemble->pos(1, i), meshField->topology(1, 1));
 #endif
 #ifdef ENS_PERIODIC_Z
-            ensemble->pos(i, 2) = fmod(ensemble->pos(i,2), meshField->topology(2, 1));
+            ensemble->pos(2, i) = fmod(ensemble->pos(2, i), meshField->topology(2, 1));
 #endif
         }
 #endif
     }
 
 };
+
+/*
+ * Velocity verlet. Due to it's nature it has to be split to fit the event system.
+ */
+
+class VelocityVerletFirstHalf : public Event {
+public:
+
+    VelocityVerletFirstHalf(double dt) : Event("VV1", "", false), dt(dt) {}
+
+    void execute() {
+        for (int i = 0; i < ENS_N; ++i) {
+            for (int k = 0; k < ENS_DIM; ++k) {
+                ensemble->vel(k, i) += ensemble->forces(k, i)*dt/2;
+                ensemble->pos(k, i) += ensemble->vel(k, i);
+            }
+        }
+    }
+
+private:
+    double dt;
+
+};
+
+class VelocityVerletSecondHalf : public Event {
+public:
+
+    VelocityVerletSecondHalf(double dt) : Event("VV2", "", false), dt(dt) {}
+
+    void execute() {
+        for (int i = 0; i < ENS_N; ++i) {
+            for (int k = 0; k < ENS_DIM; ++k) {
+                ensemble->vel(k, i) += ensemble->forces(k, i)*dt/2;
+            }
+        }
+    }
+
+private:
+    double dt;
+
+};
+
 
 
 /*
@@ -45,13 +95,13 @@ public:
 
 class randomShuffle : public Event {
 public:
-    randomShuffle() : Event("shuffling") {}
+    randomShuffle() : Event("shuffling", "", false) {}
 
     void execute() {
         ensemble->pos.randu();
         for (int i = 0; i < ENS_N; ++i) {
             for (int j = 0; j < ENS_DIM; ++j) {
-                ensemble->pos(i,j) = meshField->topology(j, 1) + ensemble->pos(i,j)*meshField->shape(j);
+                ensemble->pos(j, i) = meshField->topology(j, 0) + ensemble->pos(j, i)*meshField->shape(j);
             }
         }
     }
@@ -67,6 +117,8 @@ public:
 
 class countAtoms : public Event{
 public:
+
+    countAtoms() : Event("Counting atoms") {}
 
     void execute(){
         setValue((meshField->getPopulation()/double(ENS_N))/(meshField->getVolume()));

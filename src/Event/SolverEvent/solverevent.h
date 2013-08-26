@@ -3,16 +3,16 @@
 
 #include "../event.h"
 #include "../../MeshField/MainMesh/mainmesh.h"
+#include "../../MD/mdEvents/calculateForces/calculateforces.h"
 
 class SolverEvent : public Event
 {
 protected:
 
-    const int N;
     const double dt;
+    const int N;
 
     double T;
-
 
     std::vector<Event*> solverSpecificEvents;
     MainMesh * mainMesh;
@@ -28,6 +28,7 @@ public:
     void execute();
 
     friend MainMesh::MainMesh(const mat &, Ensemble &, SolverEvent &);
+    friend class TwoBodyForce;
 
 };
 

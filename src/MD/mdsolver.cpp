@@ -26,7 +26,10 @@ mdSolver::mdSolver(double dt, int N, int nSpecies, const double *sigmas, const d
     }
 
     solverSpecificEvents.push_back(new randomShuffle());
+    solverSpecificEvents.push_back(new VelocityVerletFirstHalf(dt));
+    solverSpecificEvents.push_back(new LennardJonesForce(this, nSpecies));
     solverSpecificEvents.push_back(new periodicScaling());
+    solverSpecificEvents.push_back(new VelocityVerletSecondHalf(dt));
 
 }
 
@@ -38,7 +41,7 @@ void mdSolver::initialize()
     ensemble->pos.randu();
 
     for (int i = 0; i < ENS_DIM; ++i) {
-        ensemble->pos.col(i) *= mainMesh->shape(i);
+        ensemble->pos.row(i) *= mainMesh->shape(i);
     }
 
 }

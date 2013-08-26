@@ -1,4 +1,5 @@
 #include "solverevent.h"
+#include "../../Ensemble/ensemble.h"
 
 SolverEvent::SolverEvent(double dt, int N):
     Event("mainSolver"),
@@ -28,15 +29,17 @@ void SolverEvent::setMainMesh(MainMesh *mainMesh)
 
 }
 
-#include "../../Ensemble/ensemble.h"
 void SolverEvent::execute()
 {
 
     initialize();
 
+    vec test;
+    double a;
+    mainMesh->leastDistance(test,a , 0, 1);
+
     for (int i = 0; i < N; ++i, T+=dt) {
 
-        std::cout << mean(ensemble->pos) << std::endl;
         mainMesh->updateContainments();
 
         mainMesh->executeEvents();
@@ -44,6 +47,7 @@ void SolverEvent::execute()
 
         mainMesh->resetEvents();
 
+        std::cout << mean(ensemble->pos, 1) << std::endl << mean(ensemble->vel, 1) << std::endl << mean(ensemble->forces, 1) << std::endl;
         std::cout << "t = " << T << " / " << (N-1)*dt << std::endl;
 
     }

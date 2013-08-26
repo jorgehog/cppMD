@@ -7,11 +7,12 @@ class SolverEvent;
 
 class MainMesh : public MeshField
 {
-private:
-    SolverEvent * solver;
+
 
 public:
     MainMesh(const mat & topology, Ensemble &ensemble, SolverEvent &solver);
+
+    void leastDistance(vec & leastRel, double &leastRel2, int i, int j);
 
     void updateContainments();
 
@@ -21,6 +22,11 @@ public:
 
 
     friend class SolverEvent;
+
+private:
+    SolverEvent * solver;
+    ivec::fixed<3> ldi; //least distance iterator
+
 
 };
 
