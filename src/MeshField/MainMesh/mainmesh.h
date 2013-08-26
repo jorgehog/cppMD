@@ -15,6 +15,10 @@ public:
 
     void updateContainments();
 
+    int getPopulation() const {
+        return MD_N;
+    }
+
     friend class SolverEvent;
 
 };

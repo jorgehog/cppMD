@@ -19,7 +19,7 @@ class countAtoms : public Event{
 public:
 
     void execute(){
-        value = (meshField->getPopulation()/(double)MD_N)/(meshField->getVolume());
+        value = (meshField->getPopulation()/double(MD_N))/(meshField->getVolume());
     }
 
 };
@@ -63,7 +63,7 @@ int main()
 
 
 
-    MeshField M2(topology, e, "M2");
+    MeshField M2(topology, e, "M2:M");
 
     topology.reset();
     topology << 0.2 << 0.8 << endr << 0.2 << 0.8;
@@ -93,7 +93,6 @@ int main()
     M4.addEvent(event4);
     M5.addEvent(event5);
 
-    std::cout << "starting exec" << std::endl;
     solver.execute();
 
     return 0;

@@ -12,7 +12,7 @@ MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble, SolverEvent  & sol
     this->solver = &solver;
     solver.mainMesh = this;
 
-//    srand(time(NULL));
+    srand(time(NULL));
 
     //placeHolder
     ensemble.pos.randu();

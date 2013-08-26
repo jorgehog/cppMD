@@ -3,6 +3,7 @@
 #include "../MeshField/meshfield.h"
 
 #include <sstream>
+#include <iomanip>
 
 Event::Event(std::string type, std::string unit):
     type(type),
@@ -20,9 +21,9 @@ std::string Event::dumpString()
 
     s << "<"
 
-      << type << ", "
-      << meshField->description << ", "
-      << "value: " << getMeasurement() << " "
+      << type << "@"
+      << meshField->description << ";\t"
+      << "value: " << std::setprecision(3) << getMeasurement() << " "
       << unit
 
       << " >";

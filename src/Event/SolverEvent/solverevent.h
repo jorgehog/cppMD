@@ -19,16 +19,10 @@ public:
     }
 
     void execute(){
-
-        std::cout << "attempting reset" << std::endl;
         mainMesh->resetEvents();
-        std::cout << "reset" << std::endl;
         mainMesh->updateContainments();
-        std::cout << "updated" << std::endl;
         mainMesh->executeEvents();
-        std::cout << "executed" << std::endl;
         mainMesh->dumpEvents();
-        std::cout << "dumped" << std::endl;
     }
 
     friend MainMesh::MainMesh(const mat &, Ensemble &, SolverEvent &);

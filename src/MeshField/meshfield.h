@@ -84,7 +84,7 @@ public:
         return volume;
     }
 
-    int getPopulation() const {
+    virtual int getPopulation() const {
         return atoms.size();
     }
 
