@@ -14,7 +14,8 @@ SOURCES += main.cpp \
     src/Event/SolverEvent/solverevent.cpp \
     src/MD/mdsolver.cpp \
     src/MD/mdEvents/calculateForces/calculateforces.cpp \
-    src/Event/predefinedEvents/predefinedevents.cpp
+    src/Event/predefinedEvents/predefinedevents.cpp \
+    src/Sampler/sampler.cpp
 
 HEADERS += \
     src/Ensemble/ensemble.h \
@@ -25,7 +26,8 @@ HEADERS += \
     src/Event/SolverEvent/solverevent.h \
     src/MD/mdsolver.h \
     src/MD/mdEvents/calculateForces/calculateforces.h \
-    src/Event/predefinedEvents/predefinedevents.h
+    src/Event/predefinedEvents/predefinedevents.h \
+    src/Sampler/sampler.h
 
 OTHER_FILES += configMD.cfg
 
@@ -47,13 +49,13 @@ QMAKE_CXXFLAGS += $$COMMON_CXXFLAGS
 QMAKE_CXXFLAGS_RELEASE += $$COMMON_CXXFLAGS
 QMAKE_CXXFLAGS_DEBUG += $$COMMON_CXXFLAGS
 
-    DEFINES += ARMA_NO_DEBUG
-    QMAKE_LFLAGS -= -O1
-    QMAKE_LFLAGS += -O3
-    QMAKE_LFLAGS_RELEASE -= -O1
-    QMAKE_LFLAGS_RELEASE += -O3
-    QMAKE_CXXFLAGS -= -O2
-    QMAKE_CXXFLAGS += -O3
-    QMAKE_CXXFLAGS_RELEASE -= -O2
-    QMAKE_CXXFLAGS_RELEASE += -O3
+#    DEFINES += ARMA_NO_DEBUG
+#    QMAKE_LFLAGS -= -O1
+#    QMAKE_LFLAGS += -O3
+#    QMAKE_LFLAGS_RELEASE -= -O1
+#    QMAKE_LFLAGS_RELEASE += -O3
+#    QMAKE_CXXFLAGS -= -O2
+#    QMAKE_CXXFLAGS += -O3
+#    QMAKE_CXXFLAGS_RELEASE -= -O2
+#    QMAKE_CXXFLAGS_RELEASE += -O3
 

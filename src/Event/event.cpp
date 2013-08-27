@@ -25,12 +25,12 @@ std::string Event::dumpString()
       << type << "@"
       << meshField->description;
     if (valueInitialized){
-      s << ";\t" << "value: " << std::setprecision(3) << getMeasurement() << " " << unit;
+        s << ";\t" << "value: " << std::setprecision(3) << getMeasurement() << " " << unit;
+        valueInitialized = false;
     }
 
-     s << " >";
+    s << " >";
 
-     valueInitialized = false;
 
     return s.str();
 }

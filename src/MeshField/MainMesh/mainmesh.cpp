@@ -17,6 +17,10 @@ MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble, SolverEvent  & sol
     ldi(1) = 0;
     ldi(2) = 1;
 
+    for (int i = 0; i < ENS_N; ++i) {
+        atoms.push_back(i);
+    }
+
 }
 
 void MainMesh::leastDistance(vec &leastRel, double &leastRel2, int i, int j)
@@ -55,18 +59,38 @@ void MainMesh::leastDistance(vec &leastRel, double &leastRel2, int i, int j)
         }
     }
 
-//Can be optimized alot
+    //Can be optimized alot
 
 #endif
 
     //TODO PARTIAL PERIODICITY
 }
 
+void MainMesh::cancelLinearMomentum()
+{
+    vec pTot = zeros<vec>(ENS_DIM);
+
+    for (int k = 0; k < ENS_N; ++k) {
+        pTot += ensemble->vel.col(k);
+    }
+
+    pTot /= ENS_N;
+
+    for (int i = 0; i < ENS_N; ++i) {
+        for (int j = 0; j < ENS_DIM; ++j) {
+            ensemble->vel(j, i) -= pTot(j);
+        }
+    }
+
+}
+
 
 void MainMesh::updateContainments()
 {
 
-    resetSubFields();
+    for (MeshField* subField : subFields){
+        subField->resetSubFields();
+    }
 
     for (int i = 0; i < ENS_N; ++i) {
 

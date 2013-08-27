@@ -5,7 +5,6 @@
 #include "../Event/event.h"
 
 MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::string description):
-    nEvents(0),
     topology(topology),
     description(description)
 {
@@ -22,10 +21,6 @@ MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::strin
         volume *= shape(i);
     }
 
-
-    //Necessary?
-    parent = NULL;
-    depth = 1;
 
 }
 
@@ -170,8 +165,6 @@ void MeshField::addEvent(Event & event)
     event.setMeshField(this);
     event.setEnsemble(ensemble);
     events.push_back(&event);
-
-    nEvents++;
 }
 
 void MeshField::addSubField(MeshField  & subField)
@@ -188,11 +181,6 @@ void MeshField::addSubField(MeshField  & subField)
         return;
     }
 
-//    std::cout << "added subfield" << std::endl;
-
-    subField.setParent(this);
     subFields.push_back(&subField);
-
-    nSubFields++;
 
 }

@@ -35,9 +35,12 @@ void SolverEvent::execute()
 {
 
     initialize();
+
+    mainMesh->cancelLinearMomentum();
     mainMesh->initializeEvents();
-//    double a;
+
     for (int i = 0; i < N; ++i, T+=dt) {
+
         ensemble->pos.save(std::string("/home/jorgehog/tmp/mdPos") + (toStr(i) + ".arma"));
 
         mainMesh->updateContainments();
@@ -47,10 +50,6 @@ void SolverEvent::execute()
 
         mainMesh->resetEvents();
 
-
-//        std::cin >> a;
-//        std::cout << a << std::endl;
-//        std::cout << mean(ensemble->pos, 1) << std::endl << mean(ensemble->vel, 1) << std::endl << mean(ensemble->forces, 1) << std::endl;
         std::cout << "t = " << T << " / " << (N-1)*dt << std::endl;
 
     }

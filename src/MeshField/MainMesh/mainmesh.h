@@ -14,6 +14,8 @@ public:
 
     void leastDistance(vec & leastRel, double &leastRel2, int i, int j);
 
+    void cancelLinearMomentum();
+
     void updateContainments();
 
     int getPopulation() const {

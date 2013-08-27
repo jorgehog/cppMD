@@ -40,6 +40,11 @@ int main()
         epses[i] = root["ensembleParameters"]["epses"][i];
     }
 
+    double dt = root["ensembleParameters"]["dt"];
+
+    double T0 = root["mainThermostat"]["bathTemperature"];
+    double tau = 1;//((double)root["mainThermostat"]["tauOverDt"])*dt;
+
     Ensemble e;
 
 //    countAtoms event;
@@ -50,11 +55,15 @@ int main()
 
 
     mat topology(2, 2);
-    topology << 0 << ENS_NX << endr << 0 << ENS_NY;
+    topology << 0 << 2*ENS_NX << endr << 0 << 2*ENS_NY;
 
-    mdSolver solver(0.001, 1000, nSpecies, sigmas, epses);
+    mdSolver solver(dt, 1000, nSpecies, T0, sigmas, epses);
 
     MainMesh M(topology, e, solver);
+
+    BerendsenThermostat thermostat(T0, tau, dt);
+
+    M.addEvent(thermostat);
 
 //    topology.reset();
 //    topology << 0.1 << 0.9 << endr << 0.1 << 0.9;

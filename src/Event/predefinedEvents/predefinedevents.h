@@ -7,6 +7,7 @@
 #include "../../MeshField/meshfield.h"
 #include "../../MeshField/MainMesh/mainmesh.h"
 #include "../../MD/mdsolver.h"
+#include "../../Sampler/sampler.h"
 
 
 /*
@@ -18,7 +19,7 @@
 class periodicScaling : public Event {
 public:
 
-    periodicScaling() : Event("PS", "", false) {}
+    periodicScaling() : Event("PS") {}
 
 
     //Hey, what I mean to say is that I rescale all positions to fit the mesh _if_ they are set to
@@ -60,7 +61,7 @@ public:
 class VelocityVerletFirstHalf : public Event {
 public:
 
-    VelocityVerletFirstHalf(double dt) : Event("VV1", "", false), dt(dt) {}
+    VelocityVerletFirstHalf(double dt) : Event("VV1"), dt(dt) {}
 
     void execute() {
         for (int i = 0; i < ENS_N; ++i) {
@@ -79,7 +80,7 @@ private:
 class VelocityVerletSecondHalf : public Event {
 public:
 
-    VelocityVerletSecondHalf(double dt) : Event("VV2", "", false), dt(dt) {}
+    VelocityVerletSecondHalf(double dt) : Event("VV2"), dt(dt) {}
 
     void execute() {
         for (int i = 0; i < ENS_N; ++i) {
@@ -105,7 +106,7 @@ private:
 
 class randomShuffle : public Event {
 public:
-    randomShuffle() : Event("shuffling", "", false) {}
+    randomShuffle() : Event("shuffling") {}
 
     void execute() {
         ensemble->pos.randu();
@@ -118,6 +119,61 @@ public:
 
 };
 
+
+/*
+ *
+ * Event for thermostats
+ *
+ */
+
+class thermostat : public Event {
+public:
+    thermostat(const double & T0, const double & tau, const double & dt) :
+        Event("Thermostat", "K", true), T0(T0), tau(tau), dt(dt) {}
+
+protected:
+
+    double T0;
+    double tau;
+    double dt;
+
+    void setT(){
+         std::cout << fieldSampler::getTemperature(meshField) << std::endl;
+         setValue(fieldSampler::getTemperature(meshField));
+    }
+
+};
+
+class BerendsenThermostat : public thermostat {
+public:
+    BerendsenThermostat(const double & T0, const double & tau, const double & dt) :
+        thermostat(T0, tau, dt) {}
+
+    void execute() {
+
+        getGamma();
+
+        for (const int & i : meshField->getAtoms()) {
+            ensemble->vel(0, i) *= gamma;
+            ensemble->vel(1, i) *= gamma;
+#if ENS_DIM == 3
+            ensemble->vel(2, i) *= gamma;
+#endif
+        }
+    }
+
+protected:
+
+    double gamma;
+
+    void getGamma(){
+        setT();
+        gamma = sqrt(1 + dt/tau*(T0/getMeasurement() - 1));
+    }
+
+};
+
+
 /*
  *
  * Event for counting atoms
@@ -128,7 +184,7 @@ public:
 class countAtoms : public Event{
 public:
 
-    countAtoms() : Event("Counting atoms") {}
+    countAtoms() : Event("Counting atoms", "", true) {}
 
     void execute(){
         setValue((meshField->getPopulation()/double(ENS_N))/(meshField->getVolume()));

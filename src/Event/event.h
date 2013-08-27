@@ -5,14 +5,13 @@
 #include <iostream>
 
 class MeshField;
-class Ensemble;
+struct Ensemble;
 
 class Event
 {
 protected:
 
     double* value;
-
 
     MeshField* meshField;
     Ensemble* ensemble;
@@ -24,7 +23,7 @@ protected:
 
 public:
 
-    Event(std::string type = "Event", std::string unit = "", bool doOutput=true);
+    Event(std::string type = "Event", std::string unit = "", bool doOutput=false);
 
     const bool doOutput;
 
@@ -50,7 +49,6 @@ public:
     void setMeshField(MeshField* meshField){
         this->meshField = meshField;
     }
-
 
     std::string dumpString();
 

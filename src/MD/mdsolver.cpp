@@ -10,9 +10,11 @@
 #include "../Event/event.h"
 
 
-mdSolver::mdSolver(double dt, int N, int nSpecies, const double *sigmas, const double *epses):
+mdSolver::mdSolver(double dt, int N, int nSpecies, double T0, const double *sigmas, const double *epses):
     SolverEvent(dt, N),
-    nSpecies(nSpecies)
+    nSpecies(nSpecies),
+    T0(T0),
+    sqrtkT0(sqrt(datum::k*T0))
 {
 
     sigmaTable.set_size(nSpecies, nSpecies);
@@ -25,7 +27,6 @@ mdSolver::mdSolver(double dt, int N, int nSpecies, const double *sigmas, const d
         }
     }
 
-//    solverSpecificEvents.push_back(new randomShuffle()); fail
     solverSpecificEvents.push_back(new VelocityVerletFirstHalf(dt));
     solverSpecificEvents.push_back(new LennardJonesForce(this, nSpecies));
     solverSpecificEvents.push_back(new periodicScaling());
@@ -37,6 +38,7 @@ void mdSolver::initialize()
 {
     double dx = mainMesh->shape(0)/ENS_NX;
     double dy = mainMesh->shape(1)/ENS_NY;
+
 #if ENS_DIM == 3
     double dz = mainMesh->shape(2)/ENS_NZ;
     for (int k = 0; k < ENS_NZ; ++k) {
@@ -60,8 +62,15 @@ void mdSolver::initialize()
         }
     }
 
+    ensemble->vel.randn();
+    for (int i = 0; i < ENS_N; ++i) {
+        for (int k = 0; k < ENS_DIM; ++k) {
+            ensemble->vel(k, i) *= sqrtkT0;
+        }
+    }
 
-    ensemble->vel.zeros();
+    std::cout << "mean" << mean(ensemble->vel, 1) << std::endl;
+    std::cout << "max" << max(ensemble->pos, 1) << std::endl;
 
 
 }

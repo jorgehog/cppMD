@@ -9,7 +9,7 @@ using namespace arma;
 #include <string>
 #include <vector>
 
-class Ensemble;
+struct Ensemble;
 class Event;
 
 class MeshField
@@ -17,22 +17,15 @@ class MeshField
 
 protected:
 
-    int depth;
-
-    int nSubFields;
-    int nEvents;
-
     double volume;
 
     Ensemble *ensemble;
-    MeshField* parent;
 
     std::vector<int> atoms;
     std::vector<Event*> events;
     std::vector<MeshField*> subFields;
 
     bool checkSubFields(int i);
-
     void resetSubFields();
 
     void initializeEvents();
@@ -57,11 +50,6 @@ protected:
         atoms.clear();
     }
 
-    void setParent(MeshField* parent){
-        this->parent = parent;
-        depth = parent->depth + 1;
-    }
-
 public:
 
     MeshField(const mat & topology, Ensemble &ensemble,
@@ -78,10 +66,6 @@ public:
 
     virtual bool isWithinThis(int i);
 
-    const vec & getShape() const {
-        return shape;
-    }
-
     const double & getVolume() const {
         return volume;
     }
@@ -90,9 +74,12 @@ public:
         return atoms.size();
     }
 
+    const std::vector<int> & getAtoms() {
+        return atoms;
+    }
+
     friend class MainMesh;
-
-
+    friend class fieldSampler;
 };
 
 

@@ -7,7 +7,7 @@ class mdSolver : public SolverEvent
 {
 public:
 
-    mdSolver(double dt, int N, int nSpecies, const double *sigmas, const double *epses);
+    mdSolver(double dt, int N, int nSpecies, double T0, const double *sigmas, const double *epses);
 
 
     friend class LennardJonesForce;
@@ -15,6 +15,8 @@ public:
 private:
 
     int nSpecies;
+    double T0;
+    double sqrtkT0;
 
     mat sigmaTable;
     mat epsTable;
