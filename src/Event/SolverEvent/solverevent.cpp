@@ -1,5 +1,7 @@
 #include "solverevent.h"
 #include "../../Ensemble/ensemble.h"
+#include <boost/lexical_cast.hpp>
+#define toStr boost::lexical_cast<std::string>
 
 SolverEvent::SolverEvent(double dt, int N):
     Event("mainSolver"),
@@ -33,10 +35,9 @@ void SolverEvent::execute()
 {
 
     initialize();
-    int a;
 
     for (int i = 0; i < N; ++i, T+=dt) {
-        ensemble->pos.save("/home/jorgehog/tmp/mdPos.arma");
+        ensemble->pos.save(std::string("/home/jorgehog/tmp/mdPos") + (toStr(i) + ".arma"));
 
         mainMesh->updateContainments();
 
@@ -46,9 +47,9 @@ void SolverEvent::execute()
         mainMesh->resetEvents();
 
 
-        std::cin >> a;
-        std::cout << a << std::endl;
-        std::cout << mean(ensemble->pos, 1) << std::endl << mean(ensemble->vel, 1) << std::endl << mean(ensemble->forces, 1) << std::endl;
+//        std::cin >> a;
+//        std::cout << a << std::endl;
+//        std::cout << mean(ensemble->pos, 1) << std::endl << mean(ensemble->vel, 1) << std::endl << mean(ensemble->forces, 1) << std::endl;
         std::cout << "t = " << T << " / " << (N-1)*dt << std::endl;
 
     }

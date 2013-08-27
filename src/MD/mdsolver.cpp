@@ -25,7 +25,7 @@ mdSolver::mdSolver(double dt, int N, int nSpecies, const double *sigmas, const d
         }
     }
 
-    solverSpecificEvents.push_back(new randomShuffle());
+//    solverSpecificEvents.push_back(new randomShuffle()); fail
     solverSpecificEvents.push_back(new VelocityVerletFirstHalf(dt));
     solverSpecificEvents.push_back(new LennardJonesForce(this, nSpecies));
     solverSpecificEvents.push_back(new periodicScaling());
@@ -59,6 +59,9 @@ void mdSolver::initialize()
 
         }
     }
+
+
+    ensemble->vel.zeros();
 
 
 }

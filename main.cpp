@@ -42,54 +42,54 @@ int main()
 
     Ensemble e;
 
-    countAtoms event;
-    countAtoms event2;
-    countAtoms event3;
-    countAtoms event4;
-    countAtoms event5;
+//    countAtoms event;
+//    countAtoms event2;
+//    countAtoms event3;
+//    countAtoms event4;
+//    countAtoms event5;
 
 
     mat topology(2, 2);
-    topology << 0 << 10 << endr << 0 << 10;
+    topology << 0 << ENS_NX << endr << 0 << ENS_NY;
 
     mdSolver solver(0.01, 1000, nSpecies, sigmas, epses);
 
     MainMesh M(topology, e, solver);
 
-    topology.reset();
-    topology << 0.1 << 0.9 << endr << 0.1 << 0.9;
+//    topology.reset();
+//    topology << 0.1 << 0.9 << endr << 0.1 << 0.9;
 
 
 
-    MeshField M2(topology, e, "M2:M");
+//    MeshField M2(topology, e, "M2:M");
 
-    topology.reset();
-    topology << 0.2 << 0.8 << endr << 0.2 << 0.8;
+//    topology.reset();
+//    topology << 0.2 << 0.8 << endr << 0.2 << 0.8;
 
-    MeshField M3(topology, e, "M3:2");
-
-
-    topology.reset();
-    topology << 0.3 << 0.7 << endr << 0.3 << 0.7;
-
-    MeshField M4(topology, e, "M4:3");
-
-    topology.reset();
-    topology << 0.2 << 0.3 << endr << 0.2 << 0.8;
-
-    MeshField M5(topology, e, "M5:3");
+//    MeshField M3(topology, e, "M3:2");
 
 
-    M.addSubField(M2);
-    M2.addSubField(M3);
-    M3.addSubField(M5);
-    M3.addSubField(M4);
+//    topology.reset();
+//    topology << 0.3 << 0.7 << endr << 0.3 << 0.7;
 
-    M.addEvent(event);
-    M2.addEvent(event2);
-    M3.addEvent(event3);
-    M4.addEvent(event4);
-    M5.addEvent(event5);
+//    MeshField M4(topology, e, "M4:3");
+
+//    topology.reset();
+//    topology << 0.2 << 0.3 << endr << 0.2 << 0.8;
+
+//    MeshField M5(topology, e, "M5:3");
+
+
+//    M.addSubField(M2);
+//    M2.addSubField(M3);
+//    M3.addSubField(M5);
+//    M3.addSubField(M4);
+
+//    M.addEvent(event);
+//    M2.addEvent(event2);
+//    M3.addEvent(event3);
+//    M4.addEvent(event4);
+//    M5.addEvent(event5);
 
     timer.tic();
     solver.execute();
