@@ -21,7 +21,9 @@ using namespace libconfig;
 int main()
 {
 
+    srand(time(NULL));
     wall_clock timer;
+
 
     Config cfg;
     cfg.readFile("../MD/configMD.cfg");
@@ -48,7 +50,7 @@ int main()
 
 
     mat topology(2, 2);
-    topology << 0 << 1 << endr << 0 << 1;
+    topology << 0 << 10 << endr << 0 << 10;
 
     mdSolver solver(0.01, 1000, nSpecies, sigmas, epses);
 

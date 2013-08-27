@@ -33,12 +33,10 @@ void SolverEvent::execute()
 {
 
     initialize();
-
-    vec test;
-    double a;
-    mainMesh->leastDistance(test,a , 0, 1);
+    int a;
 
     for (int i = 0; i < N; ++i, T+=dt) {
+        ensemble->pos.save("/home/jorgehog/tmp/mdPos.arma");
 
         mainMesh->updateContainments();
 
@@ -47,6 +45,9 @@ void SolverEvent::execute()
 
         mainMesh->resetEvents();
 
+
+        std::cin >> a;
+        std::cout << a << std::endl;
         std::cout << mean(ensemble->pos, 1) << std::endl << mean(ensemble->vel, 1) << std::endl << mean(ensemble->forces, 1) << std::endl;
         std::cout << "t = " << T << " / " << (N-1)*dt << std::endl;
 
