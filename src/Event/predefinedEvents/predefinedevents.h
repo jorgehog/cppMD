@@ -29,13 +29,23 @@ public:
 #if defined (ENS_PERIODIC_X) || defined (ENS_PERIODIC_Y) || defined (ENS_PERIODIC_Z)
         for (int i = 0; i < ENS_N; ++i) {
 #ifdef ENS_PERIODIC_X
+            if (ensemble->pos(0, i) < 0) {
+                ensemble->pos(0, i) += meshField->topology(0, 1);
+            }
             ensemble->pos(0, i) = fmod(ensemble->pos(0, i), meshField->topology(0, 1));
 #endif
 #ifdef ENS_PERIODIC_Y
+            if (ensemble->pos(1, i) < 0) {
+                ensemble->pos(1, i) += meshField->topology(1, 1);
+            }
             ensemble->pos(1, i) = fmod(ensemble->pos(1, i), meshField->topology(1, 1));
 #endif
 #ifdef ENS_PERIODIC_Z
+            if (ensemble->pos(2, i) < 0) {
+                ensemble->pos(2, i) += meshField->topology(2, 1);
+            }
             ensemble->pos(2, i) = fmod(ensemble->pos(2, i), meshField->topology(2, 1));
+
 #endif
         }
 #endif

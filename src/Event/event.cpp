@@ -12,8 +12,7 @@ Event::Event(std::string type, std::string unit, bool doOutput):
     valueInitialized(false),
     doOutput(doOutput)
 {
-    initialize();
-    reset();
+
 }
 
 

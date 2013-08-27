@@ -34,6 +34,8 @@ protected:
     bool checkSubFields(int i);
 
     void resetSubFields();
+
+    void initializeEvents();
     void resetEvents();
     void executeEvents();
     void dumpEvents();

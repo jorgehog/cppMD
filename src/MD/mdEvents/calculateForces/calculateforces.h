@@ -19,7 +19,8 @@ public:
 
     TwoBodyForce(mdSolver * solver, int nSpecies);
 
-    void initialize() {
+    virtual void initialize() {
+        std::cout << "I WAS CALLED" << std::endl;
         execute();
     }
 

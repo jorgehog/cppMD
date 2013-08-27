@@ -35,7 +35,8 @@ void SolverEvent::execute()
 {
 
     initialize();
-
+    mainMesh->initializeEvents();
+//    double a;
     for (int i = 0; i < N; ++i, T+=dt) {
         ensemble->pos.save(std::string("/home/jorgehog/tmp/mdPos") + (toStr(i) + ".arma"));
 

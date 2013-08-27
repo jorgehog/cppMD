@@ -26,7 +26,7 @@
  */
 
 #define ENS_PERIODIC_X
-//#define ENS_PERIODIC_Y
+#define ENS_PERIODIC_Y
 
 
 

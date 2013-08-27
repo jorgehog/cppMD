@@ -51,7 +51,7 @@ const vec LennardJonesForce::getForce(const int &i, const int &j)
 
     double sigmaOverR6 = pow(sigma*sigma/rRel2, 3);
 
-    force = 4*eps*(sigmaOverR6*(sigmaOverR6 - 1))*rRel/length;
+    force = 4*eps*(sigmaOverR6*sigmaOverR6 - sigmaOverR6)*rRel/length;
 
     return force;
 

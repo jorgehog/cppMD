@@ -52,7 +52,7 @@ int main()
     mat topology(2, 2);
     topology << 0 << ENS_NX << endr << 0 << ENS_NY;
 
-    mdSolver solver(0.01, 1000, nSpecies, sigmas, epses);
+    mdSolver solver(0.001, 1000, nSpecies, sigmas, epses);
 
     MainMesh M(topology, e, solver);
 

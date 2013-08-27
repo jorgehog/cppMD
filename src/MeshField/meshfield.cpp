@@ -54,6 +54,17 @@ void MeshField::resetSubFields()
     resetContents();
 }
 
+void MeshField::initializeEvents()
+{
+    for (MeshField* subfield : subFields){
+        subfield->initializeEvents();
+    }
+
+    for (Event* event : events){
+        event->initialize();
+    }
+}
+
 void MeshField::dumpEvents()
 {
     for (Event* event : events){
