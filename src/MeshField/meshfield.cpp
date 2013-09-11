@@ -5,24 +5,14 @@
 #include "../Event/event.h"
 
 MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::string description):
-    topology(topology),
     description(description)
 {
     this->ensemble = &ensemble;
 
-    //Evil haxx for changing const values
-    vec * vecPtr;
-    vecPtr = (vec*)(&shape);
-    *vecPtr = topology.col(1) - topology.col(0);;
-
-    //Calculate the volume
-    volume = 1;
-    for (int i = 0; i < ENS_DIM; ++i) {
-        volume *= shape(i);
-    }
-
+    setTopology(topology);
 
 }
+
 
 
 bool MeshField::isWithinThis(int i) {
@@ -49,21 +39,26 @@ void MeshField::resetSubFields()
     resetContents();
 }
 
-void MeshField::initializeEvents()
+void MeshField::initializeEvents(int *loopCycle, int N)
 {
     for (MeshField* subfield : subFields){
-        subfield->initializeEvents();
+        subfield->initializeEvents(loopCycle, N);
     }
 
     for (Event* event : events){
+
+        event->setN(N);
+        event->setLoopCyclePtr(loopCycle);
+
         event->initialize();
+
     }
 }
 
 void MeshField::dumpEvents()
 {
     for (Event* event : events){
-        if (event->doOutput) std::cout << event->dumpString() << std::endl;
+        if (event->notSilent()) std::cout << event->dumpString() << std::endl;
     }
 
     for (MeshField* subfield : subFields){
@@ -74,7 +69,7 @@ void MeshField::dumpEvents()
 void MeshField::executeEvents()
 {
     for (Event* event : events){
-        event->execute();
+        event->executeEvent();
     }
 
     for (MeshField* subfield : subFields){

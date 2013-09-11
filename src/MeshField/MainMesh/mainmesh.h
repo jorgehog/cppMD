@@ -11,19 +11,16 @@ class MainMesh : public MeshField
 public:
     MainMesh(const mat & topology, Ensemble &ensemble);
 
-    void updateContainments();
-
     int getPopulation() const {
         return ENS_N;
     }
 
-    void addSolverEvent(SolverEvent & solver);
-
-    void eventLoop();
+    void eventLoop(int N);
 
 private:
 
-    SolverEvent * solver;
+    void updateContainments();
+
 
 };
 

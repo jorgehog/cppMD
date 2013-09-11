@@ -2,16 +2,11 @@
 
 #include <assert.h>
 
-#include <boost/lexical_cast.hpp>
-#define toStr boost::lexical_cast<std::string>
-
-#include "../../Event/SolverEvent/solverevent.h"
 #include "../../Ensemble/ensemble.h"
 
 
 MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble):
-    MeshField(topology, ensemble, "MainMesh"),
-    solver(NULL)
+    MeshField(topology, ensemble, "MainMesh")
 {
 
     for (int i = 0; i < ENS_N; ++i) {
@@ -38,29 +33,14 @@ void MainMesh::updateContainments()
 
 }
 
-void MainMesh::addSolverEvent(SolverEvent &solver)
+void MainMesh::eventLoop(int N)
 {
-    solver.setMeshField(this);
-    solver.setEnsemble(ensemble);
-    this->solver = &solver;
-}
 
-void MainMesh::eventLoop()
-{
-    assert(solver != NULL);
+    int *i = new int(0);
 
-    solver->initialize();
-    initializeEvents();
+    initializeEvents(i, N);
 
-    double T = 0;
-    const double &dt = solver->dt;
-    const int &N = solver->N;
-
-    for (int i = 0; i < N; ++i, T+=dt) {
-
-        //TMP
-        ensemble->pos.save(std::string("/home/jorgehog/tmp/mdPos") + (toStr(i) + ".arma"));
-        //
+    while (*i < N) {
 
         updateContainments();       //1. Find which atoms are in which meshes
 
@@ -69,8 +49,7 @@ void MainMesh::eventLoop()
 
         resetEvents();              //4. Reset.
 
-        std::cout << "t = " << T << " / " << (N-1)*dt << std::endl;
-
+        *i = *i + 1;
     }
 }
 

@@ -30,7 +30,7 @@ protected:
 
     //These should all be executes from the MainMesh,
     //As they recursively call all subMeshes.
-    void initializeEvents();
+    void initializeEvents(int *loopCycle, int N);
     void resetEvents();
     void executeEvents();
     void dumpEvents();
@@ -50,6 +50,26 @@ protected:
 
     void resetContents(){
         atoms.clear();
+    }
+
+    void setTopology(const mat & topology) {
+
+        //Evil haxx for changing const values
+
+        mat * matPtr;
+        matPtr = (mat*)(&this->topology);
+        *matPtr = topology;
+
+        vec * vecPtr;
+        vecPtr = (vec*)(&shape);
+        *vecPtr = topology.col(1) - topology.col(0);
+
+        //Calculate the volume
+        volume = 1;
+        for (int i = 0; i < ENS_DIM; ++i) {
+            volume *= shape(i);
+        }
+
     }
 
 public:
@@ -76,12 +96,17 @@ public:
         return atoms.size();
     }
 
-    const std::vector<int> & getAtoms() {
+    const std::vector<int> & getAtoms() const {
         return atoms;
     }
 
+    const Ensemble * getEnsemble () const {
+        return ensemble;
+    }
+
     friend class MainMesh;
-    friend class fieldSampler;
+    friend class AddPressure;
+
 };
 
 

@@ -1,19 +1,23 @@
 #ifndef MDSOLVER_H
 #define MDSOLVER_H
 
-#include "../Event/SolverEvent/solverevent.h"
+#include "../Event/event.h"
 
-class mdSolver : public SolverEvent
+#include <math.h>
+
+class mdSolver : public Event
 {
 public:
 
-    mdSolver(double dt, int N, double T0);
+    mdSolver(double T0, double dt) : Event(), sqrtkT0(sqrt(T0)), dt(dt) {}
 
 private:
 
     double sqrtkT0;
+    double dt;
 
     void initialize();
+    void execute() {}
 
 };
 

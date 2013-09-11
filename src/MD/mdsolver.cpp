@@ -1,25 +1,12 @@
 #include "mdsolver.h"
 
+#include "../MeshField/MainMesh/mainmesh.h"
 #include "../Event/predefinedEvents/predefinedevents.h"
-
-#include "../Ensemble/ensemble.h"
-
-#include <stdlib.h>
-#include <time.h>
-
-#include "../Event/event.h"
-
-
-mdSolver::mdSolver(double dt, int N, double T0):
-    SolverEvent(dt, N),
-    sqrtkT0(sqrt(datum::k*T0))
-{
-
-
-}
+#include "../gears.h"
 
 void mdSolver::initialize()
 {
+
     double dx = meshField->shape(0)/ENS_NX;
     double dy = meshField->shape(1)/ENS_NY;
 
@@ -46,6 +33,7 @@ void mdSolver::initialize()
         }
     }
 
+//    std::cout << sqrtkT0 << std::endl;
     ensemble->vel.randn();
     for (int i = 0; i < ENS_N; ++i) {
         for (int k = 0; k < ENS_DIM; ++k) {
@@ -53,8 +41,6 @@ void mdSolver::initialize()
         }
     }
 
-    std::cout << "mean" << mean(ensemble->vel, 1) << std::endl;
-    std::cout << "max" << max(ensemble->pos, 1) << std::endl;
-
+    gears::cancelLinearMomentum(ensemble->vel);
 
 }
