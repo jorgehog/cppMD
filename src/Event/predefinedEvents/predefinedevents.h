@@ -5,8 +5,6 @@
 #include "../../Event/event.h"
 #include "../../Ensemble/ensemble.h"
 #include "../../MeshField/meshfield.h"
-#include "../../MeshField/MainMesh/mainmesh.h"
-#include "../../MD/mdsolver.h"
 #include "../../Sampler/sampler.h"
 
 

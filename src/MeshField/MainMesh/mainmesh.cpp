@@ -1,85 +1,21 @@
 #include "mainmesh.h"
 
+#include <assert.h>
+
+#include <boost/lexical_cast.hpp>
+#define toStr boost::lexical_cast<std::string>
+
 #include "../../Event/SolverEvent/solverevent.h"
 #include "../../Ensemble/ensemble.h"
 
-MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble, SolverEvent  & solver):
-    MeshField(topology, ensemble, "MainMesh")
+
+MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble):
+    MeshField(topology, ensemble, "MainMesh"),
+    solver(NULL)
 {
-    this->solver = &solver;
-
-    //Initialize the solver
-    solver.setMeshField(NULL);
-    solver.setMainMesh(this);
-    solver.setEnsemble(&ensemble);
-
-    ldi(0) = -1;
-    ldi(1) = 0;
-    ldi(2) = 1;
 
     for (int i = 0; i < ENS_N; ++i) {
         atoms.push_back(i);
-    }
-
-}
-
-void MainMesh::leastDistance(vec &leastRel, double &leastRel2, int i, int j)
-{
-
-    //if we have no periodicity, we are done.
-#if !defined (ENS_PERIODIC_X) && !defined (ENS_PERIODIC_Y) && !defined (ENS_PERIODIC_Z)
-
-    leastRel = ensemble->pos.col(i) - ensemble->pos.col(j);
-    leastRel2 = 0;
-    for (int k = 0; k < ENS_DIM; ++k) {
-        leastRel2 += leastRel(k)*leastRel(k);
-    }
-
-#else
-
-    leastRel2 = 1E23;
-    vec orig(2);
-
-    for (int c0 = 0; c0 < 3; ++c0) {
-        for (int c1 = 0; c1 < 3; ++c1) {
-            orig(0) = ensemble->pos(0, i) + ldi(c0)*shape(0);
-            orig(1) = ensemble->pos(1, i) + ldi(c1)*shape(1);
-
-            vec leastRelTest = orig - ensemble->pos.col(j);
-            double leastRel2Test = 0;
-            for (int k = 0; k < ENS_DIM; ++k) {
-                leastRel2Test += leastRelTest(k)*leastRelTest(k);
-            }
-
-            if (leastRel2Test < leastRel2) {
-                leastRel2 = leastRel2Test;
-                leastRel = leastRelTest;
-            }
-
-        }
-    }
-
-    //Can be optimized alot
-
-#endif
-
-    //TODO PARTIAL PERIODICITY
-}
-
-void MainMesh::cancelLinearMomentum()
-{
-    vec pTot = zeros<vec>(ENS_DIM);
-
-    for (int k = 0; k < ENS_N; ++k) {
-        pTot += ensemble->vel.col(k);
-    }
-
-    pTot /= ENS_N;
-
-    for (int i = 0; i < ENS_N; ++i) {
-        for (int j = 0; j < ENS_DIM; ++j) {
-            ensemble->vel(j, i) -= pTot(j);
-        }
     }
 
 }
@@ -100,6 +36,42 @@ void MainMesh::updateContainments()
 
     }
 
+}
+
+void MainMesh::addSolverEvent(SolverEvent &solver)
+{
+    solver.setMeshField(this);
+    solver.setEnsemble(ensemble);
+    this->solver = &solver;
+}
+
+void MainMesh::eventLoop()
+{
+    assert(solver != NULL);
+
+    solver->initialize();
+    initializeEvents();
+
+    double T = 0;
+    const double &dt = solver->dt;
+    const int &N = solver->N;
+
+    for (int i = 0; i < N; ++i, T+=dt) {
+
+        //TMP
+        ensemble->pos.save(std::string("/home/jorgehog/tmp/mdPos") + (toStr(i) + ".arma"));
+        //
+
+        updateContainments();       //1. Find which atoms are in which meshes
+
+        executeEvents();            //2. Let each mesh execute their events on these atoms
+        dumpEvents();               //3. Let each event dump their output
+
+        resetEvents();              //4. Reset.
+
+        std::cout << "t = " << T << " / " << (N-1)*dt << std::endl;
+
+    }
 }
 
 

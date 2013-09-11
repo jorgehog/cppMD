@@ -8,13 +8,8 @@ class SolverEvent;
 class MainMesh : public MeshField
 {
 
-
 public:
-    MainMesh(const mat & topology, Ensemble &ensemble, SolverEvent &solver);
-
-    void leastDistance(vec & leastRel, double &leastRel2, int i, int j);
-
-    void cancelLinearMomentum();
+    MainMesh(const mat & topology, Ensemble &ensemble);
 
     void updateContainments();
 
@@ -22,13 +17,13 @@ public:
         return ENS_N;
     }
 
+    void addSolverEvent(SolverEvent & solver);
 
-    friend class SolverEvent;
+    void eventLoop();
 
 private:
-    SolverEvent * solver;
-    ivec::fixed<3> ldi; //least distance iterator
 
+    SolverEvent * solver;
 
 };
 

@@ -10,34 +10,18 @@
 #include "../Event/event.h"
 
 
-mdSolver::mdSolver(double dt, int N, int nSpecies, double T0, const double *sigmas, const double *epses):
+mdSolver::mdSolver(double dt, int N, double T0):
     SolverEvent(dt, N),
-    nSpecies(nSpecies),
-    T0(T0),
     sqrtkT0(sqrt(datum::k*T0))
 {
 
-    sigmaTable.set_size(nSpecies, nSpecies);
-    epsTable.set_size(nSpecies, nSpecies);
-
-    for (int i = 0; i < nSpecies; ++i) {
-        for (int j = 0; j < nSpecies; ++j) {
-            sigmaTable(i, j) = 0.5*(sigmas[i] + sigmas[j]);
-            epsTable(i, j) = sqrt(epses[i]*epses[j]);
-        }
-    }
-
-    solverSpecificEvents.push_back(new VelocityVerletFirstHalf(dt));
-    solverSpecificEvents.push_back(new LennardJonesForce(this, nSpecies));
-    solverSpecificEvents.push_back(new periodicScaling());
-    solverSpecificEvents.push_back(new VelocityVerletSecondHalf(dt));
 
 }
 
 void mdSolver::initialize()
 {
-    double dx = mainMesh->shape(0)/ENS_NX;
-    double dy = mainMesh->shape(1)/ENS_NY;
+    double dx = meshField->shape(0)/ENS_NX;
+    double dy = meshField->shape(1)/ENS_NY;
 
 #if ENS_DIM == 3
     double dz = mainMesh->shape(2)/ENS_NZ;

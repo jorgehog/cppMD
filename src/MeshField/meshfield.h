@@ -28,6 +28,8 @@ protected:
     bool checkSubFields(int i);
     void resetSubFields();
 
+    //These should all be executes from the MainMesh,
+    //As they recursively call all subMeshes.
     void initializeEvents();
     void resetEvents();
     void executeEvents();
