@@ -9,9 +9,17 @@ using namespace arma;
 
 struct Ensemble
 {
+
     mat::fixed<ENS_DIM, ENS_N> pos;
     mat::fixed<ENS_DIM, ENS_N> vel;
     mat::fixed<ENS_DIM, ENS_N> forces;
+
+    const vec masses;
+
+    const int nSpecies;
+
+    Ensemble(const vec & masses) : masses(masses), nSpecies(masses.n_elem) {}
+
 };
 
 #endif // MD_ENSEMBLE_H

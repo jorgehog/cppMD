@@ -106,6 +106,7 @@ public:
 
     friend class MainMesh;
     friend class AddPressure;
+    friend class ExpandMesh;
 
 };
 

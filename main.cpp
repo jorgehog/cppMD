@@ -37,16 +37,22 @@ int main()
     double dt = root["solver"]["dt"];
     int N = root["solver"]["N"];
     int therm = root["solver"]["therm"];
+    double m = root["solver"]["tightness"];
 
     double T0 = root["mainThermostat"]["bathTemperature"];
     double tau = ((double)root["mainThermostat"]["tauOverDt"])*dt;
 
 
     int nSpecies = root["ensembleParameters"]["nSpecies"];
+
     mat sigmaTable(nSpecies, nSpecies);
     mat epsTable(nSpecies, nSpecies);
+    vec masses(nSpecies);
 
     for (int i = 0; i < nSpecies; ++i) {
+
+        masses(i) = (double)root["ensembleParameters"]["masses"][i];
+
         for (int j = 0; j < nSpecies; ++j) {
             sigmaTable(i, j) = 0.5*((double)root["ensembleParameters"]["sigmas"][i] +
                                     (double)root["ensembleParameters"]["sigmas"][j]);
@@ -56,18 +62,27 @@ int main()
         }
     }
 
+    assert(sigmaTable(0,0) == 1. && "We are working in reduced units.");
+    assert(epsTable(0,0) == 1. && "We are working in reduced units.");
+    assert(masses(0) == 1. && "We are working in reduced units.");
+
 
     double delay = root["DCViz"]["delay"];
 
+    int pTime = (int)root["Events"]["Pressure"]["pTimeMinusTherm"] + therm;
+    int expTime = (int)root["Events"]["Expansion"]["timeMinusPtime"] + pTime;
+    int direction = (int)root["Events"]["Pressure"]["direction"];
+
+    double delta = 1.0 - (double) root["Events"]["Pressure"]["instaStrain"];
+    double tScale = (double) root["Events"]["Thermostats"]["temperatureScaleFactor"];
 
 
     /*
      * Creating the main mesh
      */
 
-    Ensemble ensemble;
+    Ensemble ensemble(masses);
 
-    double m = max(max(sigmaTable));
     double Lx = ENS_NX*m;
     double Ly = ENS_NY*m;
 
@@ -83,6 +98,9 @@ int main()
 
     mdSolver molecularDynamicsSolver(T0, dt);
     mainMesh.addEvent(molecularDynamicsSolver);
+
+    SaveToFile saveToFile(1);
+    mainMesh.addEvent(saveToFile);
 
     VelocityVerletFirstHalf  VelocityVerlet1(dt);
     mainMesh.addEvent(VelocityVerlet1);
@@ -104,22 +122,20 @@ int main()
     ReportProgress progressReport;
     mainMesh.addEvent(progressReport);
 
-    SaveToFile saveToFile(10);
-    saveToFile.setOnsetTime(therm);
-    mainMesh.addEvent(saveToFile);
-
-    AddPressure addPressure(0.9, 0);
-    addPressure.setTrigger(500);
+    AddPressure addPressure(delta, direction);
+    addPressure.setTrigger(pTime);
     mainMesh.addEvent(addPressure);
 
+    ExpandMesh expansion(1.0/delta, direction);
+    expansion.setTrigger(expTime);
+    mainMesh.addEvent(expansion);
+
     LauchDCViz launchDCViz(delay);
-    launchDCViz.setTrigger(therm);
     mainMesh.addEvent(launchDCViz);
 
     /*
      * Creating and adding three subFields on the solver, each with their own thermostat.
      */
-
 
     mat topologyUpper (2, 2);
     mat topologyMiddle(2, 2);
@@ -133,9 +149,9 @@ int main()
     MeshField subFieldMiddle(topologyMiddle, ensemble, "coolMiddle");
     MeshField subFieldLower (topologyLower , ensemble, "heatLower");
 
-    double tTop = T0*2;
-    double tMid = T0/5;
-    double tLow = T0*2;
+    double tTop = T0*tScale;
+    double tMid = T0/tScale;
+    double tLow = T0*tScale;
 
     BerendsenThermostat thermoUpper (tTop, tau, dt);
     BerendsenThermostat thermoMiddle(tMid, tau, dt);

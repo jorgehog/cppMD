@@ -7,6 +7,14 @@
 void mdSolver::initialize()
 {
 
+//    int KS = 0;
+//    int sad;
+
+//    SaveToFile s(1);
+//    s.setEnsemble(ensemble);
+//    s.setLoopCyclePtr(&KS);
+//    s.setMeshField(meshField);
+
     double dx = meshField->shape(0)/ENS_NX;
     double dy = meshField->shape(1)/ENS_NY;
 
@@ -16,14 +24,14 @@ void mdSolver::initialize()
 #endif
 
         int n = -1;
-
         for (int i = 0; i < ENS_NX; ++i) {
             for (int j = 0; j < ENS_NY; ++j) {
                 n++;
 
-                ensemble->pos(0, n) = i*dx;
+                ensemble->pos(0, n) = (i + 0.5*(j % 2))*dx;
                 ensemble->pos(1, n) = j*dy;
 
+//                s.execute();
 
 #if ENS_DIM == 3
                 ensemble->pos(2, n) = k*dz;
@@ -33,7 +41,9 @@ void mdSolver::initialize()
         }
     }
 
-//    std::cout << sqrtkT0 << std::endl;
+
+
+    //    std::cout << sqrtkT0 << std::endl;
     ensemble->vel.randn();
     for (int i = 0; i < ENS_N; ++i) {
         for (int k = 0; k < ENS_DIM; ++k) {
@@ -41,6 +51,6 @@ void mdSolver::initialize()
         }
     }
 
-    gears::cancelLinearMomentum(ensemble->vel);
+    gears::cancelLinearMomentum(ensemble);
 
 }

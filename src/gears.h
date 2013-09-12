@@ -11,19 +11,28 @@ using namespace arma;
 
 namespace gears {
 
-inline void cancelLinearMomentum(mat & vel)
+inline void cancelLinearMomentum(Ensemble* ensemble)
 {
     vec pTot = zeros<vec>(ENS_DIM);
 
+    //retrieve ensemble values;
+    const vec & masses = ensemble->masses;
+    mat & vel = ensemble->vel;
+    const int & N = ensemble->nSpecies;
+
+
+    //Calculates total linear momentum
     for (int k = 0; k < ENS_N; ++k) {
-        pTot += vel.col(k);
+        pTot += masses(k%N)*vel.col(k);
     }
+
 
     pTot /= ENS_N;
 
+    //subtract the velocity in such a way that the momentum is zero.
     for (int i = 0; i < ENS_N; ++i) {
         for (int j = 0; j < ENS_DIM; ++j) {
-            vel(j, i) -= pTot(j);
+            vel(j, i) -= pTot(j)/masses(i%N);
         }
     }
 
@@ -31,20 +40,26 @@ inline void cancelLinearMomentum(mat & vel)
 
 inline double getKineticEnergy(const MeshField * mf){
 
+    double vVecSquared;
     double Ek = 0;
 
-    const int MASS = 1;
+    const Ensemble* ensemble = mf->getEnsemble();
+
+    const vec & masses = ensemble->masses;
+    const int & N = ensemble->nSpecies;
 
     const std::vector<int> & atoms = mf->getAtoms();
+
     for (const int & k : atoms) {
-        Ek += mf->getEnsemble()->vel(0, k)*mf->getEnsemble()->vel(0, k)
-                + mf->getEnsemble()->vel(1, k)*mf->getEnsemble()->vel(1, k);
+        vVecSquared = ensemble->vel(0, k)*ensemble->vel(0, k)
+                + ensemble->vel(1, k)*ensemble->vel(1, k);
 #if ENS_DIM == 3
-        Ek += mf->getEnsemble()->vel(2, k)*mf->getEnsemble()->vel(2, k);
+        vVecSquared += ensemble->vel(2, k)*ensemble->vel(2, k);
 #endif
+        Ek += masses(k%N)*vVecSquared;
     }
 
-    return 0.5*MASS*Ek;
+    return 0.5*Ek;
 
 }
 

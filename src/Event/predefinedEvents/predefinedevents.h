@@ -72,12 +72,13 @@ public:
     VelocityVerletFirstHalf(double dt) : Event("VV1"), dt(dt) {}
 
     void execute() {
-        //        std::cout <<"MAX F " << max(ensemble->forces, 1) << std::endl;
-        //        std::cout <<"MEAN F " << mean(ensemble->forces, 1) << std::endl;
-        //        std::cout <<"STD F " << stddev(ensemble->forces, 1, 1) << std::endl;
+
+        int m;
         for (int i = 0; i < ENS_N; ++i) {
+
+            m = ensemble->masses(i%ensemble->nSpecies);
             for (int k = 0; k < ENS_DIM; ++k) {
-                ensemble->vel(k, i) += ensemble->forces(k, i)*dt/2;
+                ensemble->vel(k, i) += ensemble->forces(k, i)*dt/(2*m);
                 ensemble->pos(k, i) += ensemble->vel(k, i);
             }
         }
@@ -94,14 +95,19 @@ public:
     VelocityVerletSecondHalf(double dt) : Event("VV2"), dt(dt) {}
 
     void execute() {
+
+        int m;
         for (int i = 0; i < ENS_N; ++i) {
+
+            m = ensemble->masses(i%ensemble->nSpecies);
             for (int k = 0; k < ENS_DIM; ++k) {
-                ensemble->vel(k, i) += ensemble->forces(k, i)*dt/2;
+                ensemble->vel(k, i) += ensemble->forces(k, i)*dt/(2*m);
             }
         }
     }
 
 private:
+
     double dt;
 
 };
@@ -227,7 +233,6 @@ public:
         assert(xyz >= 0);
         assert(xyz < ENS_DIM);
         assert(delta > 0);
-        assert(delta < 1);
     }
 
     void execute() {
@@ -241,35 +246,45 @@ public:
         newTopology(xyz, 0) += deltaL;
         newTopology(xyz, 1) -= deltaL;
 
-        meshField->setTopology(newTopology);
+        meshField->setTopology(newTopology); //Reshape the mesh
 
-        double pos;
-        double posFromCenter;
         for (int i = 0; i < ENS_N; ++i) {
-            pos = ensemble->pos(xyz, i);
-            if (pos > L/2){
-                posFromCenter = C - pos;
-                ensemble->pos(xyz, i) = C - delta*posFromCenter;
-            } else {
-                posFromCenter = pos - C;
-                ensemble->pos(xyz, i) = C + delta*posFromCenter;
-            }
-
+            ensemble->pos(xyz, i) =  C*(1-delta) + delta*ensemble->pos(xyz, i);
         }
     }
 
-private:
+protected:
 
     double delta;
     int xyz;
 
 };
 
-
-class SaveToFile : public OnsetEvent {
+class ExpandMesh : public AddPressure {
 public:
 
-    SaveToFile(int freq) : OnsetEvent(), freq(freq) {}
+    ExpandMesh(double delta, int xyz) : AddPressure(delta, xyz) {
+        assert(delta > 1 && "Expansion must have delta>1");
+    }
+
+    void execute() {
+
+        double L = meshField->shape(xyz); //The length
+        double deltaL = (delta - 1)*L/2; //The length to remove at each ends
+
+        mat newTopology = meshField->topology;
+        newTopology(xyz, 0) -= deltaL;
+        newTopology(xyz, 1) += deltaL;
+
+        meshField->setTopology(newTopology);
+    }
+};
+
+
+class SaveToFile : public Event {
+public:
+
+    SaveToFile(int freq) : Event(), freq(freq) {}
 
     void execute() {
         if ((*loopCycle % freq) == 0) {
@@ -282,19 +297,21 @@ private:
 
 };
 
-class LauchDCViz : public TriggerEvent {
+class LauchDCViz : public Event {
 
 public:
 
-    LauchDCViz(int delay) : TriggerEvent(), delay(delay), viz("/home/jorgehog/tmp/mdPos0.arma") {}
+    LauchDCViz(double delay) : Event(), delay(delay), viz("/home/jorgehog/tmp/mdPos0.arma") {}
 
-    void execute() {
-        viz.launch(true, delay);
+    void initialize() {
+        viz.launch(true, delay, 15, 14);
     }
+
+    void execute() {}
 
 private:
 
-    int delay;
+    double delay;
 
     DCViz viz;
 
