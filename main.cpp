@@ -6,18 +6,7 @@ using namespace arma;
 using namespace libconfig;
 
 #include <mpi.h>
-#include "src/defines.h"
-
-#include "src/Ensemble/ensemble.h"
-#include "src/MeshField/meshfield.h"
-#include "src/MeshField/MainMesh/mainmesh.h"
-
-#include "src/Event/event.h"
-#include "src/Event/predefinedEvents/predefinedevents.h"
-#include "src/MD/mdsolver.h"
-
-#include "src/MD/forces/forces.h"
-
+#include "cppMD.h"
 
 int main()
 {
@@ -26,7 +15,7 @@ int main()
     wall_clock timer;
 
     Config cfg;
-    cfg.readFile("../MD/configMD.cfg");
+    cfg.readFile("../../cppMD/configMD.cfg");
 
     const Setting & root = cfg.getRoot();
 
@@ -130,8 +119,8 @@ int main()
     expansion.setTrigger(expTime);
     mainMesh.addEvent(expansion);
 
-    LauchDCViz launchDCViz(delay);
-    mainMesh.addEvent(launchDCViz);
+//    LauchDCViz launchDCViz(delay);
+//    mainMesh.addEvent(launchDCViz);
 
     /*
      * Creating and adding three subFields on the solver, each with their own thermostat.

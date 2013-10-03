@@ -23,7 +23,8 @@ HEADERS += \
     src/MD/mdsolver.h \
     src/Event/predefinedEvents/predefinedevents.h \
     src/gears.h \
-    src/MD/forces/forces.h
+    src/MD/forces/forces.h \
+    cppMD.h
 
 OTHER_FILES += configMD.cfg
 
