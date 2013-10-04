@@ -6,18 +6,7 @@ using namespace arma;
 using namespace libconfig;
 
 #include <mpi.h>
-#include "src/defines.h"
-
-#include "src/Ensemble/ensemble.h"
-#include "src/MeshField/meshfield.h"
-#include "src/MeshField/MainMesh/mainmesh.h"
-
-#include "src/Event/event.h"
-#include "src/Event/predefinedEvents/predefinedevents.h"
-#include "src/MD/mdsolver.h"
-
-#include "src/MD/forces/forces.h"
-
+#include "cppMD.h"
 
 int main()
 {
@@ -156,7 +145,6 @@ int main()
 
     ExpandMesh expansion(expansionDelta, expansionDirection, false, expansionTime, expansionTime + expansionLength);
     mainMesh.addEvent(expansion);
-
 
 
     /*

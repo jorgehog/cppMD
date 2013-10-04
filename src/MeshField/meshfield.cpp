@@ -211,30 +211,30 @@ void MeshField::stretchField(double deltaL, int xyz)
 
 void MeshField::scaleField(const mat & oldTopology, const mat & newTopology){
 
-    mat newSubTopology(ENS_DIM, 2);
+//    mat newSubTopology(ENS_DIM, 2);
 
-    double shapefac, dx;
+//    double shapefac, dx;
 
-    for (int i = 0; i < ENS_DIM; ++i) {
+//    for (int i = 0; i < ENS_DIM; ++i) {
 
-        shapefac = (newTopology(i, 1) - newTopology(i, 0))/oldShape(i);
+//        shapefac = (newTopology(i, 1) - newTopology(i, 0))/oldShape(i);
 
-        dx = (topology(i, 0) - newTopology(i, 0));
+//        dx = (topology(i, 0) - newTopology(i, 0));
 
-        assert(dx >= 0);
+//        assert(dx >= 0);
 
-        if (oldTopology(i, 0) != 0) {
-            newSubTopology(i, 0) = newTopology(i, 0)*topology/oldTopology(i, 0);
-        } else {
-            newSubTopology(i, 0) =
-        }
-        newSubTopology(i, 1) = newSubTopology(i, 0) + shape(i)*shapefac;
+//        if (oldTopology(i, 0) != 0) {
+//            newSubTopology(i, 0) = newTopology(i, 0)*topology/oldTopology(i, 0);
+//        } else {
+//            newSubTopology(i, 0) =
+//        }
+//        newSubTopology(i, 1) = newSubTopology(i, 0) + shape(i)*shapefac;
 
-    }
+//    }
 
-    setTopology(newSubTopology);
+//    setTopology(newSubTopology);
 
-    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
+//    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
 
 }
 

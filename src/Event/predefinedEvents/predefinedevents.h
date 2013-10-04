@@ -1,7 +1,9 @@
 #ifndef PREDEFINEDEVENTS_H
 #define PREDEFINEDEVENTS_H
 
+#ifndef NO_DCVIZ
 #include <DCViz.h>
+#endif
 #include <assert.h>
 
 #include <boost/lexical_cast.hpp>
