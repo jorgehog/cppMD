@@ -188,7 +188,7 @@ void MeshField::addSubField(MeshField  & subField)
         issue.col(1)*=-1;
 
         std::cout << "Issue at negative region:\n" << issue << std::endl;
-        exit(1);
+        throw *incorrectSubMeshPlacementException;
         return;
     }
 
@@ -233,7 +233,7 @@ void MeshField::scaleField(const vec & oldShape, const mat & oldTopology, const 
 
     setTopology(newSubTopology);
 
-    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
+//    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
 
 }
 

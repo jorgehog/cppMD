@@ -8,9 +8,19 @@ using namespace arma;
 
 #include <string>
 #include <vector>
+#include <exception>
 
 struct Ensemble;
 class Event;
+
+class incorrectSubMeshPlacementException : public std::exception {
+
+    virtual const char* what() const throw()
+    {
+        return "Illegal placement of SubMesh";
+    }
+
+};
 
 class MeshField
 {
@@ -38,6 +48,9 @@ protected:
     void resetEvents();
     void executeEvents();
     void dumpEvents();
+
+    std::exception * incorrectSubMeshPlacementException;
+
 
     bool append(int i) {
 
@@ -116,6 +129,22 @@ public:
 
     const Ensemble * getEnsemble () const {
         return ensemble;
+    }
+
+    std::vector<MeshField*> getSubfields(){
+        return subFields;
+    }
+
+    std::vector<Event*> getEvents(){
+        return events;
+    }
+
+    void removeEvent(int i){
+        events.erase(events.begin() + i);
+    }
+
+    void removeSubMesh(int i){
+        subFields.erase(subFields.begin() + i);
     }
 
     friend class MainMesh;

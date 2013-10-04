@@ -43,6 +43,10 @@ public:
         return id;
     }
 
+    std::string getType(){
+        return type;
+    }
+
     static int getCounter(){
         return counter;
     }

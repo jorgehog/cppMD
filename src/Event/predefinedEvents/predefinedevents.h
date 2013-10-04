@@ -25,7 +25,7 @@
 class periodicScaling : public Event {
 public:
 
-    periodicScaling() : Event("PS") {}
+    periodicScaling() : Event("PeriodicRescale") {}
 
 
     //Hey, what I mean to say is that I rescale all positions to fit the mesh _if_ they are set to
@@ -71,11 +71,11 @@ public:
 class VelocityVerletFirstHalf : public Event {
 public:
 
-    VelocityVerletFirstHalf(double dt) : Event("VV1"), dt(dt) {}
+    VelocityVerletFirstHalf(double dt) : Event("VelVer1"), dt(dt) {}
 
     void execute() {
 
-        int m;
+        double m;
         for (int i = 0; i < ENS_N; ++i) {
 
             m = ensemble->masses(i%ensemble->nSpecies);
@@ -97,11 +97,11 @@ private:
 class VelocityVerletSecondHalf : public Event {
 public:
 
-    VelocityVerletSecondHalf(double dt) : Event("VV2"), dt(dt) {}
+    VelocityVerletSecondHalf(double dt) : Event("VelVer2"), dt(dt) {}
 
     void execute() {
 
-        int m;
+        double m;
         for (int i = 0; i < ENS_N; ++i) {
 
             m = ensemble->masses(i%ensemble->nSpecies);
@@ -172,8 +172,6 @@ public:
         thermostat(T0, tau, dt) {}
 
     void execute() {
-        std::cout << meshField->description << std::endl << meshField->topology << std::endl;
-        std::cout << "---------------" << std::endl;
         getGamma();
 
         for (const int & i : meshField->getAtoms()) {
@@ -234,7 +232,7 @@ public:
     ContractMesh(double delta, int xyz,
                  int onTime = UNSET_EVENT_TIME,
                  int offTime = UNSET_EVENT_TIME) :
-        OnsetEvent("Pressure"),
+        OnsetEvent("CompressMesh"),
         delta(delta),
         xyz(xyz)
     {
@@ -285,7 +283,10 @@ public:
         ContractMesh(delta, xyz, onTime, offTime),
         pull(pull)
     {
+
+        type = "ExpandMesh";
         assert(delta > 1 && "Expansion must have delta>1");
+
     }
 
     void execute() {
@@ -315,7 +316,7 @@ private:
 class SaveToFile : public Event {
 public:
 
-    SaveToFile(int freq) : Event(), freq(freq) {}
+    SaveToFile(int freq) : Event("SaveData"), freq(freq) {}
 
     void execute() {
         if ((*loopCycle % freq) == 0) {
