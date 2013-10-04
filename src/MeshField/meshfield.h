@@ -60,7 +60,7 @@ protected:
 
         if (recursive) {
             for (MeshField * subField : subFields) {
-                subField->scaleField(this->topology, topology);
+                subField->scaleField(shape, this->topology, topology);
             }
         }
 
@@ -98,7 +98,7 @@ public:
 
     void stretchField(double l, int xyz);
 
-    void scaleField(const mat &oldTopology, const mat &newTopology);
+    void scaleField(const vec & oldShape, const mat &oldTopology, const mat &newTopology);
 
     virtual bool isWithinThis(int i);
 

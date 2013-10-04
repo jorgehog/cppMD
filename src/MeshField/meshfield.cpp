@@ -209,32 +209,31 @@ void MeshField::stretchField(double deltaL, int xyz)
 
 }
 
-void MeshField::scaleField(const mat & oldTopology, const mat & newTopology){
+void MeshField::scaleField(const vec & oldShape, const mat & oldTopology, const mat & newTopology){
 
-//    mat newSubTopology(ENS_DIM, 2);
+    mat newSubTopology(ENS_DIM, 2);
 
-//    double shapefac, dx;
+    double oldCOM, newCOM, shapeFac, newShape_i, newSubShape_i;
 
-//    for (int i = 0; i < ENS_DIM; ++i) {
+    for (int i = 0; i < ENS_DIM; ++i) {
 
-//        shapefac = (newTopology(i, 1) - newTopology(i, 0))/oldShape(i);
+        newShape_i = newTopology(i, 1) - newTopology(i, 0);
+        shapeFac = newShape_i/oldShape(i);
 
-//        dx = (topology(i, 0) - newTopology(i, 0));
+        newSubShape_i = shapeFac*shape(i);
 
-//        assert(dx >= 0);
+        oldCOM = topology(i, 1) - shape(i)/2 - oldTopology(i, 0);
 
-//        if (oldTopology(i, 0) != 0) {
-//            newSubTopology(i, 0) = newTopology(i, 0)*topology/oldTopology(i, 0);
-//        } else {
-//            newSubTopology(i, 0) =
-//        }
-//        newSubTopology(i, 1) = newSubTopology(i, 0) + shape(i)*shapefac;
+        newCOM = shapeFac*oldCOM;
 
-//    }
+        newSubTopology(i, 0) = newTopology(i, 0) + newCOM - newSubShape_i/2;
+        newSubTopology(i, 1) = newTopology(i, 0) + newCOM + newSubShape_i/2;
 
-//    setTopology(newSubTopology);
+    }
 
-//    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
+    setTopology(newSubTopology);
+
+    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
 
 }
 
