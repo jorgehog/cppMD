@@ -69,13 +69,22 @@ int main()
 
     double delay = root["DCViz"]["delay"];
 
-    int pTime = (int)root["Events"]["Pressure"]["pTimeMinusTherm"] + therm;
-    int expTime = (int)root["Events"]["Expansion"]["timeMinusPtime"] + pTime;
-    int direction = (int)root["Events"]["Pressure"]["direction"];
+    int contractionTime =        (int)root["Events"]["Contraction"]["timeMinusTherm"] + therm;
+    int contractionDirection =   (int)root["Events"]["Contraction"]["direction"];
+    int contractionLength =      (int)root["Events"]["Contraction"]["length"];
+    double contractionDelta = (double)root["Events"]["Contraction"]["delta"];
 
-    double delta = 1.0 - (double) root["Events"]["Pressure"]["instaStrain"];
-    double tScale = (double) root["Events"]["Thermostats"]["temperatureScaleFactor"];
+    int expansionTime =        (int)root["Events"]["Expansion"]["timeMinusContractionTime"] + contractionTime;
+    int expansionDirection =   (int)root["Events"]["Expansion"]["direction"];
+    int expansionLength =     ((int)root["Events"]["Expansion"]["lengthOverContractionLength"])*contractionLength;
+    double expansionDelta = (double)root["Events"]["Expansion"]["delta"];
 
+    double tScaleWarm = (double) root["Events"]["Thermostats"]["temperatureScaleFactorWarm"];
+    double tScaleCold = (double) root["Events"]["Thermostats"]["temperatureScaleFactorCold"];
+
+    double tWidth = (double) root["Events"]["Thermostats"]["widthFactor"];
+
+    double initialDelta = (double) root["solver"]["initialDelta"];
 
     /*
      * Creating the main mesh
@@ -91,6 +100,18 @@ int main()
 
     MainMesh mainMesh(topology, ensemble);
 
+
+    int therm10 = therm/10;
+    ExpandMesh     initialExpansionX(initialDelta,    0, true, 2*therm10-1, 3*therm10-1);
+    ExpandMesh     initialExpansionY(initialDelta,    1, true, 2*therm10-1, 3*therm10-1);
+    ContractMesh initialContractionX(1./(initialDelta*m), 0, 5*therm10, 8*therm10);
+    ContractMesh initialContractionY(1./(initialDelta*m), 1, 5*therm10, 8*therm10);
+
+
+    mainMesh.addEvent(initialContractionX);
+    mainMesh.addEvent(initialContractionY);
+    mainMesh.addEvent(initialExpansionX);
+    mainMesh.addEvent(initialExpansionY);
 
     /*
      * Creating and adding events to the MainMesh
@@ -122,16 +143,21 @@ int main()
     ReportProgress progressReport;
     mainMesh.addEvent(progressReport);
 
-    AddPressure addPressure(delta, direction);
-    addPressure.setTrigger(pTime);
-    mainMesh.addEvent(addPressure);
-
-    ExpandMesh expansion(1.0/delta, direction);
-    expansion.setTrigger(expTime);
-    mainMesh.addEvent(expansion);
-
     LauchDCViz launchDCViz(delay);
     mainMesh.addEvent(launchDCViz);
+
+
+    /*
+     *  Onset Events
+     */
+
+    ContractMesh contraction(contractionDelta, contractionDirection, contractionTime, contractionTime + contractionLength);
+    mainMesh.addEvent(contraction);
+
+    ExpandMesh expansion(expansionDelta, expansionDirection, false, expansionTime, expansionTime + expansionLength);
+    mainMesh.addEvent(expansion);
+
+
 
     /*
      * Creating and adding three subFields on the solver, each with their own thermostat.
@@ -141,17 +167,28 @@ int main()
     mat topologyMiddle(2, 2);
     mat topologyLower (2, 2);
 
-    topologyUpper  << 0 << Lx << endr <<    0    << 0.25*Ly;
-    topologyMiddle << 0 << Lx << endr <<  0.4*Ly <<  0.6*Ly;
-    topologyLower  << 0 << Lx << endr << 0.75*Ly <<      Ly;
+    topologyLower  << 0 << Lx << endr <<  0                 <<        tWidth*Ly;
+    topologyMiddle << 0 << Lx << endr <<  (1 - tWidth)*Ly/2 <<  (1 + tWidth)*Ly/2;
+    topologyUpper  << 0 << Lx << endr <<  (1 - tWidth)*Ly   <<               Ly;
 
     MeshField subFieldUpper (topologyUpper , ensemble, "heatUpper");
     MeshField subFieldMiddle(topologyMiddle, ensemble, "coolMiddle");
     MeshField subFieldLower (topologyLower , ensemble, "heatLower");
 
-    double tTop = T0*tScale;
-    double tMid = T0/tScale;
-    double tLow = T0*tScale;
+//    //DEBUG
+//    debugSubMeshResize debugMeshSize1(&mainMesh);
+
+//    debugSubMeshResize debugMeshSize2(&mainMesh);
+
+//    debugSubMeshResize debugMeshSize3(&mainMesh);
+
+//    subFieldUpper.addEvent(debugMeshSize1);
+//    subFieldMiddle.addEvent(debugMeshSize2);
+//    subFieldLower.addEvent(debugMeshSize3);
+
+    double tTop = T0*tScaleWarm;
+    double tMid = T0/tScaleCold;
+    double tLow = T0*tScaleWarm;
 
     BerendsenThermostat thermoUpper (tTop, tau, dt);
     BerendsenThermostat thermoMiddle(tMid, tau, dt);

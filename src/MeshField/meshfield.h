@@ -25,6 +25,10 @@ protected:
     std::vector<Event*> events;
     std::vector<MeshField*> subFields;
 
+    static int * loopCounter;
+    static mat observables;
+
+    void storeActiveEvents();
     bool checkSubFields(int i);
     void resetSubFields();
 
@@ -52,7 +56,13 @@ protected:
         atoms.clear();
     }
 
-    void setTopology(const mat & topology) {
+    void setTopology(const mat & topology, bool recursive=true) {
+
+        if (recursive) {
+            for (MeshField * subField : subFields) {
+                subField->scaleField(this->topology, topology);
+            }
+        }
 
         //Evil haxx for changing const values
 
@@ -86,6 +96,10 @@ public:
 
     void addSubField(MeshField &subField);
 
+    void stretchField(double l, int xyz);
+
+    void scaleField(const mat &oldTopology, const mat &newTopology);
+
     virtual bool isWithinThis(int i);
 
     const double & getVolume() const {
@@ -105,12 +119,10 @@ public:
     }
 
     friend class MainMesh;
-    friend class AddPressure;
+    friend class ContractMesh;
     friend class ExpandMesh;
 
 };
-
-
 
 
 #endif // MD_MESHFIELD_H

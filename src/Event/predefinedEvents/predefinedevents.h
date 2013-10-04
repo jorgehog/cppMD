@@ -77,11 +77,14 @@ public:
         for (int i = 0; i < ENS_N; ++i) {
 
             m = ensemble->masses(i%ensemble->nSpecies);
+
             for (int k = 0; k < ENS_DIM; ++k) {
                 ensemble->vel(k, i) += ensemble->forces(k, i)*dt/(2*m);
-                ensemble->pos(k, i) += ensemble->vel(k, i);
+                ensemble->pos(k, i) += ensemble->vel(k, i)*dt;
             }
+
         }
+
     }
 
 private:
@@ -147,7 +150,7 @@ public:
 class thermostat : public OnsetEvent {
 public:
     thermostat(const double & T0, const double & tau, const double & dt) :
-        OnsetEvent("Thermostat", "T0", true), T0(T0), tau(tau), dt(dt) {}
+        OnsetEvent("Thermostat", "T0", true, true), T0(T0), tau(tau), dt(dt) {}
 
 protected:
 
@@ -167,7 +170,8 @@ public:
         thermostat(T0, tau, dt) {}
 
     void execute() {
-
+        std::cout << meshField->description << std::endl << meshField->topology << std::endl;
+        std::cout << "---------------" << std::endl;
         getGamma();
 
         for (const int & i : meshField->getAtoms()) {
@@ -219,20 +223,30 @@ public:
     }
 };
 
-class AddPressure : public TriggerEvent {
+class ContractMesh : public OnsetEvent {
 public:
 
     //delta = L_new/L_old -- fraction of shrink/expand
     //trigger = at which time should we trigger?
     //xyz = direction (0=x, 1=y ...)
-    AddPressure(double delta, int xyz) :
-        TriggerEvent("Pressure"),
+    ContractMesh(double delta, int xyz,
+                 int onTime = UNSET_EVENT_TIME,
+                 int offTime = UNSET_EVENT_TIME) :
+        OnsetEvent("Pressure"),
         delta(delta),
         xyz(xyz)
     {
         assert(xyz >= 0);
         assert(xyz < ENS_DIM);
         assert(delta > 0);
+
+        setOnsetTime(onTime);
+        setOffsetTime(offTime);
+    }
+
+    void initialize() {
+        double L0 = meshField->shape(xyz);
+        deltaL = (1 - delta)*L0/(eventLength);
     }
 
     void execute() {
@@ -240,44 +254,59 @@ public:
         double L = meshField->shape(xyz); //The length
         double C = meshField->topology(xyz, 0) + L/2; //The centerpoint
 
-        double deltaL = (1 - delta)*L/2; //The length to remove at each ends
+        double localDelta = 1 - deltaL/(2*L);
 
-        mat newTopology = meshField->topology;
-        newTopology(xyz, 0) += deltaL;
-        newTopology(xyz, 1) -= deltaL;
 
-        meshField->setTopology(newTopology); //Reshape the mesh
+        meshField->stretchField(deltaL, xyz);
 
         for (int i = 0; i < ENS_N; ++i) {
-            ensemble->pos(xyz, i) =  C*(1-delta) + delta*ensemble->pos(xyz, i);
+            ensemble->pos(xyz, i) =  C*(1-localDelta) + localDelta*ensemble->pos(xyz, i);
         }
+
     }
 
 protected:
 
     double delta;
     int xyz;
+    double deltaL;
 
 };
 
-class ExpandMesh : public AddPressure {
+class ExpandMesh : public ContractMesh {
 public:
 
-    ExpandMesh(double delta, int xyz) : AddPressure(delta, xyz) {
+    ExpandMesh(double delta, int xyz,
+               bool pull = false,
+               int onTime = UNSET_EVENT_TIME,
+               int offTime = UNSET_EVENT_TIME) :
+        ContractMesh(delta, xyz, onTime, offTime),
+        pull(pull)
+    {
         assert(delta > 1 && "Expansion must have delta>1");
     }
 
     void execute() {
 
+        meshField->stretchField(deltaL, xyz);
+
+        if (!pull) return;
+
         double L = meshField->shape(xyz); //The length
-        double deltaL = (delta - 1)*L/2; //The length to remove at each ends
+        double C = meshField->topology(xyz, 0) + L/2; //The centerpoint
+        double localDelta = 1 - deltaL/(2*L);
 
-        mat newTopology = meshField->topology;
-        newTopology(xyz, 0) -= deltaL;
-        newTopology(xyz, 1) += deltaL;
+        for (int i = 0; i < ENS_N; ++i) {
+            ensemble->pos(xyz, i) =  C*(1-localDelta) + localDelta*ensemble->pos(xyz, i);
+        }
 
-        meshField->setTopology(newTopology);
     }
+
+
+private:
+
+    bool pull;
+
 };
 
 
@@ -304,7 +333,7 @@ public:
     LauchDCViz(double delay) : Event(), delay(delay), viz("/home/jorgehog/tmp/mdPos0.arma") {}
 
     void initialize() {
-        viz.launch(true, delay, 15, 14);
+        viz.launch(true, delay, 16, 14);
     }
 
     void execute() {}
@@ -316,6 +345,47 @@ private:
     DCViz viz;
 
 };
+
+
+class killMe : public TriggerEvent {
+public:
+
+    killMe(int when) : TriggerEvent() {setTrigger(when);}
+
+    void execute() {
+        exit(1);
+    }
+
+};
+
+class debugSubMeshResize : public Event {
+public:
+
+    debugSubMeshResize(MeshField *mainMesh) : Event("debubSubMesh", "", true), mainMesh(mainMesh) {}
+
+    void initialize() {
+        R0 = meshField->getVolume()/mainMesh->getVolume();
+    }
+
+    void execute(){
+        double R = meshField->getVolume()/mainMesh->getVolume();
+
+        if (R != R){
+            std::cout << meshField->getVolume() << std::endl;
+            std::cout << mainMesh->getVolume() << std::endl;
+            exit(1);
+        }
+
+        setValue(R/R0);
+    }
+
+private:
+    MeshField * mainMesh;
+    double R0;
+
+
+};
+
 
 
 #endif // PREDEFINEDEVENTS_H

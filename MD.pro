@@ -12,7 +12,8 @@ SOURCES += main.cpp \
     src/Event/event.cpp \
     src/MeshField/MainMesh/mainmesh.cpp \
     src/MD/mdsolver.cpp \
-    src/MD/forces/forces.cpp
+    src/MD/forces/forces.cpp \
+    src/MeshField/VerletCell/verletcell.cpp
 
 HEADERS += \
     src/Ensemble/ensemble.h \
@@ -23,7 +24,8 @@ HEADERS += \
     src/MD/mdsolver.h \
     src/Event/predefinedEvents/predefinedevents.h \
     src/gears.h \
-    src/MD/forces/forces.h
+    src/MD/forces/forces.h \
+    src/MeshField/VerletCell/verletcell.h
 
 OTHER_FILES += configMD.cfg
 
@@ -41,7 +43,7 @@ QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS
 COMMON_CXXFLAGS = -std=c++0x
 QMAKE_CXXFLAGS += $$COMMON_CXXFLAGS
 
-QMAKE_CXXFLAGS_DEBUG += $$COMMON_CXXFLAGS -O2
+QMAKE_CXXFLAGS_DEBUG += $$COMMON_CXXFLAGS -g
 
 QMAKE_CXXFLAGS_RELEASE += $$COMMON_CXXFLAGS -O3 -DARMA_NO_DEBUG
 

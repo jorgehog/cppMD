@@ -15,6 +15,9 @@ protected:
     int N;
     int * loopCycle;
 
+    static int counter;
+    int id;
+
     double* value;
 
     MeshField* meshField;
@@ -26,14 +29,23 @@ protected:
     bool valueInitialized;
 
     bool doOutput;
+    bool toFile;
 
     virtual void execute() = 0;
 
 
 public:
 
-    Event(std::string type = "Event", std::string unit = "", bool doOutput=false);
+    Event(std::string type = "Event", std::string unit = "", bool doOutput=false, bool toFile=false);
 
+
+    int getId() {
+        return id;
+    }
+
+    static int getCounter(){
+        return counter;
+    }
 
     bool notSilent(){
         return doOutput;
@@ -49,6 +61,10 @@ public:
 
     virtual double getMeasurement(){
         return *value;
+    }
+
+    bool shouldToFile(){
+        return toFile;
     }
 
     void setValue(double value){
@@ -105,36 +121,54 @@ protected:
 
 };
 
+#define UNSET_EVENT_TIME -1
+
 
 class OnsetEvent : public Event {
 public:
 
-    OnsetEvent(std::string type = "OnsetEvent", std::string unit = "", bool doOutput=false) :
-        Event(type, unit, false),
+    OnsetEvent(std::string type = "OnsetEvent", std::string unit = "", bool doOutput=false, bool toFile=false) :
+        Event(type, unit, false, toFile),
         doOutputOrig(doOutput) {}
 
     void setOnsetTime(int onsetTime){
+
+        if (onsetTime == UNSET_EVENT_TIME) return;
+
         assert(onsetTime >= 0);
 
         this->onsetTime = onsetTime;
+
     }
 
     void setOffsetTime(int offTime) {
-        assert(offTime >= 0);
+
+        if (offTime == UNSET_EVENT_TIME) return;
+
+        assert((onsetTime != UNSET_EVENT_TIME) && ("onTime must be set before offTime."));
+        assert(offTime > onsetTime && "Event must initialize before the shutdown.");
+        assert(offTime >= 0 && "event shutdown must be a positive value");
 
         offsetTime = offTime;
+
+        eventLength = offTime - onsetTime;
+
     }
 
     void executeEvent() {
 
-        assert(onsetTime != -1);
+        assert(onsetTime != UNSET_EVENT_TIME);
 
         if (*loopCycle == offsetTime) {
             shouldExecute = false;
             doOutput = false;
         }
 
-        if ((*loopCycle > onsetTime) && (shouldExecute)) {
+        if (*loopCycle == onsetTime) {
+            initialize();
+        }
+
+        if ((*loopCycle >= onsetTime) && (shouldExecute)) {
             execute();
             doOutput = doOutputOrig;
         }
@@ -143,12 +177,13 @@ public:
 
 protected:
 
-    int onsetTime = -1;
-    int offsetTime = -1;
+    int onsetTime = UNSET_EVENT_TIME;
+    int offsetTime = UNSET_EVENT_TIME;
 
     bool shouldExecute = true;
     bool doOutputOrig;
 
-};
+    int eventLength = UNSET_EVENT_TIME;
 
+};
 #endif // EVENT_H

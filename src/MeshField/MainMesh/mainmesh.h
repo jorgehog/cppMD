@@ -20,6 +20,9 @@ public:
 private:
 
     void updateContainments();
+    void dumpEventsToFile();
+
+
 
 
 };

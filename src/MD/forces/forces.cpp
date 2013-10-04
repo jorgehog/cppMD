@@ -70,7 +70,6 @@ void TwoBodyForce::execute()
             }
         }
     }
-
 }
 
 

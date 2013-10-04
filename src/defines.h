@@ -3,8 +3,8 @@
 
 #define ENS_DIM 2
 
-#define ENS_NX 30
-#define ENS_NY 30
+#define ENS_NX 20
+#define ENS_NY 20
 
 /*
  *

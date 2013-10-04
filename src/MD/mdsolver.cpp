@@ -3,6 +3,8 @@
 #include "../MeshField/MainMesh/mainmesh.h"
 #include "../Event/predefinedEvents/predefinedevents.h"
 #include "../gears.h"
+#include <armadillo>
+using namespace arma;
 
 void mdSolver::initialize()
 {
@@ -41,13 +43,20 @@ void mdSolver::initialize()
         }
     }
 
+    double max = 1.0;
 
-
-    //    std::cout << sqrtkT0 << std::endl;
     ensemble->vel.randn();
     for (int i = 0; i < ENS_N; ++i) {
         for (int k = 0; k < ENS_DIM; ++k) {
+
             ensemble->vel(k, i) *= sqrtkT0;
+
+            if (ensemble->vel(k, i) > max) {
+                ensemble->vel(k, i) = max;
+            } else if (ensemble->vel(k, i) < -max ){
+                ensemble->vel(k, i) = -max;
+            }
+
         }
     }
 

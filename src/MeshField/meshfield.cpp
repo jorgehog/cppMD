@@ -9,7 +9,7 @@ MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::strin
 {
     this->ensemble = &ensemble;
 
-    setTopology(topology);
+    setTopology(topology, false);
 
 }
 
@@ -88,6 +88,21 @@ void MeshField::resetEvents()
     }
 }
 
+void MeshField::storeActiveEvents()
+{
+
+    for (MeshField* subfield : subFields){
+        subfield->storeActiveEvents();
+    }
+
+    for (Event* event : events){
+        if (event->shouldToFile()) {
+            observables(*loopCounter, event->getId()) = event->getMeasurement();
+        }
+    }
+
+}
+
 bool MeshField::checkSubFields(int i){
 
     bool matchedInSubLevel = false;
@@ -155,6 +170,7 @@ bool MeshField::notCompatible(MeshField & subField)
 }
 
 
+
 void MeshField::addEvent(Event & event)
 {
     event.setMeshField(this);
@@ -179,3 +195,50 @@ void MeshField::addSubField(MeshField  & subField)
     subFields.push_back(&subField);
 
 }
+
+void MeshField::stretchField(double deltaL, int xyz)
+{
+
+    assert((xyz >= 0) && (xyz < ENS_DIM) && "stretch direction out of bounds.");
+
+    mat newTopology = topology;
+    newTopology(xyz, 0) += deltaL/2;
+    newTopology(xyz, 1) -= deltaL/2;
+
+    setTopology(newTopology);
+
+}
+
+void MeshField::scaleField(const mat & oldTopology, const mat & newTopology){
+
+    mat newSubTopology(ENS_DIM, 2);
+
+    double shapefac, dx;
+
+    for (int i = 0; i < ENS_DIM; ++i) {
+
+        shapefac = (newTopology(i, 1) - newTopology(i, 0))/oldShape(i);
+
+        dx = (topology(i, 0) - newTopology(i, 0));
+
+        assert(dx >= 0);
+
+        if (oldTopology(i, 0) != 0) {
+            newSubTopology(i, 0) = newTopology(i, 0)*topology/oldTopology(i, 0);
+        } else {
+            newSubTopology(i, 0) =
+        }
+        newSubTopology(i, 1) = newSubTopology(i, 0) + shape(i)*shapefac;
+
+    }
+
+    setTopology(newSubTopology);
+
+    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
+
+}
+
+mat MeshField::observables;
+int * MeshField::loopCounter;
+
+
