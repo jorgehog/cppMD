@@ -9,7 +9,7 @@ class mdSolver : public Event
 {
 public:
 
-    mdSolver(double T0, double dt) : Event(), sqrtkT0(sqrt(T0)), dt(dt) {}
+    mdSolver(double T0, double dt) : Event("initMD"), sqrtkT0(sqrt(T0)), dt(dt) {}
 
 private:
 

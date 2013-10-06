@@ -115,10 +115,12 @@ private:
         std::cout << text << std::endl;
     }
 
+    void forceAddEvent(int E);
+
     void updateMeshLists();
 
     void updateMeshComboBox();
-    void fillMeshTopology(int i);
+    void fillMeshTopology(int k);
 
     void updateTable(std::vector<int> inputs);
     void updateStructs(int i, int j);
@@ -430,7 +432,7 @@ public:
     explicit WorkerThread(MainWindow * mw = 0);
 
     void run() Q_DECL_OVERRIDE {
-        mw->getMainMesh()->eventLoop(1000);
+        mw->getMainMesh()->eventLoop(10000);
         mw->getViz()->stopAdvanceTimer();
         emit finished();
     }

@@ -52,8 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for (int i = 0; i < 2; ++i) {
         for (int j = 0; j < ENS_DIM; ++j) {
-            ui->tableWidget_mesh->setItem(j, i, new QTableWidgetItem(
-                                              QString::fromStdString(boost::lexical_cast<std::string>(topology(i, j)))));
+            ui->tableWidget_mesh->setItem(j, i, new QTableWidgetItem);
         }
     }
 
@@ -61,6 +60,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     epsTable << 1 << 1 << endr << 1 << 1;
     sigmaTable << 1 << 1 << endr << 1 << 1;
+
+    forceAddEvent(MDSOLVER);
+    forceAddEvent(VELOCITYVERLET1);
+    forceAddEvent(PERIODIC);
+    forceAddEvent(LENNARDJONESFORCE);
+    forceAddEvent(VELOCITYVERLET2);
+    params.dt = 1./60;
+    forceAddEvent(STALL);
+    params.dt = 0.005;
+    ui->eventComboBox->setCurrentIndex(0);
+
 }
 
 MainWindow::~MainWindow()
@@ -196,13 +206,13 @@ void MainWindow::updateMeshComboBox()
     }
 }
 
-void MainWindow::fillMeshTopology(int i)
+void MainWindow::fillMeshTopology(int k)
 {
-    const mat & topology = meshFields.at(i)->topology;
+    const mat & topology = meshFields.at(k)->topology;
 
     for (int i = 0; i < 2; ++i) {
         for (int j = 0; j < ENS_DIM; ++j) {
-            ui->tableWidget_mesh->item(j, i)->setText(QString::fromStdString(boost::lexical_cast<std::string>(topology(i, j))));
+            ui->tableWidget_mesh->item(j, i)->setText(QString::fromStdString(boost::lexical_cast<std::string>(topology(j, i))));
         }
     }
 }
@@ -330,6 +340,12 @@ void MainWindow::on_pushButton_2_clicked()
     connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
     workerThread->start();
 
+}
+
+void MainWindow::forceAddEvent(int E)
+{
+    ui->eventComboBox->setCurrentIndex(E);
+    addCurrentEvent();
 }
 
 
