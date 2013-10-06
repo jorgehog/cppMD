@@ -14,12 +14,14 @@
 #include <QThread>
 
 struct Params {
-    double dt = 0.001;
+    double dt = 0.005;
     double T0 = 1;
     double delta = 0.5;
     double tau = 15;
     int xyz = 0;
     int freq = 1;
+    int t0 = 0,;
+    int t1 = 100;
 };
 
 class QListWidgetItem;
@@ -51,8 +53,10 @@ public:
 
     void setPlatform(QtPlatform * p) {
         viz = p;
-        viz->setAdvanceTimerInterval(0.01);
+        viz->setAdvanceTimerInterval(1./60);
     }
+
+    QGraphicsView * getGraphicsView();
 
     QtPlatform * getViz() {
         return viz;
@@ -130,7 +134,7 @@ private:
 
     static const int nEvents = 13;
 
-    static const int nInputs = 6;
+    static const int nInputs = 8;
 
     enum INPUTS {
         INPUT_DT,
@@ -138,7 +142,9 @@ private:
         INPUT_delta,
         INPUT_tau,
         INPUT_xyz,
-        INPUT_freq
+        INPUT_freq,
+        INPUT_t0,
+        INPUT_t1
     };
 
     enum EVENTS {
@@ -174,14 +180,20 @@ private:
             inputs.push_back(INPUT_T0);
             inputs.push_back(INPUT_tau);
             inputs.push_back(INPUT_DT);
+            inputs.push_back(INPUT_t0);
+            inputs.push_back(INPUT_t1);
             break;
         case COMPRESS:
             inputs.push_back(INPUT_delta);
             inputs.push_back(INPUT_xyz);
+            inputs.push_back(INPUT_t0);
+            inputs.push_back(INPUT_t1);
             break;
         case EXPAND:
             inputs.push_back(INPUT_delta);
             inputs.push_back(INPUT_xyz);
+            inputs.push_back(INPUT_t0);
+            inputs.push_back(INPUT_t1);
             break;
         case SAVETOFILE:
             inputs.push_back(INPUT_freq);
@@ -223,6 +235,12 @@ private:
         case INPUT_freq:
             return QString::number(params.freq);
             break;
+        case INPUT_t0:
+            return QString::number(params.t0);
+            break;
+        case INPUT_t1:
+            return QString::number(params.t1);
+            break;
         default:
             return QString(((std::string)"fail at" + boost::lexical_cast<std::string>(INDEX)).c_str());
             break;
@@ -252,6 +270,12 @@ private:
         case INPUT_freq:
             return "freq";
             break;
+        case INPUT_t0:
+            return "t0";
+            break;
+        case INPUT_t1:
+            return "t1";
+            break;
         default:
             return QString(((std::string)"fail at" + boost::lexical_cast<std::string>(INPUT)).c_str());
             break;
@@ -279,7 +303,13 @@ private:
                 params.xyz = boost::lexical_cast<int>(value.toStdString());
                 break;
             case INPUT_freq:
-                params.freq = boost::lexical_cast<int>(value.toStdString());;
+                params.freq = boost::lexical_cast<int>(value.toStdString());
+                break;
+            case INPUT_t0:
+                params.t0 = boost::lexical_cast<int>(value.toStdString());
+                break;
+            case INPUT_t1:
+                params.t1 = boost::lexical_cast<int>(value.toStdString());
                 break;
             default:
                 break;
@@ -357,7 +387,7 @@ private:
             return new randomShuffle();
             break;
         case BERENDSENTHERMOSTAT:
-            return new BerendsenThermostat(params.T0, params.tau, params.dt);
+            return new BerendsenThermostat(params.T0, params.tau, params.dt, params.t0, params.t1);
             break;
         case COUNTPARTICLES:
             return new countAtoms();
@@ -366,10 +396,10 @@ private:
             return new ReportProgress();
             break;
         case COMPRESS:
-            return new ContractMesh(params.delta, params.xyz);
+            return new ContractMesh(params.delta, params.xyz, params.t0, params.t1);
             break;
         case EXPAND:
-            return new ExpandMesh(params.delta, params.xyz);
+            return new ExpandMesh(params.delta, params.xyz, params.t0, params.t1);
             break;
         case SAVETOFILE:
             return new SaveToFile(params.freq);
@@ -400,7 +430,7 @@ public:
     explicit WorkerThread(MainWindow * mw = 0);
 
     void run() Q_DECL_OVERRIDE {
-        mw->getMainMesh()->eventLoop(100);
+        mw->getMainMesh()->eventLoop(1000);
         mw->getViz()->stopAdvanceTimer();
         emit finished();
     }

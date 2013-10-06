@@ -44,6 +44,8 @@ private:
 
     void reDraw();
 
+    void setPixPrMeter();
+
     int height(){
         return 1;
     }
@@ -54,7 +56,8 @@ private:
 
     void getMainMeshTopology(double &W, double &H);
 
-    double pixPrMeter;
+    double pixPrMeter_x;
+    double pixPrMeter_y;
 
 };
 

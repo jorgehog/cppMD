@@ -12,7 +12,7 @@
 QtPlatform::QtPlatform(int argc, char* argv[], MainWindow *mainWindow) :
     Platform(argc, argv),
     timer(new QTimer),
-    graphicsView(new QGraphicsView),
+    graphicsView(mainWindow->getGraphicsView()),
     mainWindow(mainWindow)
 {
 
@@ -25,17 +25,10 @@ QtPlatform::QtPlatform(int argc, char* argv[], MainWindow *mainWindow) :
     //This is the magic which makes a game possible I guess?
     connect(timer, SIGNAL(timeout()), SLOT(advanceTimeout()));
 
-    double W, H;
-    getMainMeshTopology(W, H);
-    int H0 = 400;
-
-    pixPrMeter = H0/H;
-    int W0 = (int) round(pixPrMeter*W);
-
-    std::cout << W << " " << W0 << " " << H  << "  " << H0 << std::endl;
+    setPixPrMeter();
 
     graphicsScene = new GraphicsScene(this);
-    graphicsScene->setSceneRect(0,0,W0,H0);
+    graphicsScene->setSceneRect(0,0, graphicsView->width(), graphicsView->height());
     graphicsView->setScene(graphicsScene);
 
     for (int i = 0; i < ENS_N; ++i) {
@@ -72,12 +65,21 @@ void QtPlatform::reDraw()
 
     for(unsigned int i = 0; i < ENS_N; ++i) {
 
-        double x = mainWindow->getEnsemble()->pos(0, i) * pixPrMeter;
-        double y = mainWindow->getEnsemble()->pos(1, i) * pixPrMeter;
-        double width = this->width() * pixPrMeter;
-        double height = this->height() * pixPrMeter;
+        double x = mainWindow->getEnsemble()->pos(0, i) * pixPrMeter_x;
+        double y = mainWindow->getEnsemble()->pos(1, i) * pixPrMeter_y;
+        double width = this->width() * pixPrMeter_x;
+        double height = this->height() * pixPrMeter_y;
         drawSprite(sprites.at(i), x, y, width, height, 0);
     }
+}
+
+void QtPlatform::setPixPrMeter()
+{
+    double W, H;
+    getMainMeshTopology(W, H);
+
+    pixPrMeter_x = graphicsView->width()/W;
+    pixPrMeter_y = graphicsView->height()/H;
 }
 
 void QtPlatform::getMainMeshTopology(double &W, double &H)
@@ -119,12 +121,11 @@ void QtPlatform::drawSprite(Sprite *sprite, double x, double y, double width, do
     QtSprite* qtSprite = (QtSprite*)sprite;
     QGraphicsPixmapItem *spriteItem = (QGraphicsPixmapItem*)qtSprite->getGraphicsItem();
     QPixmap tmpPixmap = spriteItem->pixmap();
-    spriteItem->setPixmap(tmpPixmap.scaledToHeight(height, Qt::SmoothTransformation));
+    spriteItem->setPixmap(tmpPixmap.scaledToHeight(height));
     spriteItem->setTransformOriginPoint(width/2, height/2);
     spriteItem->setRotation(rotation * 180 / M_PI + 180);
-    spriteItem->setPos(-width/2 + x, -height/2 + y);
+    spriteItem->setPos(-width/2 + x - 58, -height/2 + y - 25);
     spriteItem->setVisible(true);
-    std::cout << "drew at" << x << "  " << y << std::endl;
 }
 
 void QtPlatform::clear()

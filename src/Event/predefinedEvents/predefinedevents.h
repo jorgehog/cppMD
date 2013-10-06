@@ -168,8 +168,13 @@ protected:
 
 class BerendsenThermostat : public thermostat {
 public:
-    BerendsenThermostat(const double & T0, const double & tau, const double & dt) :
-        thermostat(T0, tau, dt) {}
+    BerendsenThermostat(const double & T0, const double & tau, const double & dt,
+                        int onTime = UNSET_EVENT_TIME,
+                        int offTime = UNSET_EVENT_TIME) :
+        thermostat(T0, tau, dt) {
+        setOnsetTime(onTime);
+        setOffsetTime(offTime);
+    }
 
     void execute() {
         getGamma();

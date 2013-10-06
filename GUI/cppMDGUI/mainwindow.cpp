@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+    ui->setupUi(this);  
 
     for (int i = 0; i < nEvents; ++i) {
         ui->eventComboBox->addItem(getEventName(i));
@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     list3 << "Start" << "End";
     ui->tableWidget_mesh->setHorizontalHeaderLabels(list3);
 
-    vec masses = zeros(1);
+    vec masses = ones(1);
 
     ensemble = new Ensemble(masses);
 
@@ -68,6 +68,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+QGraphicsView *MainWindow::getGraphicsView()
+{
+    return ui->graphicsView;
+}
 
 
 void MainWindow::on_eventComboBox_currentIndexChanged(int index)
