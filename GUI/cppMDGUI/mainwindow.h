@@ -1,13 +1,17 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <boost/lexical_cast.hpp>
-#include <exception>
-
 #include "../../src/Event/predefinedEvents/predefinedevents.h"
 #include "../../src/MD/mdsolver.h"
 #include "../../src/MD/forces/forces.h"
+
+#include "viz/qtplatform.h"
+#include "../../src/MeshField/MainMesh/mainmesh.h"
+
+#include <QMainWindow>
+#include <boost/lexical_cast.hpp>
+#include <exception>
+#include <QThread>
 
 struct Params {
     double dt = 0.001;
@@ -18,7 +22,6 @@ struct Params {
     int freq = 1;
 };
 
-class MainMesh;
 class QListWidgetItem;
 class QModelIndex;
 
@@ -33,6 +36,27 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+    MainMesh* getMainMesh() {
+        return mainMesh;
+    }
+
+    Ensemble* getEnsemble() {
+        return ensemble;
+    }
+
+    std::vector<MeshField*> getMeshFeilds(){
+        return meshFields;
+    }
+
+    void setPlatform(QtPlatform * p) {
+        viz = p;
+        viz->setAdvanceTimerInterval(0.01);
+    }
+
+    QtPlatform * getViz() {
+        return viz;
+    }
 
 private slots:
 
@@ -62,9 +86,13 @@ private:
     MainMesh* mainMesh;
     Ensemble* ensemble;
 
+    QtPlatform * viz;
+
     std::vector<MeshField*> meshFields;
 
     struct Params params;
+
+    QThread mainThread;
 
     int activeList = -1;
 
@@ -100,7 +128,7 @@ private:
     };
 
 
-    static const int nEvents = 12;
+    static const int nEvents = 13;
 
     static const int nInputs = 6;
 
@@ -111,6 +139,22 @@ private:
         INPUT_tau,
         INPUT_xyz,
         INPUT_freq
+    };
+
+    enum EVENTS {
+        PERIODIC,
+        VELOCITYVERLET1,
+        VELOCITYVERLET2,
+        RANDOMSHUFFLE,
+        BERENDSENTHERMOSTAT,
+        COUNTPARTICLES,
+        PROGRESSREPORT,
+        COMPRESS,
+        EXPAND,
+        SAVETOFILE,
+        LENNARDJONESFORCE,
+        MDSOLVER,
+        STALL
     };
 
     std::vector<int> getInputs(int EVENT){
@@ -144,6 +188,9 @@ private:
             break;
         case MDSOLVER:
             inputs.push_back(INPUT_T0);
+            inputs.push_back(INPUT_DT);
+            break;
+        case STALL:
             inputs.push_back(INPUT_DT);
             break;
         default:
@@ -243,20 +290,6 @@ private:
         }
     }
 
-    enum EVENTS {
-        PERIODIC,
-        VELOCITYVERLET1,
-        VELOCITYVERLET2,
-        RANDOMSHUFFLE,
-        BERENDSENTHERMOSTAT,
-        COUNTPARTICLES,
-        PROGRESSREPORT,
-        COMPRESS,
-        EXPAND,
-        SAVETOFILE,
-        LENNARDJONESFORCE,
-        MDSOLVER
-    };
 
     QString getEventName(int EVENT){
         switch (EVENT) {
@@ -295,6 +328,9 @@ private:
             break;
         case MDSOLVER:
             return "MD initializer";
+            break;
+        case STALL:
+            return "Stall";
             break;
         default:
             return QString(((std::string)"fail at" + boost::lexical_cast<std::string>(EVENT)).c_str());
@@ -344,6 +380,9 @@ private:
         case MDSOLVER:
             return new mdSolver(params.T0, params.dt);
             break;
+        case STALL:
+            return new stall(params.dt);
+            break;
         default:
             return NULL;
             break;
@@ -353,5 +392,22 @@ private:
 
 };
 
+
+class WorkerThread : public QThread
+{
+    Q_OBJECT
+public:
+    explicit WorkerThread(MainWindow * mw = 0);
+
+    void run() Q_DECL_OVERRIDE {
+        mw->getMainMesh()->eventLoop(100);
+        mw->getViz()->stopAdvanceTimer();
+        emit finished();
+    }
+signals:
+    void finished();
+private:
+    MainWindow* mw;
+};
 
 #endif // MAINWINDOW_H

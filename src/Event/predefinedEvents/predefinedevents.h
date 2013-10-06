@@ -329,6 +329,7 @@ private:
 
 };
 
+#ifndef NO_DCVIZ
 class LauchDCViz : public Event {
 
 public:
@@ -348,7 +349,7 @@ private:
     DCViz viz;
 
 };
-
+#endif
 
 class killMe : public TriggerEvent {
 public:
@@ -389,6 +390,19 @@ private:
 
 };
 
+
+class stall : public Event {
+public:
+
+    stall(double dt) : Event("Stall"), dt(dt) {}
+
+    void execute() {
+        usleep(dt*1E6);
+    }
+
+private:
+    double dt;
+};
 
 
 #endif // PREDEFINEDEVENTS_H

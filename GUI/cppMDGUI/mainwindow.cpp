@@ -5,7 +5,6 @@
 
 #include <QListWidgetItem>
 #include <QObject>
-#include "../../src/MeshField/MainMesh/mainmesh.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -62,7 +61,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     epsTable << 1 << 1 << endr << 1 << 1;
     sigmaTable << 1 << 1 << endr << 1 << 1;
-
 }
 
 MainWindow::~MainWindow()
@@ -322,12 +320,18 @@ void MainWindow::on_listWidget_doubleClicked(const QModelIndex &index)
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    int T = 10000;
-    try {
-        mainMesh->eventLoop(T);
-    }
+    viz->startAdvanceTimer();
 
-    catch(std::exception & e){
-        warning(e.what() + (std::string) "  |  event Loop failed.");
-    }
+    WorkerThread *workerThread = new WorkerThread(this);
+    connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
+    workerThread->start();
+
+}
+
+
+WorkerThread::WorkerThread(MainWindow *mw) :
+    QThread(mw),
+    mw(mw)
+{
+
 }

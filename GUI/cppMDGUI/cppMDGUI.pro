@@ -4,16 +4,12 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = cppMDGUI
 TEMPLATE = app
-
-LIBS += -llapack -lblas -larmadillo -I/usr/lib/libarmadillo.so -lpython2.7
-
-INCLUDEPATH += /usr/include/python2.7
 
 SOURCES += guiMain.cpp \
         mainwindow.cpp \
@@ -22,7 +18,12 @@ SOURCES += guiMain.cpp \
     ../../src/MeshField/MainMesh/mainmesh.cpp \
     ../../src/MD/mdsolver.cpp \
     ../../src/MD/forces/forces.cpp \
-    ../../src/MeshField/VerletCell/verletcell.cpp
+    ../../src/MeshField/VerletCell/verletcell.cpp \
+    viz/qtsprite.cpp \
+    viz/qtplatform.cpp \
+    viz/graphicsscene.cpp \
+    viz/platform.cpp \
+    viz/sprite.cpp
 
 HEADERS += mainwindow.h \
     ../../src/Ensemble/ensemble.h \
@@ -34,9 +35,22 @@ HEADERS += mainwindow.h \
     ../../src/Event/predefinedEvents/predefinedevents.h \
     ../../src/gears.h \
     ../../src/MD/forces/forces.h \
-    ../../cppMD.h
+    ../../cppMD.h \
+    viz/qtsprite.h \
+    viz/qtplatform.h \
+    viz/graphicsscene.h \
+    viz/platform.h \
+    viz/sprite.h
 
 FORMS    += mainwindow.ui
 
+DEFINES += NO_DCVIZ
+
 COMMON_CXXFLAGS = -std=c++0x
 QMAKE_CXXFLAGS += $$COMMON_CXXFLAGS
+
+QMAKE_CXXFLAGS_DEBUG += -g
+
+
+RESOURCES += \
+    resources.qrc
