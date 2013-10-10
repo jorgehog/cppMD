@@ -17,6 +17,10 @@ public:
 
     void eventLoop(int N);
 
+    const int *getLoopCounter(){
+        return loopCounter;
+    }
+
 private:
 
     void updateContainments();

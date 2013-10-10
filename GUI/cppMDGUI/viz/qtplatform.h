@@ -17,16 +17,26 @@ class QtPlatform : public QObject, public Platform
 {
     Q_OBJECT
 public:
-    QtPlatform(int argc, char* argv[], MainWindow * mainWindow);
+    QtPlatform(int argc = 0, char* argv[] = NULL, MainWindow * mainWindow = NULL);
     int exec();
     void startAdvanceTimer();
     void stopAdvanceTimer();
     void setAdvanceTimerInterval(double interval);
-    Sprite *createSprite(std::string spriteFile);
+    Sprite *createSprite(std::string imageFile);
     void drawSprite(Sprite *sprite, double x, double y, double width, double height, double rotation);
     void clear();
     void close();
     void prepareEntity(Entity *entity);
+    void setEnsemble(Ensemble* ensemble){
+        this->ensemble = ensemble;
+    }
+    void setMainMesh(MainMesh* mainMesh){
+        this->mainMesh = mainMesh;
+        setHeight();
+        setWidth();
+    }
+    void setGraphicsView(QGraphicsView * graphicsView);
+
 
 public slots:
     void advanceTimeout();
@@ -39,20 +49,33 @@ private:
     GraphicsScene *graphicsScene;
 
     MainWindow* mainWindow;
+    MainMesh* mainMesh;
 
-    std::vector<Sprite*> sprites;
+    Ensemble* ensemble;
+
+    std::vector<std::string> images;
+
+    std::vector<Qt::GlobalColor> colors;
 
     void reDraw();
 
     void setPixPrMeter();
 
-    int height(){
-        return 1;
+    void drawFields(MeshField* mf, double size, int i);
+    void drawField(MeshField* mf, double size, int i);
+
+    double origHeight;
+    double origWidth;
+
+    void setHeight(){
+        origHeight = mainMesh->shape(1)/(ENS_NY);
     }
 
-    int width() {
-        return 1;
+    void setWidth() {
+        origWidth = mainMesh->shape(0)/(ENS_NX);
     }
+
+    double sizeFac = 0.25;
 
     void getMainMeshTopology(double &W, double &H);
 

@@ -22,7 +22,7 @@ public:
 
     virtual void prepareEntity(Entity* entity) {(void) entity;}
 
-    virtual Sprite *createSprite(std::string spriteFile) = 0;
+    virtual Sprite *createSprite(std::string) = 0;
     virtual void drawSprite(Sprite* sprite, double x, double y, double width, double height, double rotation) = 0;
 
 };

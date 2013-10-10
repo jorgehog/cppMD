@@ -8,32 +8,37 @@
 #include <QGraphicsRectItem>
 #include <QGraphicsItem>
 #include <math.h>
+#include <exception>
 
 QtPlatform::QtPlatform(int argc, char* argv[], MainWindow *mainWindow) :
     Platform(argc, argv),
     timer(new QTimer),
-    graphicsView(mainWindow->getGraphicsView()),
     mainWindow(mainWindow)
 {
 
-    mainWindow->setPlatform(this);
+    if (mainWindow != NULL){
+        mainWindow->setPlatform(this);
 
-    QGLWidget *glwidget = new QGLWidget(graphicsView);
-    graphicsView->setViewport(glwidget);
-    graphicsView->scale(1,-1);
+        setEnsemble(mainWindow->getEnsemble());
+        setMainMesh(mainWindow->getMainMesh());
+
+        setGraphicsView(mainWindow->getGraphicsView());
+
+    }
+
 
     //This is the magic which makes a game possible I guess?
     connect(timer, SIGNAL(timeout()), SLOT(advanceTimeout()));
 
-    setPixPrMeter();
 
-    graphicsScene = new GraphicsScene(this);
-    graphicsScene->setSceneRect(0,0, graphicsView->width(), graphicsView->height());
-    graphicsView->setScene(graphicsScene);
+    colors.push_back(Qt::black);
+    colors.push_back(Qt::blue);
+    colors.push_back(Qt::red);
 
-    for (int i = 0; i < ENS_N; ++i) {
-        sprites.push_back(createSprite("defaultpicture.png"));
-    }
+    //images.push_back("/home/jorgehog/cppMD/GUI/cppMDGUI/viz/images/LithiumAtom.png");
+    //images.push_back("/home/jorgehog/cppMD/GUI/cppMDGUI/viz/images/Stylised_Lithium_Atom.png");
+    images.push_back("/home/jorgehog/cppMD/GUI/cppMDGUI/viz/images/ball.png");
+    images.push_back("/home/jorgehog/cppMD/GUI/cppMDGUI/viz/images/defaultpicture.png");
 
 }
 
@@ -65,12 +70,15 @@ void QtPlatform::reDraw()
 
     for(unsigned int i = 0; i < ENS_N; ++i) {
 
-        double x = mainWindow->getEnsemble()->pos(0, i) * pixPrMeter_x;
-        double y = mainWindow->getEnsemble()->pos(1, i) * pixPrMeter_y;
-        double width = this->width() * pixPrMeter_x;
-        double height = this->height() * pixPrMeter_y;
-        drawSprite(sprites.at(i), x, y, width, height, 0);
+        double x = ensemble->pos(0, i) * pixPrMeter_x;
+        double y = ensemble->pos(1, i) * pixPrMeter_y;
+        double width = sizeFac*origWidth* pixPrMeter_x;
+        double height = sizeFac*origHeight * pixPrMeter_y;
+        drawSprite(createSprite(images.at(i%ensemble->nSpecies)), x, y, width, height, 0);
     }
+
+    drawFields(mainMesh, 6, 0);
+
 }
 
 void QtPlatform::setPixPrMeter()
@@ -82,10 +90,47 @@ void QtPlatform::setPixPrMeter()
     pixPrMeter_y = graphicsView->height()/H;
 }
 
+void QtPlatform::drawFields(MeshField *mf, double size, int i)
+{
+    drawField(mf, size, i);
+    for (MeshField* smf : mf->getSubfields()){
+        drawFields(smf, 0.5*size, i+1);
+    }
+}
+
+void QtPlatform::drawField(MeshField *mf, double size, int i)
+{
+    QPen pen(colors.at(i%colors.size()));
+    if (i > 0) {
+        pen.setStyle(Qt::DotLine);
+    }
+
+    pen.setWidthF(size);
+    QRect *rect = new QRect(mf->topology(0, 0)*pixPrMeter_x,
+                            mf->topology(1, 0)*pixPrMeter_y,
+                            mf->shape(0)*pixPrMeter_x,
+                            mf->shape(1)*pixPrMeter_y);
+    graphicsScene->addRect(*rect, pen);
+
+    int k = 0;
+    for (Event* event : mf->getEvents()){
+        if (event->notSilent()) {
+            QGraphicsSimpleTextItem * simpleTextItem1 = graphicsScene->addSimpleText(QString::number(event->getMeasurement())
+                                                                                     + QString::fromStdString(event->getUnit()));
+            if (i != 0) {
+                simpleTextItem1->setPos(30 + rect->left() + k*100, rect->bottom());
+            } else {
+                simpleTextItem1->setPos(30 + rect->left() + k*100, rect->top() - size*4);
+            }
+            k++;
+        }
+    }
+}
+
 void QtPlatform::getMainMeshTopology(double &W, double &H)
 {
-    W = mainWindow->getMainMesh()->shape(0);
-    H = mainWindow->getMainMesh()->shape(1);
+    W = mainMesh->shape(0);
+    H = mainMesh->shape(1);
 }
 
 void QtPlatform::startAdvanceTimer()
@@ -98,6 +143,11 @@ void QtPlatform::stopAdvanceTimer()
 {
     std::cout << __PRETTY_FUNCTION__ << " called" << std::endl;
     timer->stop();
+
+    if (mainWindow != NULL){
+        mainWindow->stop();
+    }
+
 }
 
 void QtPlatform::setAdvanceTimerInterval(double interval)
@@ -105,9 +155,9 @@ void QtPlatform::setAdvanceTimerInterval(double interval)
     timer->setInterval(interval * 1000);
 }
 
-Sprite* QtPlatform::createSprite(std::string spriteFile)
+Sprite* QtPlatform::createSprite(std::string imageFile)
 {
-    QPixmap pixmap(QString(":/viz/images/") + QString::fromStdString(spriteFile));
+    QPixmap pixmap(QString::fromStdString(imageFile));
     QGraphicsPixmapItem* pixItem = graphicsScene->addPixmap(pixmap);
     pixItem->setVisible(false);
 
@@ -123,13 +173,14 @@ void QtPlatform::drawSprite(Sprite *sprite, double x, double y, double width, do
     QPixmap tmpPixmap = spriteItem->pixmap();
     spriteItem->setPixmap(tmpPixmap.scaledToHeight(height));
     spriteItem->setTransformOriginPoint(width/2, height/2);
-    spriteItem->setRotation(rotation * 180 / M_PI + 180);
-    spriteItem->setPos(-width/2 + x - 58, -height/2 + y - 25);
+    spriteItem->setRotation(rotation * 180 / M_PI);
+    spriteItem->setPos(-width/2 + x, -height/2 + y);
     spriteItem->setVisible(true);
 }
 
 void QtPlatform::clear()
 {
+   graphicsScene->clear();
 }
 
 void QtPlatform::close()
@@ -143,6 +194,22 @@ void QtPlatform::prepareEntity(Entity *entity)
 {
     (void) entity;
    // b2Body * body = entity->body();
-   // body->SetTransform(body->GetPosition(), body->GetAngle() + M_PI);
+    // body->SetTransform(body->GetPosition(), body->GetAngle() + M_PI);
+}
+
+void QtPlatform::setGraphicsView(QGraphicsView *graphicsView)
+{
+       this->graphicsView = graphicsView;
+
+       QGLWidget *glwidget = new QGLWidget(graphicsView);
+       graphicsView->setViewport(glwidget);
+//       graphicsView->scale(1,-1);
+
+       setPixPrMeter();
+
+       graphicsScene = new GraphicsScene(this);
+       graphicsScene->setSceneRect(0,0, graphicsView->width(), graphicsView->height());
+       graphicsView->setScene(graphicsScene);
+
 }
 

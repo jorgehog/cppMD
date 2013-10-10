@@ -13,7 +13,7 @@ class Event
 protected:
 
     int N;
-    int * loopCycle;
+    const int * loopCycle;
 
     static int counter;
     int id;
@@ -45,6 +45,10 @@ public:
 
     std::string getType(){
         return type;
+    }
+
+    std::string getUnit() {
+        return unit;
     }
 
     static int getCounter(){
@@ -88,7 +92,7 @@ public:
         this->N = N;
     }
 
-    void setLoopCyclePtr(int* loopCycle){
+    void setLoopCyclePtr(const int* loopCycle){
         this->loopCycle = loopCycle;
     }
 

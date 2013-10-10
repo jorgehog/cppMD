@@ -62,6 +62,13 @@ public:
         return viz;
     }
 
+    void stop() {
+        running = false;
+    }
+
+    static void startMDThread(int N, QtPlatform* platform,
+                              MainMesh* mainMesh, QObject* parent = 0);
+
 private slots:
 
     void on_eventComboBox_currentIndexChanged(int index);
@@ -85,6 +92,8 @@ private slots:
     void on_pushButton_2_clicked();
 
 private:
+    bool running;
+
     Ui::MainWindow *ui;
 
     MainMesh* mainMesh;
@@ -429,17 +438,20 @@ class WorkerThread : public QThread
 {
     Q_OBJECT
 public:
-    explicit WorkerThread(MainWindow * mw = 0);
+    explicit WorkerThread(int N, QtPlatform* platform,
+                          MainMesh* mainMesh, QObject *parent = 0);
 
     void run() Q_DECL_OVERRIDE {
-        mw->getMainMesh()->eventLoop(10000);
-        mw->getViz()->stopAdvanceTimer();
+        mainMesh->eventLoop(N);
+        platform->stopAdvanceTimer();
         emit finished();
     }
 signals:
     void finished();
 private:
-    MainWindow* mw;
+    int N;
+    QtPlatform* platform;
+    MainMesh* mainMesh;
 };
 
 #endif // MAINWINDOW_H

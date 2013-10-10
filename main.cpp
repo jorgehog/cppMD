@@ -8,14 +8,20 @@ using namespace libconfig;
 #include <mpi.h>
 #include "cppMD.h"
 
-int main()
+#ifdef NO_DCVIZ
+#include <QApplication>
+#include "/home/jorgehog/cppMD/GUI/cppMDGUI/viz/qtplatform.h"
+#include "/home/jorgehog/cppMD/GUI/cppMDGUI/mainwindow.h"
+#endif
+
+int main(int argc, char* argv[])
 {
 
     srand(time(NULL));
     wall_clock timer;
 
     Config cfg;
-    cfg.readFile("../MD/configMD.cfg");
+    cfg.readFile("/home/jorgehog/cppMD/configMD.cfg");
 
     const Setting & root = cfg.getRoot();
 
@@ -132,9 +138,26 @@ int main()
     ReportProgress progressReport;
     mainMesh.addEvent(progressReport);
 
+#ifndef NO_DCVIZ
     LauchDCViz launchDCViz(delay);
     mainMesh.addEvent(launchDCViz);
+#else
+    (void) delay;
+    QApplication app(argc, argv);
 
+    QtPlatform platform(argc, argv, NULL);
+
+    platform.setEnsemble(&ensemble);
+    platform.setMainMesh(&mainMesh);
+
+    QGraphicsView view;
+    view.setObjectName(QStringLiteral("graphicsView"));
+    view.setGeometry(QRect(0, 0, 600, 600));
+    platform.setGraphicsView(&view);
+
+    platform.setAdvanceTimerInterval(1./60);
+    platform.exec();
+#endif
 
     /*
      *  Onset Events
@@ -199,8 +222,19 @@ int main()
      */
 
     timer.tic();
+#ifndef NO_DCVIZ
     mainMesh.eventLoop(N);
+#else
+    stall smoothify(1./60);
+    mainMesh.addEvent(smoothify);
+    platform.startAdvanceTimer();
+    MainWindow::startMDThread(N, &platform, &mainMesh);
+#endif
     std::cout << "Execution time: " << timer.toc() << std::endl;
 
+#ifndef NO_DCVIZ
     return 0;
+#else
+    return app.exec();
+#endif
 }

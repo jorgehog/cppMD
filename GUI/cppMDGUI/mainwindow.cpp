@@ -71,6 +71,8 @@ MainWindow::MainWindow(QWidget *parent) :
     params.dt = 0.005;
     ui->eventComboBox->setCurrentIndex(0);
 
+    running = false;
+
 }
 
 MainWindow::~MainWindow()
@@ -135,6 +137,10 @@ void MainWindow::addCurrentEvent()
     currentMesh->addEvent(*currentEvent);
     ui->EventList->addItem(QString::fromStdString(currentEvent->getType()));
 
+    if (running) {
+        currentEvent->setLoopCyclePtr(mainMesh->getLoopCounter());
+    }
+
 }
 
 void MainWindow::addCurrentMesh()
@@ -145,7 +151,7 @@ void MainWindow::addCurrentMesh()
     try{
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j < ENS_DIM; ++j) {
-                topology(i, j) = boost::lexical_cast<double>(ui->tableWidget_mesh->item(j, i)->text().toStdString());
+                topology(j, i) = boost::lexical_cast<double>(ui->tableWidget_mesh->item(j, i)->text().toStdString());
             }
         }
     }
@@ -336,10 +342,17 @@ void MainWindow::on_pushButton_2_clicked()
 {
     viz->startAdvanceTimer();
 
-    WorkerThread *workerThread = new WorkerThread(this);
-    connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
-    workerThread->start();
+    MainWindow::startMDThread(10000, viz, mainMesh, this);
 
+    running = true;
+
+}
+
+void MainWindow::startMDThread(int N, QtPlatform* platform,
+                   MainMesh* mainMesh, QObject* parent) {
+    WorkerThread *workerThread = new WorkerThread(N, platform, mainMesh, parent);
+    QObject::connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
+    workerThread->start();
 }
 
 void MainWindow::forceAddEvent(int E)
@@ -349,9 +362,12 @@ void MainWindow::forceAddEvent(int E)
 }
 
 
-WorkerThread::WorkerThread(MainWindow *mw) :
-    QThread(mw),
-    mw(mw)
+WorkerThread::WorkerThread(int N, QtPlatform *platform,
+                           MainMesh *mainMesh, QObject *parent) :
+    QThread(parent),
+    N(N),
+    platform(platform),
+    mainMesh(mainMesh)
 {
 
 }
