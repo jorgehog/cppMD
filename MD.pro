@@ -28,9 +28,7 @@ HEADERS += \
     src/MD/forces/forces.h \
     cppMD.h
 
-OTHER_FILES += configMD.cfg \
-    GUI/cppMDGUI/viz/images/Stylised_Lithium_Atom.png \
-    GUI/cppMDGUI/viz/images/LithiumAtom.png
+OTHER_FILES += configMD.cfg
 
 ## MPI Settings
 QMAKE_CXX = mpicxx
@@ -56,7 +54,8 @@ GUI {
         GUI/cppMDGUI/viz/graphicsscene.h \
         GUI/cppMDGUI/viz/platform.h \
         GUI/cppMDGUI/viz/sprite.h \
-        GUI/cppMDGUI/mainwindow.h
+        GUI/cppMDGUI/mainwindow.h \
+        GUI/cppMDGUI/ui_mainwindow.h
 
     SOURCES += GUI/cppMDGUI/viz/qtsprite.cpp \
         GUI/cppMDGUI/viz/qtplatform.cpp \
@@ -64,6 +63,10 @@ GUI {
         GUI/cppMDGUI/viz/platform.cpp \
         GUI/cppMDGUI/viz/sprite.cpp \
         GUI/cppMDGUI/mainwindow.cpp
+
+    OTHER_FILES += \
+    GUI/cppMDGUI/viz/images/Stylised_Lithium_Atom.png \
+    GUI/cppMDGUI/viz/images/LithiumAtom.png
 
 }
 
