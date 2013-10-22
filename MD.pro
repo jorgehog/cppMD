@@ -4,7 +4,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 CONFIG += GUI
 
-LIBS += -llapack -lblas -larmadillo -I/usr/lib/libarmadillo.so -lconfig++ -I/usr/include/python2.7 -lpython2.7
+LIBS += -larmadillo -lconfig++ -I/usr/include/python2.7 -lpython2.7
 
 INCLUDEPATH += /usr/include /usr/include/python2.7 /home/jorgehog/code/DCViz/include
 
