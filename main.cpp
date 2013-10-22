@@ -8,12 +8,6 @@ using namespace libconfig;
 #include <mpi.h>
 #include "cppMD.h"
 
-#ifdef NO_DCVIZ
-#include <QApplication>
-#include "/home/jorgehog/cppMD/GUI/cppMDGUI/viz/qtplatform.h"
-#include "/home/jorgehog/cppMD/GUI/cppMDGUI/mainwindow.h"
-#endif
-
 int main(int argc, char* argv[])
 {
 
@@ -21,7 +15,16 @@ int main(int argc, char* argv[])
     wall_clock timer;
 
     Config cfg;
-    cfg.readFile("/home/jorgehog/cppMD/configMD.cfg");
+
+    std::string superPath;
+    if (argc > 1) {
+        superPath = std::string(argv[1]);
+    } else {
+        superPath = "./";
+    }
+
+    std::string configPath = superPath + "configMD.cfg";
+    cfg.readFile(configPath.c_str());
 
     const Setting & root = cfg.getRoot();
 

@@ -16,6 +16,13 @@ QtPlatform::QtPlatform(int argc, char* argv[], MainWindow *mainWindow) :
     mainWindow(mainWindow)
 {
 
+    std::string superPath;
+    if (argc > 1) {
+        superPath = std::string(argv[1]);
+    } else {
+        superPath = "./";
+    }
+
     if (mainWindow != NULL){
         mainWindow->setPlatform(this);
 
@@ -30,15 +37,18 @@ QtPlatform::QtPlatform(int argc, char* argv[], MainWindow *mainWindow) :
     //This is the magic which makes a game possible I guess?
     connect(timer, SIGNAL(timeout()), SLOT(advanceTimeout()));
 
-
     colors.push_back(Qt::black);
     colors.push_back(Qt::blue);
     colors.push_back(Qt::red);
 
-    //images.push_back("/home/jorgehog/cppMD/GUI/cppMDGUI/viz/images/LithiumAtom.png");
-    //images.push_back("/home/jorgehog/cppMD/GUI/cppMDGUI/viz/images/Stylised_Lithium_Atom.png");
-    images.push_back("/home/jorgehog/cppMD/GUI/cppMDGUI/viz/images/ball.png");
-    images.push_back("/home/jorgehog/cppMD/GUI/cppMDGUI/viz/images/defaultpicture.png");
+    std::string imagePath = superPath + "GUI/cppMDGUI/viz/images/";
+
+//    images.push_back(imagePath + "LithiumAtom.png");
+//    images.push_back(imagePath + "Stylised_Lithium_Atom.png");
+//    sizeFac = 1;
+
+    images.push_back(imagePath + "ball.png");
+    images.push_back(imagePath + "defaultpicture.png");
 
 }
 

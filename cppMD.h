@@ -13,4 +13,10 @@
 
 #include "src/MD/forces/forces.h"
 
+#ifdef NO_DCVIZ
+#include <QApplication>
+#include "GUI/cppMDGUI/viz/qtplatform.h"
+#include "GUI/cppMDGUI/mainwindow.h"
+#endif
+
 #endif // CPPMD_H

@@ -64,10 +64,8 @@ GUI {
         GUI/cppMDGUI/viz/sprite.cpp \
         GUI/cppMDGUI/mainwindow.cpp
 
-    OTHER_FILES += \
-    GUI/cppMDGUI/viz/images/Stylised_Lithium_Atom.png \
-    GUI/cppMDGUI/viz/images/LithiumAtom.png
-
+    RESOURCES += \
+        GUI/cppMDGUI/resources.qrc
 }
 
 QMAKE_CXXFLAGS += $$COMMON_CXXFLAGS
