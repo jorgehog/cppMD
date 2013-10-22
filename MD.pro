@@ -2,7 +2,7 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
-CONFIG += GUI
+#CONFIG += GUI
 
 LIBS += -larmadillo -lconfig++ -I/usr/include/python2.7 -lpython2.7
 
