@@ -410,4 +410,113 @@ private:
 };
 
 
+class density : public Event {
+public:
+
+    density() : Event("Density", "", true, true) {}
+
+    void execute() {
+        setValue(meshField->getPopulation()/meshField->getVolume());
+    }
+
+};
+
+
+class pressureMOP : public Event {
+public:
+
+    pressureMOP(int xyz) : Event("Pressure", "P0", true, true), xyz(xyz) {}
+
+    void initialize() {
+        mat topology1 = meshField->topology;
+        mat topology2 = meshField->topology;
+
+        topology1(xyz, 1) = topology1(xyz, 0) + meshField->shape(xyz)/2;
+        topology2(xyz, 0) = topology1(xyz, 1);
+
+        box1 = new MeshField(topology1, *ensemble, "Method of Planes 1. field");
+        box2 = new MeshField(topology2, *ensemble, "Method of Planes 2. field");
+
+        meshField->addSubField(*box1);
+        meshField->addSubField(*box2);
+
+        area = 1;
+
+        for (int i = 0; i < ENS_DIM; ++i) {
+            if (i != xyz) {
+                area *= meshField->shape(i);
+            }
+        }
+
+    }
+
+    double getPressureMOP() {
+
+        double planeForce = 0;
+
+        for (const int & i : box1->getAtoms()) {
+            for (const int & j : box2->getAtoms()) {
+                planeForce += ensemble->forceVectors(i, j, xyz);
+            }
+        }
+
+
+        return fabs(planeForce/area);
+    }
+
+    void execute() {
+
+        double pressure = getPressureMOP();
+
+        setValue(pressure);
+    }
+
+private:
+    int xyz;
+    double area;
+
+    MeshField* box1;
+    MeshField* box2;
+
+
+};
+
+
+class checkEnergyConservation : public Event {
+public:
+
+    checkEnergyConservation() : Event("energyConservation", "", true) {}
+
+    void initialize() {
+        EkPrev = gears::getKineticEnergy(meshField);
+    }
+
+    void execute() {
+        Ek = gears::getKineticEnergy(meshField);
+
+        setValue((Ek-EkPrev)/EkPrev);
+    }
+
+    void reset() {
+        EkPrev = Ek;
+    }
+
+private:
+    double Ek;
+    double EkPrev;
+};
+
+class checkMomentumConservation : public Event {
+public:
+
+    checkMomentumConservation() : Event("momentumConservation", "", true) {}
+
+    void execute() {
+        vec p = gears::getTotalLinearMomentum(ensemble);
+
+        setValue(as_scalar(sum(p)));
+    }
+
+};
+
 #endif // PREDEFINEDEVENTS_H

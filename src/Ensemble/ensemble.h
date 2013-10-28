@@ -13,6 +13,7 @@ struct Ensemble
     mat::fixed<ENS_DIM, ENS_N> pos;
     mat::fixed<ENS_DIM, ENS_N> vel;
     mat::fixed<ENS_DIM, ENS_N> forces;
+    cube::fixed<ENS_N, ENS_N, ENS_DIM> forceVectors;
 
     const vec masses;
 

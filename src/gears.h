@@ -11,21 +11,34 @@ using namespace arma;
 
 namespace gears {
 
+inline vec getTotalLinearMomentum(Ensemble* ensemble) {
+
+    vec pTot = zeros<vec>(ENS_DIM);
+
+     //retrieve ensemble values;
+     const vec & masses = ensemble->masses;
+     mat & vel = ensemble->vel;
+     const int & N = ensemble->nSpecies;
+
+     //Calculates total linear momentum
+     for (int k = 0; k < ENS_N; ++k) {
+         pTot += masses(k%N)*vel.col(k);
+     }
+
+     return pTot;
+
+}
+
 inline void cancelLinearMomentum(Ensemble* ensemble)
 {
-    vec pTot = zeros<vec>(ENS_DIM);
+
 
     //retrieve ensemble values;
     const vec & masses = ensemble->masses;
     mat & vel = ensemble->vel;
     const int & N = ensemble->nSpecies;
 
-
-    //Calculates total linear momentum
-    for (int k = 0; k < ENS_N; ++k) {
-        pTot += masses(k%N)*vel.col(k);
-    }
-
+    vec pTot = getTotalLinearMomentum(ensemble);
 
     pTot /= ENS_N;
 

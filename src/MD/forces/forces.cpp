@@ -67,6 +67,9 @@ void TwoBodyForce::execute()
             for (int k = 0; k < ENS_DIM; ++k) {
                 ensemble->forces(k, i) += force(k);
                 ensemble->forces(k, j) -= force(k);
+
+                ensemble->forceVectors(i, j, k) = force(k);
+                ensemble->forceVectors(j, i, k) = -force(k);
             }
         }
     }

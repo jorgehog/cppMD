@@ -141,6 +141,12 @@ int main(int argc, char* argv[])
     ReportProgress progressReport;
     mainMesh.addEvent(progressReport);
 
+    checkEnergyConservation ekTest;
+    checkMomentumConservation pTest;
+    mainMesh.addEvent(ekTest);
+    mainMesh.addEvent(pTest);
+
+
 #ifndef NO_DCVIZ
     LauchDCViz launchDCViz(delay);
     mainMesh.addEvent(launchDCViz);
@@ -169,7 +175,7 @@ int main(int argc, char* argv[])
     ContractMesh contraction(contractionDelta, contractionDirection, contractionTime, contractionTime + contractionLength);
     mainMesh.addEvent(contraction);
 
-    ExpandMesh expansion(expansionDelta, expansionDirection, false, expansionTime, expansionTime + expansionLength);
+    ExpandMesh expansion(expansionDelta, expansionDirection, true, expansionTime, expansionTime + expansionLength);
     mainMesh.addEvent(expansion);
 
 
@@ -188,6 +194,42 @@ int main(int argc, char* argv[])
     MeshField subFieldUpper (topologyUpper , ensemble, "heatUpper");
     MeshField subFieldMiddle(topologyMiddle, ensemble, "coolMiddle");
     MeshField subFieldLower (topologyLower , ensemble, "heatLower");
+
+//    density d1;
+//    density d2;
+//    density d3;
+//    subFieldUpper.addEvent(d1);
+//    subFieldMiddle.addEvent(d2);
+//    subFieldLower.addEvent(d3);
+
+    mat topologyPressureTop(2, 2);
+    mat topologyPressureBottom(2, 2);
+
+    double pressureBoxHeight = 1;
+
+    topologyPressureTop << 0
+                        << Lx
+                        << endr
+                        << topologyMiddle(1, 1) - pressureBoxHeight/2
+                        << topologyMiddle(1, 1) + pressureBoxHeight/2;
+
+    topologyPressureBottom << 0
+                           << Lx
+                           << endr
+                           << topologyMiddle(1, 0) - pressureBoxHeight/2
+                           << topologyMiddle(1, 0) + pressureBoxHeight/2;
+
+    MeshField solidToLiquidTop(topologyPressureTop, ensemble, "pressureTop");
+    MeshField solidToLiquidBottom(topologyPressureBottom, ensemble, "pressureBottom");
+
+    pressureMOP pT(1);
+    pressureMOP pB(1);
+
+    solidToLiquidTop.addEvent(pT);
+    solidToLiquidBottom.addEvent(pB);
+
+    mainMesh.addSubField(solidToLiquidBottom);
+    mainMesh.addSubField(solidToLiquidTop);
 
 //    //DEBUG
 //    debugSubMeshResize debugMeshSize1(&mainMesh);
@@ -228,8 +270,8 @@ int main(int argc, char* argv[])
 #ifndef NO_DCVIZ
     mainMesh.eventLoop(N);
 #else
-    stall smoothify(1./60);
-    mainMesh.addEvent(smoothify);
+//    stall smoothify(1./60);
+//    mainMesh.addEvent(smoothify);
     platform.startAdvanceTimer();
     MainWindow::startMDThread(N, &platform, &mainMesh);
 #endif

@@ -149,6 +149,8 @@ bool MeshField::notCompatible(MeshField & subField)
                         (sft(0, 1) == tft(0, 1)) &&
                         (sft(1, 0) == tft(1, 0)) &&
                         (sft(1, 1) == tft(1, 1));
+    bool inverted    =  (sft(0, 0) >= sft(0, 1)) ||
+                        (sft(1, 0) >= sft(1, 1));
 #elif ENS_DIM == 3
     bool outsideMesh =  (sft(0, 0) < tft(0, 0)) ||
                         (sft(0, 1) > tft(0, 1)) ||
@@ -163,9 +165,13 @@ bool MeshField::notCompatible(MeshField & subField)
                         (sft(1, 1) == tft(1, 1)) &&
                         (sft(0, 2) == tft(0, 2)) &&
                         (sft(1, 2) == tft(1, 2));
+
+    bool inverted    =  (sft(0, 0) >= sft(0, 1)) ||
+                        (sft(1, 0) >= sft(1, 1)) ||
+                        (sft(2, 0) >= sft(2, 1));
 #endif
 
-    return outsideMesh || equalMesh;
+    return outsideMesh || equalMesh || inverted;
 
 }
 
@@ -183,11 +189,11 @@ void MeshField::addSubField(MeshField  & subField)
 
     if (notCompatible(subField)) {
         std::cout << "subfield " << subField.description << " not compatible on " << description << std::endl;
-        std::cout << "CONFLICT:\nsubField\n" << subField.topology << " is out of bounds or similar to parent\n" << topology << std::endl;
+        std::cout << "CONFLICT:\nsubField\n" << subField.topology << " is out of bounds, similar to parent or inverted/empty\n" << topology << std::endl;
         mat issue = (-topology + subField.topology);
         issue.col(1)*=-1;
 
-        std::cout << "Issue at negative region:\n" << issue << std::endl;
+        std::cout << "Issue at negative or non-zero region:\n" << issue << std::endl;
         throw *incorrectSubMeshPlacementException;
         return;
     }
