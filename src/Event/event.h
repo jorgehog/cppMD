@@ -1,11 +1,12 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include <string>
+#include "../MeshField/meshfield.h"
+
 #include <iostream>
 #include <assert.h>
 
-class MeshField;
+
 struct Ensemble;
 
 class Event
@@ -32,6 +33,10 @@ protected:
     bool toFile;
 
     virtual void execute() = 0;
+
+    std::vector<int> myAtoms () {
+        return meshField->getAtoms();
+    }
 
 
 public:
@@ -181,6 +186,14 @@ public:
             doOutput = doOutputOrig;
         }
 
+    }
+
+    int getOnsetTime() {
+        return onsetTime;
+    }
+
+    int getOffsetTime() {
+        return offsetTime;
     }
 
 protected:

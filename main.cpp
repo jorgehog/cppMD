@@ -106,10 +106,10 @@ int main(int argc, char* argv[])
     ContractMesh initialContractionY(1./(initialDelta*m), 1, 5*therm10, 8*therm10);
 
 
-    mainMesh.addEvent(initialContractionX);
-    mainMesh.addEvent(initialContractionY);
-    mainMesh.addEvent(initialExpansionX);
-    mainMesh.addEvent(initialExpansionY);
+//    mainMesh.addEvent(initialContractionX);
+//    mainMesh.addEvent(initialContractionY);
+//    mainMesh.addEvent(initialExpansionX);
+//    mainMesh.addEvent(initialExpansionY);
 
     /*
      * Creating and adding events to the MainMesh
@@ -118,8 +118,10 @@ int main(int argc, char* argv[])
     mdSolver molecularDynamicsSolver(T0, dt);
     mainMesh.addEvent(molecularDynamicsSolver);
 
+#ifndef NO_DCVIZ
     SaveToFile saveToFile(1);
     mainMesh.addEvent(saveToFile);
+#endif
 
     VelocityVerletFirstHalf  VelocityVerlet1(dt);
     mainMesh.addEvent(VelocityVerlet1);
@@ -138,12 +140,16 @@ int main(int argc, char* argv[])
     mainThermostat.setOffsetTime(therm);
     mainMesh.addEvent(mainThermostat);
 
+    temperatureFluctuations mainFluctuations(&mainThermostat);
+    mainMesh.addEvent(mainFluctuations);
+
     ReportProgress progressReport;
     mainMesh.addEvent(progressReport);
 
     checkEnergyConservation ekTest;
-    checkMomentumConservation pTest;
     mainMesh.addEvent(ekTest);
+
+    checkMomentumConservation pTest;
     mainMesh.addEvent(pTest);
 
 
@@ -173,10 +179,10 @@ int main(int argc, char* argv[])
      */
 
     ContractMesh contraction(contractionDelta, contractionDirection, contractionTime, contractionTime + contractionLength);
-    mainMesh.addEvent(contraction);
+//    mainMesh.addEvent(contraction);
 
     ExpandMesh expansion(expansionDelta, expansionDirection, true, expansionTime, expansionTime + expansionLength);
-    mainMesh.addEvent(expansion);
+//    mainMesh.addEvent(expansion);
 
 
     /*
@@ -195,12 +201,13 @@ int main(int argc, char* argv[])
     MeshField subFieldMiddle(topologyMiddle, ensemble, "coolMiddle");
     MeshField subFieldLower (topologyLower , ensemble, "heatLower");
 
-//    density d1;
-//    density d2;
-//    density d3;
-//    subFieldUpper.addEvent(d1);
-//    subFieldMiddle.addEvent(d2);
-//    subFieldLower.addEvent(d3);
+    density d1;
+    density d2;
+    density d3;
+
+    subFieldUpper.addEvent(d1);
+    subFieldMiddle.addEvent(d2);
+    subFieldLower.addEvent(d3);
 
     mat topologyPressureTop(2, 2);
     mat topologyPressureBottom(2, 2);
@@ -257,6 +264,27 @@ int main(int argc, char* argv[])
     subFieldUpper.addEvent (thermoUpper);
     subFieldMiddle.addEvent(thermoMiddle);
     subFieldLower.addEvent (thermoLower);
+
+    diffusionConstant DUpper(dt);
+    diffusionConstant DMiddle(dt);
+    diffusionConstant DLower(dt);
+
+    DUpper.setOnsetTime(expansionTime + expansionLength + 500);
+    DMiddle.setOnsetTime(expansionTime + expansionLength + 500);
+    DLower.setOnsetTime(expansionTime + expansionLength + 500);
+
+    subFieldUpper.addEvent (DUpper);
+    subFieldMiddle.addEvent(DMiddle);
+    subFieldLower.addEvent (DLower);
+
+    temperatureFluctuations tFluctUpper(&thermoUpper);
+    temperatureFluctuations tFluctMiddle(&thermoMiddle);
+    temperatureFluctuations tFluctLower(&thermoLower);
+
+    subFieldUpper.addEvent (tFluctUpper);
+    subFieldMiddle.addEvent(tFluctMiddle);
+    subFieldLower.addEvent (tFluctLower);
+
 
     mainMesh.addSubField(subFieldUpper);
     mainMesh.addSubField(subFieldMiddle);

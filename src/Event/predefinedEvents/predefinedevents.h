@@ -164,6 +164,8 @@ protected:
         setValue(gears::getTemperature(meshField));
     }
 
+
+
 };
 
 class BerendsenThermostat : public thermostat {
@@ -517,6 +519,72 @@ public:
         setValue(as_scalar(sum(p)));
     }
 
+};
+
+
+class diffusionConstant : public OnsetEvent {
+public:
+
+    diffusionConstant(double dt) : OnsetEvent("DiffusionConstant", "D0", true), fac(dt/(ENS_DIM)), D(0) {}
+
+    void initialize() {
+        v0 = ensemble->vel;
+    }
+
+    void execute() {
+
+        double dD = 0;
+
+        for (const int & i : myAtoms()) {
+            for (int j = 0; j < ENS_DIM; ++j) {
+                dD += v0(j, i)*ensemble->vel(j, i);
+            }
+        }
+
+        dD /= meshField->getPopulation();
+
+        D += dD*fac;
+
+        setValue(D);
+
+    }
+
+private:
+
+    mat::fixed<ENS_DIM, ENS_N> v0;
+    double fac;
+    double D;
+
+};
+
+class temperatureFluctuations : public OnsetEvent {
+public:
+
+    temperatureFluctuations(thermostat *t) : OnsetEvent("TempFluct", "T0", true), t(t) {
+        setOnsetTime(t->getOnsetTime());
+        setOffsetTime(t->getOffsetTime());
+    }
+
+    void execute() {
+
+        double T = t->getMeasurement();
+
+        avgT += T;
+        avgT2 += T*T;
+
+        setValue(sqrt(avgT2/N - avgT*avgT/(N*N)));
+
+        N++;
+    }
+
+private:
+
+    thermostat* t;
+
+    double avgT;
+    double avgT2;
+
+    int N;
 };
 
 #endif // PREDEFINEDEVENTS_H

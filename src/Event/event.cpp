@@ -1,7 +1,5 @@
 #include "event.h"
 
-#include "../MeshField/meshfield.h"
-
 #include <sstream>
 #include <iomanip>
 
