@@ -95,11 +95,14 @@ const vec LennardJonesForce::getForce(const int &i, const int &j)
 
     double & eps = epsTable(k, l);
 
-    double length = sqrt(rRel2);
+//    double length = sqrt(rRel2);
 
-    double sigmaOverR6 = pow(sigma*sigma/rRel2, 3);
+    double sigmaOverR2 = sigma*sigma/rRel2;
+    double sigmaOverR6 = sigmaOverR2*sigmaOverR2*sigmaOverR2;
 
-    force = 4*eps*(sigmaOverR6*sigmaOverR6 - sigmaOverR6)*rRel/length;
+    force = 48*eps*sigmaOverR2*sigmaOverR6*(sigmaOverR6 - 0.5)*rRel;
+
+//    force = 4*eps*(sigmaOverR6*sigmaOverR6 - sigmaOverR6)*rRel/length;
 
     return force;
 

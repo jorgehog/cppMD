@@ -209,6 +209,9 @@ int main(int argc, char* argv[])
     subFieldMiddle.addEvent(d2);
     subFieldLower.addEvent(d3);
 
+    pressureMOP press(1);
+    subFieldMiddle.addEvent(press);
+
     mat topologyPressureTop(2, 2);
     mat topologyPressureBottom(2, 2);
 
