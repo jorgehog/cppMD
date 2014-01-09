@@ -23,6 +23,10 @@ QtPlatform::QtPlatform(int argc, char* argv[], MainWindow *mainWindow) :
         superPath = "./";
     }
 
+    if (strcmp(&superPath.back(), "/") != 0){
+        superPath = superPath + "/";
+    }
+
     if (mainWindow != NULL){
         mainWindow->setPlatform(this);
 

@@ -23,6 +23,10 @@ int main(int argc, char* argv[])
         superPath = "./";
     }
 
+    if (strcmp(&superPath.back(), "/") != 0){
+        superPath = superPath + "/";
+    }
+
     std::string configPath = superPath + "configMD.cfg";
     cfg.readFile(configPath.c_str());
 

@@ -327,7 +327,7 @@ public:
 
     void execute() {
         if ((*loopCycle % freq) == 0) {
-            ensemble->pos.save(std::string("/home/jorgehog/tmp/mdPos") + (toStr(*loopCycle) + ".arma"));
+            ensemble->pos.save(std::string("/tmp/mdPos") + (toStr(*loopCycle) + ".arma"));
         }
     }
 
