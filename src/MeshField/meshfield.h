@@ -69,31 +69,6 @@ protected:
         atoms.clear();
     }
 
-    void setTopology(const mat & topology, bool recursive=true) {
-
-        if (recursive) {
-            for (MeshField * subField : subFields) {
-                subField->scaleField(shape, this->topology, topology);
-            }
-        }
-
-        //Evil haxx for changing const values
-
-        mat * matPtr;
-        matPtr = (mat*)(&this->topology);
-        *matPtr = topology;
-
-        vec * vecPtr;
-        vecPtr = (vec*)(&shape);
-        *vecPtr = topology.col(1) - topology.col(0);
-
-        //Calculate the volume
-        volume = 1;
-        for (int i = 0; i < ENS_DIM; ++i) {
-            volume *= shape(i);
-        }
-
-    }
 
 public:
 
@@ -104,6 +79,8 @@ public:
     const vec::fixed<ENS_DIM> shape;
 
     const std::string description;
+
+    void setTopology(const mat & topology, bool recursive=true);
 
     void addEvent(Event & event);
 
@@ -139,9 +116,7 @@ public:
         return events;
     }
 
-    void removeEvent(int i){
-        events.erase(events.begin() + i);
-    }
+    void removeEvent(int i);
 
     void removeSubMesh(int i){
         subFields.erase(subFields.begin() + i);

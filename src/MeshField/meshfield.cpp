@@ -29,6 +29,15 @@ bool MeshField::isWithinThis(int i) {
 
 }
 
+void MeshField::removeEvent(int i)
+{
+    events.erase(events.begin() + i);
+
+    for (uint j = i; j < events.size(); ++j) {
+        events.at(j)->setAddress(j);
+    }
+}
+
 
 void MeshField::resetSubFields()
 {
@@ -105,10 +114,10 @@ void MeshField::storeActiveEvents()
 
 bool MeshField::checkSubFields(int i){
 
-    bool matchedInSubLevel = false;
     bool matchInSubField;
+    bool matchedInSubLevel = false;
 
-    bool verbose = false;
+    //bool verbose = false;
 
     for (MeshField* subField : subFields){
 
@@ -124,7 +133,7 @@ bool MeshField::checkSubFields(int i){
     }
 
 
-    if (verbose) std::cout << i << " checked by " << description << "\t:  " << matchedInSubLevel << std::endl;
+    //if (verbose) std::cout << i << " checked by " << description << "\t:  " << matchedInSubLevel << std::endl;
     return matchedInSubLevel;
 
 }
@@ -141,47 +150,78 @@ bool MeshField::notCompatible(MeshField & subField)
 
 #if ENS_DIM == 2
     bool outsideMesh =  (sft(0, 0) < tft(0, 0)) ||
-                        (sft(0, 1) > tft(0, 1)) ||
-                        (sft(1, 0) < tft(1, 0)) ||
-                        (sft(1, 1) > tft(1, 1));
+            (sft(0, 1) > tft(0, 1)) ||
+            (sft(1, 0) < tft(1, 0)) ||
+            (sft(1, 1) > tft(1, 1));
 
     bool equalMesh   =  (sft(0, 0) == tft(0, 0)) &&
-                        (sft(0, 1) == tft(0, 1)) &&
-                        (sft(1, 0) == tft(1, 0)) &&
-                        (sft(1, 1) == tft(1, 1));
+            (sft(0, 1) == tft(0, 1)) &&
+            (sft(1, 0) == tft(1, 0)) &&
+            (sft(1, 1) == tft(1, 1));
     bool inverted    =  (sft(0, 0) >= sft(0, 1)) ||
-                        (sft(1, 0) >= sft(1, 1));
+            (sft(1, 0) >= sft(1, 1));
 #elif ENS_DIM == 3
     bool outsideMesh =  (sft(0, 0) < tft(0, 0)) ||
-                        (sft(0, 1) > tft(0, 1)) ||
-                        (sft(1, 0) < tft(1, 0)) ||
-                        (sft(1, 1) > tft(1, 1)) ||
-                        (sft(2, 0) < tft(2, 0)) ||
-                        (sft(2, 1) > tft(2, 1));
+            (sft(0, 1) > tft(0, 1)) ||
+            (sft(1, 0) < tft(1, 0)) ||
+            (sft(1, 1) > tft(1, 1)) ||
+            (sft(2, 0) < tft(2, 0)) ||
+            (sft(2, 1) > tft(2, 1));
 
     bool equalMesh   =  (sft(0, 0) == tft(0, 0)) &&
-                        (sft(1, 0) == tft(1, 0)) &&
-                        (sft(0, 1) == tft(0, 1)) &&
-                        (sft(1, 1) == tft(1, 1)) &&
-                        (sft(0, 2) == tft(0, 2)) &&
-                        (sft(1, 2) == tft(1, 2));
+            (sft(1, 0) == tft(1, 0)) &&
+            (sft(0, 1) == tft(0, 1)) &&
+            (sft(1, 1) == tft(1, 1)) &&
+            (sft(0, 2) == tft(0, 2)) &&
+            (sft(1, 2) == tft(1, 2));
 
     bool inverted    =  (sft(0, 0) >= sft(0, 1)) ||
-                        (sft(1, 0) >= sft(1, 1)) ||
-                        (sft(2, 0) >= sft(2, 1));
+            (sft(1, 0) >= sft(1, 1)) ||
+            (sft(2, 0) >= sft(2, 1));
 #endif
 
     return outsideMesh || equalMesh || inverted;
 
 }
 
+void MeshField::setTopology(const mat &topology, bool recursive)
+{
+
+    if (recursive) {
+        for (MeshField * subField : subFields) {
+            subField->scaleField(shape, this->topology, topology);
+        }
+    }
+
+    //Evil haxx for changing const values
+
+    mat * matPtr;
+    matPtr = (mat*)(&this->topology);
+    *matPtr = topology;
+
+    vec * vecPtr;
+    vecPtr = (vec*)(&shape);
+    *vecPtr = topology.col(1) - topology.col(0);
+
+    //Calculate the volume
+    volume = 1;
+    for (int i = 0; i < ENS_DIM; ++i) {
+        volume *= shape(i);
+    }
+
+}
 
 
 void MeshField::addEvent(Event & event)
 {
     event.setMeshField(this);
+
     event.setEnsemble(ensemble);
+
     events.push_back(&event);
+
+    event.setAddress(events.size()-1);
+
 }
 
 void MeshField::addSubField(MeshField  & subField)
@@ -239,7 +279,7 @@ void MeshField::scaleField(const vec & oldShape, const mat & oldTopology, const 
 
     setTopology(newSubTopology);
 
-//    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
+    //    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
 
 }
 

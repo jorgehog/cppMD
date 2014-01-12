@@ -19,18 +19,22 @@ Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
 
 std::string Event::dumpString()
 {
-    std::stringstream s;
+    using namespace std;
 
-    s << "<"
+    stringstream s, tail;
 
-      << type << "@"
-      << meshField->description;
+    s << left
+      << "<" << setw(20) << type << " "
+      << "@" << setw(30) << meshField->description;
+
     if (valueInitialized){
-        s << ";\t" << "value: " << std::setprecision(3) << getMeasurement() << " " << unit;
+        tail << "value: " << setprecision(3) << getMeasurement() << " " << unit;
         valueInitialized = false;
     }
 
-    s << " >";
+    tail << " >";
+
+    s << right << tail.str();
 
 
     return s.str();

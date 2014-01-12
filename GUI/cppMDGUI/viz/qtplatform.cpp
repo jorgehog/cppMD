@@ -49,7 +49,7 @@ QtPlatform::QtPlatform(int argc, char* argv[], MainWindow *mainWindow) :
 
 //    images.push_back(imagePath + "LithiumAtom.png");
 //    images.push_back(imagePath + "Stylised_Lithium_Atom.png");
-//    sizeFac = 1;
+//    sizeFac = 0.5;
 
     images.push_back(imagePath + "ball.png");
     images.push_back(imagePath + "defaultpicture.png");

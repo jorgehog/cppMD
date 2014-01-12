@@ -10,6 +10,7 @@ MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble):
     MeshField(topology, ensemble, "MainMesh")
 {
 
+    setOutputPath("/tmp/");
 
     for (int i = 0; i < ENS_N; ++i) {
         atoms.push_back(i);
@@ -39,7 +40,7 @@ void MainMesh::dumpEventsToFile()
 {
     storeActiveEvents();
 
-    observables.save("/home/jorgehog/tmp/mdEventsOut.arma");
+    observables.save(outputPath);
 }
 
 void MainMesh::eventLoop(int N)
@@ -49,6 +50,7 @@ void MainMesh::eventLoop(int N)
 
     observables.zeros(N, Event::getCounter());
 
+
     initializeEvents(loopCounter, N);
 
     while (*loopCounter < N) {
@@ -56,7 +58,10 @@ void MainMesh::eventLoop(int N)
         updateContainments();       //1. Find which atoms are in which meshes
 
         executeEvents();            //2. Let each mesh execute their events on these atoms
+
         dumpEvents();               //3. Let each event dump their output
+        std::cout << std::endl;
+
         dumpEventsToFile();         //4. Dump the events to file if so is specified.
 
         resetEvents();              //4. Reset.
@@ -64,6 +69,15 @@ void MainMesh::eventLoop(int N)
         *loopCounter = *loopCounter + 1;
 
     }
+}
+
+void MainMesh::setOutputPath(std::string path)
+{
+    if (strcmp(&path.back(), "/") != 0){
+        path = path + "/";
+    }
+
+    outputPath = path + "mdEventsOut.arma";
 }
 
 

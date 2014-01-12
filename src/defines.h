@@ -3,8 +3,8 @@
 
 #define ENS_DIM 2
 
-#define ENS_NX 10
-#define ENS_NY 10
+#define ENS_NX 20
+#define ENS_NY 20
 
 /*
  *
@@ -38,7 +38,11 @@
 #undef ENS_PERIODIC_Z
 #endif
 
+#define quickPrint(expr) \
+    std::cout << expr << std::endl
 
-
+#define IGNIS_X 0
+#define IGNIS_Y 1
+#define IGNIS_Z 2
 
 #endif // DEFINES_H

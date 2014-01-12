@@ -19,6 +19,8 @@ protected:
     static int counter;
     int id;
 
+    int address; //! This event's index in meshfield's event array
+
     double* value;
 
     MeshField* meshField;
@@ -101,9 +103,16 @@ public:
         this->loopCycle = loopCycle;
     }
 
+    void setAddress(int i) {
+        address = i;
+    }
+
     std::string dumpString();
 
 };
+
+
+#define UNSET_EVENT_TIME -1
 
 class TriggerEvent : public Event {
 public:
@@ -118,23 +127,25 @@ public:
 
     void executeEvent() {
 
-        assert(trigger != -1);
+        assert(trigger != UNSET_EVENT_TIME);
 
         doOutput = false;
 
         if (*loopCycle == trigger){
             execute();
             doOutput = true;
+        } else if (*loopCycle == trigger + 1) {
+            meshField->removeEvent(this->address);
         }
+
     }
 
 protected:
 
-    int trigger = -1;
+    int trigger = UNSET_EVENT_TIME;
 
 };
 
-#define UNSET_EVENT_TIME -1
 
 
 class OnsetEvent : public Event {
@@ -142,7 +153,11 @@ public:
 
     OnsetEvent(std::string type = "OnsetEvent", std::string unit = "", bool doOutput=false, bool toFile=false) :
         Event(type, unit, false, toFile),
-        doOutputOrig(doOutput) {}
+        doOutputOrig(doOutput),
+        nTimesExecuted(0)
+    {
+
+    }
 
     void setOnsetTime(int onsetTime){
 
@@ -173,18 +188,19 @@ public:
         assert(onsetTime != UNSET_EVENT_TIME);
 
         if (*loopCycle == offsetTime) {
-            shouldExecute = false;
-            doOutput = false;
+            meshField->removeEvent(this->address);
         }
 
         if (*loopCycle == onsetTime) {
             initialize();
         }
 
-        if ((*loopCycle >= onsetTime) && (shouldExecute)) {
+        if (*loopCycle >= onsetTime) {
             execute();
             doOutput = doOutputOrig;
+            nTimesExecuted++;
         }
+
 
     }
 
@@ -201,10 +217,10 @@ protected:
     int onsetTime = UNSET_EVENT_TIME;
     int offsetTime = UNSET_EVENT_TIME;
 
-    bool shouldExecute = true;
     bool doOutputOrig;
 
     int eventLength = UNSET_EVENT_TIME;
 
+    int nTimesExecuted;
 };
 #endif // EVENT_H

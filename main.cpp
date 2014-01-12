@@ -5,7 +5,9 @@
 using namespace arma;
 using namespace libconfig;
 
+#ifdef USE_MPI
 #include <mpi.h>
+#endif
 #include "cppMD.h"
 
 int main(int argc, char* argv[])
@@ -40,6 +42,8 @@ int main(int argc, char* argv[])
     int N = root["solver"]["N"];
     int therm = root["solver"]["therm"];
     double m = root["solver"]["tightness"];
+    std::string outputPath = root["solver"]["outputPath"];
+
 
     double T0 = root["mainThermostat"]["bathTemperature"];
     double tau = ((double)root["mainThermostat"]["tauOverDt"])*dt;
@@ -71,14 +75,12 @@ int main(int argc, char* argv[])
 
     double delay = root["DCViz"]["delay"];
 
-    int contractionTime =        (int)root["Events"]["Contraction"]["timeMinusTherm"] + therm;
-    int contractionDirection =   (int)root["Events"]["Contraction"]["direction"];
-    int contractionLength =      (int)root["Events"]["Contraction"]["length"];
-    double contractionDelta = (double)root["Events"]["Contraction"]["delta"];
+    int compressionTime =        (int)root["Events"]["Compression"]["timeMinusTherm"] + therm;
+    int compressionLength =      (int)root["Events"]["Compression"]["length"];
+    double compressionDelta = (double)root["Events"]["Compression"]["delta"];
 
-    int expansionTime =        (int)root["Events"]["Expansion"]["timeMinusContractionTime"] + contractionTime;
-    int expansionDirection =   (int)root["Events"]["Expansion"]["direction"];
-    int expansionLength =     ((int)root["Events"]["Expansion"]["lengthOverContractionLength"])*contractionLength;
+    int expansionTime =        (int)root["Events"]["Expansion"]["timeMinusCompressionTime"] + compressionTime;
+    int expansionLength =     ((int)root["Events"]["Expansion"]["lengthOverCompressionLength"])*compressionLength;
     double expansionDelta = (double)root["Events"]["Expansion"]["delta"];
 
     double tScaleWarm = (double) root["Events"]["Thermostats"]["temperatureScaleFactorWarm"];
@@ -101,19 +103,19 @@ int main(int argc, char* argv[])
     topology << 0 << Lx << endr << 0 << Ly;
 
     MainMesh mainMesh(topology, ensemble);
-
+    mainMesh.setOutputPath(outputPath);
 
     int therm10 = therm/10;
-    ExpandMesh     initialExpansionX(initialDelta,    0, true, 2*therm10-1, 3*therm10-1);
-    ExpandMesh     initialExpansionY(initialDelta,    1, true, 2*therm10-1, 3*therm10-1);
-    ContractMesh initialContractionX(1./(initialDelta*m), 0, 5*therm10, 8*therm10);
-    ContractMesh initialContractionY(1./(initialDelta*m), 1, 5*therm10, 8*therm10);
+    VolumeChange expansion(initialDelta, true);
+    expansion.setOnsetTime(2*therm10-1);
+    expansion.setOffsetTime(3*therm10-1);
 
+    VolumeChange compression(1./(initialDelta*m), true);
+    compression.setOnsetTime(5*therm10);
+    compression.setOffsetTime(8*therm10);
 
-//    mainMesh.addEvent(initialContractionX);
-//    mainMesh.addEvent(initialContractionY);
-//    mainMesh.addEvent(initialExpansionX);
-//    mainMesh.addEvent(initialExpansionY);
+    mainMesh.addEvent(expansion);
+    mainMesh.addEvent(compression);
 
     /*
      * Creating and adding events to the MainMesh
@@ -182,11 +184,15 @@ int main(int argc, char* argv[])
      *  Onset Events
      */
 
-    ContractMesh contraction(contractionDelta, contractionDirection, contractionTime, contractionTime + contractionLength);
-//    mainMesh.addEvent(contraction);
+    VolumeChange compression2(compressionDelta, true);
+    compression2.setOnsetTime(compressionTime);
+    compression2.setOffsetTime(compressionTime + compressionLength);
+    mainMesh.addEvent(compression2);
 
-    ExpandMesh expansion(expansionDelta, expansionDirection, true, expansionTime, expansionTime + expansionLength);
-//    mainMesh.addEvent(expansion);
+    VolumeChange expansion2(expansionDelta, true);
+    expansion2.setOnsetTime(expansionTime);
+    expansion2.setOffsetTime(expansionTime + expansionLength);
+    mainMesh.addEvent(expansion2);
 
 
     /*
@@ -219,7 +225,7 @@ int main(int argc, char* argv[])
     mat topologyPressureTop(2, 2);
     mat topologyPressureBottom(2, 2);
 
-    double pressureBoxHeight = 1;
+    double pressureBoxHeight = 2.5;
 
     topologyPressureTop << 0
                         << Lx

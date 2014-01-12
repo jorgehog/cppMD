@@ -319,6 +319,59 @@ private:
 
 };
 
+class VolumeChange : public OnsetEvent {
+public:
+
+    VolumeChange(double ratio, bool recursive) :
+        OnsetEvent("VolumeChange"),
+        ratio(ratio),
+        recursive(recursive)
+    {
+        assert(ratio > 0 && "RATIO CANNOT BE NEGATIVE");
+    }
+
+    void initialize() {
+
+        topology0 = meshField->topology;
+        volume0 = meshField->getVolume();
+
+        k = (pow(ratio, 1.0/ENS_DIM) - 1)/eventLength;
+
+    }
+
+private:
+
+    double k;
+    double ratio;
+
+    bool recursive;
+
+    mat topology0;
+    double volume0;
+
+    // Event interface
+protected:
+    void execute() {
+
+        double vPrev = meshField->getVolume();
+        assert(vPrev != 0 && "Can't increase volume of empty volume.(V=0)");
+
+        double dL = k*(nTimesExecuted + 1.0);
+        mat newTopology = topology0*(1 + dL);
+
+        meshField->setTopology(newTopology, recursive);
+
+        double vNew = meshField->getVolume();
+        assert(vNew != 0 && "Volume changed to zero");
+
+        double scale = pow(vNew/vPrev, 1.0/ENS_DIM);
+        for (const int & i : meshField->getAtoms()) {
+            ensemble->pos.col(i) *= scale;
+        }
+    }
+
+};
+
 
 class SaveToFile : public Event {
 public:
@@ -572,9 +625,8 @@ public:
         avgT += T;
         avgT2 += T*T;
 
-        setValue(sqrt(avgT2/N - avgT*avgT/(N*N)));
+        setValue(sqrt(avgT2/(nTimesExecuted+1) - avgT*avgT/((nTimesExecuted+1)*(nTimesExecuted+1))));
 
-        N++;
     }
 
 private:
@@ -584,7 +636,6 @@ private:
     double avgT;
     double avgT2;
 
-    int N;
 };
 
 #endif // PREDEFINEDEVENTS_H
