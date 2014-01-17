@@ -7,10 +7,7 @@ INCLUDEPATH += /usr/include /usr/include/python2.7 /home/jorgehog/code/DCViz/inc
 
 SOURCES += MeshField/meshfield.cpp \
     Event/event.cpp \
-    MeshField/MainMesh/mainmesh.cpp \
-    MD/mdsolver.cpp \
-    MD/forces/forces.cpp \
-    MeshField/VerletCell/verletcell.cpp
+    MeshField/MainMesh/mainmesh.cpp
 
 HEADERS += \
     defines.h \

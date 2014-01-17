@@ -3,7 +3,8 @@
 
 #include "platform.h"
 #include "graphicsscene.h"
-#include "../../../src/MeshField/MainMesh/mainmesh.h"
+
+#include <ignis.h>
 
 #include <QGraphicsView>
 #include <QGraphicsScene>

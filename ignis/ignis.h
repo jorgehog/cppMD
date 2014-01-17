@@ -14,8 +14,8 @@ namespace ignis {
 
 #ifdef NO_DCVIZ
 #include <QApplication>
-#include "GUI/cppMDGUI/viz/qtplatform.h"
-#include "GUI/cppMDGUI/mainwindow.h"
+#include "GUI/src/qtplatform.h"
+#include "GUI/mainwindow.h"
 #endif
 
 } //end namespace ignis

@@ -1,8 +1,7 @@
 #ifndef MDSOLVER_H
 #define MDSOLVER_H
 
-#include "../Event/event.h"
-
+#include <ignis.h>
 #include <math.h>
 
 class mdSolver : public Event

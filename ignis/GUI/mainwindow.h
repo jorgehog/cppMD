@@ -1,12 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "../../src/Event/predefinedEvents/predefinedevents.h"
-#include "../../src/MD/mdsolver.h"
-#include "../../src/MD/forces/forces.h"
-
-#include "viz/qtplatform.h"
-#include "../../src/MeshField/MainMesh/mainmesh.h"
+#include <ignis.h>
+#include "src/qtplatform.h"
 
 #include <QMainWindow>
 #include <boost/lexical_cast.hpp>

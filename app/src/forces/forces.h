@@ -1,9 +1,7 @@
 #ifndef FORCES_H
 #define FORCES_H
 
-#include "../../Event/event.h"
-
-#include "../../defines.h"
+#include <ignis.h>
 #include <armadillo>
 
 using namespace arma;
