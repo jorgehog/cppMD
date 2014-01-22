@@ -1,6 +1,4 @@
 #include "forces.h"
-#include "../../Ensemble/ensemble.h"
-#include "../../MeshField/meshfield.h"
 
 Force::Force() :
     Event("Force")

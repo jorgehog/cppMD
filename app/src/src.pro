@@ -4,9 +4,11 @@ CONFIG -= app_bundle
 CONFIG -= qt
 CONFIG += GUI
 
-LIBS += -larmadillo -lconfig++ -I/usr/include/python2.7 -lpython2.7 -L$$TOP_OUT_PWD/src/libs
+TARGET = MD
 
-INCLUDEPATH += /usr/include /usr/include/python2.7 /home/jorgehog/code/DCViz/include $$OUT_PWD/ignis
+LIBS += -larmadillo -lconfig++ -lpython2.7 -L$$TOP_OUT_PWD/ignis/lib -lignis
+
+INCLUDEPATH += /usr/include/python2.7 /home/jorgehog/code/DCViz/include $$TOP_PWD/ignis/include $$HOME/Dropbox/libs
 
 SOURCES += main.cpp \
     mdsolver.cpp \

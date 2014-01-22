@@ -1,5 +1,6 @@
 #include <iostream>
 #include <libconfig.h++>
+#include <ignis.h>
 #include <armadillo>
 
 using namespace arma;
@@ -8,6 +9,7 @@ using namespace libconfig;
 #ifdef USE_MPI
 #include <mpi.h>
 #endif
+
 #include "cppMD.h"
 
 int main(int argc, char* argv[])
@@ -18,18 +20,7 @@ int main(int argc, char* argv[])
 
     Config cfg;
 
-    std::string superPath;
-    if (argc > 1) {
-        superPath = std::string(argv[1]);
-    } else {
-        superPath = "./";
-    }
-
-    if (strcmp(&superPath.back(), "/") != 0){
-        superPath = superPath + "/";
-    }
-
-    std::string configPath = superPath + "configMD.cfg";
+    std::string configPath = "../infiles/configMD.cfg";
     cfg.readFile(configPath.c_str());
 
     const Setting & root = cfg.getRoot();

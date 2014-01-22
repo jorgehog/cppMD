@@ -1,5 +1,5 @@
 TEMPLATE = lib 
-TARGET = ignis
+TARGET = ../lib/ignis
 
 LIBS += -larmadillo -lconfig++ -I/usr/include/python2.7 -lpython2.7
 

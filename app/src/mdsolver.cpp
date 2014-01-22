@@ -1,8 +1,5 @@
 #include "mdsolver.h"
 
-#include "../MeshField/MainMesh/mainmesh.h"
-#include "../Event/predefinedEvents/predefinedevents.h"
-#include "../gears.h"
 #include <armadillo>
 using namespace arma;
 
