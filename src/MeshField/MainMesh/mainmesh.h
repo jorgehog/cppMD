@@ -3,8 +3,6 @@
 
 #include "../meshfield.h"
 
-class SolverEvent;
-
 class MainMesh : public MeshField
 {
 
@@ -21,12 +19,14 @@ public:
         return loopCounter;
     }
 
+    void setOutputPath(std::string path);
+
 private:
 
     void updateContainments();
     void dumpEventsToFile();
 
-
+    std::string outputPath;
 
 
 };
