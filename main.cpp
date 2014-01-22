@@ -229,17 +229,17 @@ int main(int argc, char* argv[])
                            << topologyMiddle(1, 0) - pressureBoxHeight/2
                            << topologyMiddle(1, 0) + pressureBoxHeight/2;
 
-    MeshField solidToLiquidTop(topologyPressureTop, ensemble, "pressureTop");
-    MeshField solidToLiquidBottom(topologyPressureBottom, ensemble, "pressureBottom");
+//    MeshField solidToLiquidTop(topologyPressureTop, ensemble, "pressureTop");
+//    MeshField solidToLiquidBottom(topologyPressureBottom, ensemble, "pressureBottom");
 
-    pressureMOP pT(1);
-    pressureMOP pB(1);
+//    pressureMOP pT(1);
+//    pressureMOP pB(1);
 
-    solidToLiquidTop.addEvent(pT);
-    solidToLiquidBottom.addEvent(pB);
+//    solidToLiquidTop.addEvent(pT);
+//    solidToLiquidBottom.addEvent(pB);
 
-    mainMesh.addSubField(solidToLiquidBottom);
-    mainMesh.addSubField(solidToLiquidTop);
+//    mainMesh.addSubField(solidToLiquidBottom);
+//    mainMesh.addSubField(solidToLiquidTop);
 
 //    //DEBUG
 //    debugSubMeshResize debugMeshSize1(&mainMesh);
