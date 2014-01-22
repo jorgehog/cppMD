@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
     mainMesh.addEvent(molecularDynamicsSolver);
 
 #ifndef NO_DCVIZ
-    SaveToFile saveToFile(1);
+    SaveToFile saveToFile(outputPath, 1);
     mainMesh.addEvent(saveToFile);
 #endif
 
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 
 
 #ifndef NO_DCVIZ
-    LauchDCViz launchDCViz(delay);
+    LauchDCViz launchDCViz(outputPath, delay);
     mainMesh.addEvent(launchDCViz);
 #else
     (void) delay;

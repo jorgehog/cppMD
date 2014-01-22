@@ -376,16 +376,23 @@ protected:
 class SaveToFile : public Event {
 public:
 
-    SaveToFile(int freq) : Event("SaveData"), freq(freq) {}
+    SaveToFile(std::string path, int freq) : Event("SaveData"), path(path), freq(freq) {}
 
     void execute() {
         if ((*loopCycle % freq) == 0) {
-            ensemble->pos.save(std::string("/tmp/mdPos") + (toStr(*loopCycle) + ".arma"));
+            scaledPos = ensemble->pos;
+            scaledPos.row(0)/=meshField->shape(0);
+            scaledPos.row(1)/=meshField->shape(1);
+            scaledPos.save((path + "/mdPos") + (toStr(*loopCycle) + ".arma"));
         }
     }
 
 private:
+
+    std::string path;
     int freq;
+
+    mat::fixed<ENS_DIM, ENS_N> scaledPos;
 
 };
 
@@ -394,7 +401,7 @@ class LauchDCViz : public Event {
 
 public:
 
-    LauchDCViz(double delay) : Event(), delay(delay), viz("/home/jorgehog/tmp/mdPos0.arma") {}
+    LauchDCViz(std::string path, double delay) : Event(), delay(delay), viz(path + "/mdPos0.arma") {}
 
     void initialize() {
         viz.launch(true, delay, 16, 14);
