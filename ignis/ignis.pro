@@ -2,4 +2,4 @@ TEMPLATE=subdirs
 SUBDIRS=src
 CONFIG+=ordered
 
-OTHER_FILES += include/ignis.h
+OTHER_FILES += ignisDefines.h include/ignis.h

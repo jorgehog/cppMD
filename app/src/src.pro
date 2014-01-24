@@ -8,7 +8,7 @@ TARGET = MD
 
 LIBS += -larmadillo -lconfig++ -lpython2.7 -L$$TOP_OUT_PWD/ignis/lib -lignis
 
-INCLUDEPATH += /usr/include/python2.7 /home/jorgehog/code/DCViz/include $$TOP_PWD/ignis/include $$HOME/Dropbox/libs
+INCLUDEPATH += /usr/include/python2.7 /home/jorgehog/code/DCViz/include $$TOP_PWD/ignis/include $(HOME)/Dropbox/libs
 
 SOURCES += main.cpp \
     mdsolver.cpp \

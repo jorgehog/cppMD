@@ -4,6 +4,7 @@ CONFIG+=ordered
 
 OTHER_FILES += infiles/configMD.cfg
 
+
 DIRS = outfiles
 
 for(DIR, DIRS) {

@@ -1,14 +1,24 @@
 #ifndef ENS_DEFINES_H
 #define ENS_DEFINES_H
 
+#include "../ignisDefines.h"
+
+#ifndef ENS_DIM
 #define ENS_DIM 2
+#endif
 
-#define ENS_NX 20
-#define ENS_NY 20
+#ifndef ENS_NX
+#define ENS_NX 10
+#endif
 
-/*
- *
- */
+#ifndef ENS_NY
+#define ENS_NY 10
+#endif
+
+#ifndef ENS_NZ
+#define ENS_NZ 10
+#endif
+
 
 #if ENS_DIM == 3
 
@@ -20,14 +30,6 @@
 #define ENS_N ENS_NX*ENS_NY
 
 #endif
-
-/*
- *
- */
-
-#define ENS_PERIODIC_X
-#define ENS_PERIODIC_Y
-
 
 
 /*

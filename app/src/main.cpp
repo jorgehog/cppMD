@@ -1,5 +1,5 @@
 #include <iostream>
-#include <libconfig.h++>
+#include <libconfig_utils/libconfig_utils.h>
 #include <ignis.h>
 #include <armadillo>
 
@@ -12,7 +12,7 @@ using namespace libconfig;
 
 #include "cppMD.h"
 
-int main(int argc, char* argv[])
+int main()
 {
 
     srand(time(NULL));
@@ -29,33 +29,40 @@ int main(int argc, char* argv[])
      * Parsing config file
      */
 
-    double dt = root["solver"]["dt"];
-    int N = root["solver"]["N"];
-    int therm = root["solver"]["therm"];
-    double m = root["solver"]["tightness"];
-    std::string outputPath = root["solver"]["outputPath"];
+    const Setting & solver = getSurfaceSetting(root, "solver");
+
+    double dt = getSurfaceSetting<double>(solver, "dt");
+    int N =     getSurfaceSetting<int>(solver, "N");
+    int therm = getSurfaceSetting<int>(solver, "therm");
+    double m =  getSurfaceSetting<double>(solver, "tightness");
+    std::string outputPath = getSurfaceSetting<std::string>(solver, "outputPath");
 
 
-    double T0 = root["mainThermostat"]["bathTemperature"];
-    double tau = ((double)root["mainThermostat"]["tauOverDt"])*dt;
+    double T0 = getSetting<double>(root, {"mainThermostat", "bathTemperature"});
+    double tau = getSetting<double>(root, {"mainThermostat", "tauOverDt"})*dt;
 
 
-    int nSpecies = root["ensembleParameters"]["nSpecies"];
+    const Setting & ensembleParameters = getSurfaceSetting(root, "ensembleParameters");
+    int nSpecies = getSurfaceSetting<int>(ensembleParameters, "nSpecies");
 
     mat sigmaTable(nSpecies, nSpecies);
     mat epsTable(nSpecies, nSpecies);
     vec masses(nSpecies);
 
+    const Setting & sigmas = getSurfaceSetting(ensembleParameters, "sigmas");
+    const Setting & epses  = getSurfaceSetting(ensembleParameters, "epses");
+    const Setting & _masses = getSurfaceSetting(ensembleParameters, "masses");
+
     for (int i = 0; i < nSpecies; ++i) {
 
-        masses(i) = (double)root["ensembleParameters"]["masses"][i];
+        masses(i) = (double)_masses[i];
 
         for (int j = 0; j < nSpecies; ++j) {
-            sigmaTable(i, j) = 0.5*((double)root["ensembleParameters"]["sigmas"][i] +
-                                    (double)root["ensembleParameters"]["sigmas"][j]);
+            sigmaTable(i, j) = 0.5*((double)sigmas[i] +
+                                    (double)sigmas[j]);
 
-            epsTable(i, j)   = sqrt((double)root["ensembleParameters"]["epses"][i]*
-                                    (double)root["ensembleParameters"]["epses"][j]);
+            epsTable(i, j)   = sqrt((double)epses[i]*
+                                    (double)epses[j]);
         }
     }
 
@@ -64,22 +71,24 @@ int main(int argc, char* argv[])
     assert(masses(0) == 1. && "We are working in reduced units.");
 
 
-    double delay = root["DCViz"]["delay"];
+    double delay = getSetting<double>(root, {"DCViz", "delay"});
 
-    int compressionTime =        (int)root["Events"]["Compression"]["timeMinusTherm"] + therm;
-    int compressionLength =      (int)root["Events"]["Compression"]["length"];
-    double compressionDelta = (double)root["Events"]["Compression"]["delta"];
+    const Setting & events = getSurfaceSetting(root, "Events");
 
-    int expansionTime =        (int)root["Events"]["Expansion"]["timeMinusCompressionTime"] + compressionTime;
-    int expansionLength =     ((int)root["Events"]["Expansion"]["lengthOverCompressionLength"])*compressionLength;
-    double expansionDelta = (double)root["Events"]["Expansion"]["delta"];
+    int compressionTime =        getSetting<int>(events,    {"Compression", "timeMinusTherm"}) + therm;
+    int compressionLength =      getSetting<int>(events,    {"Compression", "length"});
+    double compressionDelta =    getSetting<double>(events, {"Compression", "delta"});
 
-    double tScaleWarm = (double) root["Events"]["Thermostats"]["temperatureScaleFactorWarm"];
-    double tScaleCold = (double) root["Events"]["Thermostats"]["temperatureScaleFactorCold"];
+    int expansionTime =        getSetting<int>(events, {"Expansion", "timeMinusCompressionTime"}) + compressionTime;
+    int expansionLength =      getSetting<int>(events, {"Expansion", "lengthOverCompressionLength"})*compressionLength;
+    double expansionDelta = getSetting<double>(events, {"Expansion", "delta"});
 
-    double tWidth = (double) root["Events"]["Thermostats"]["widthFactor"];
+    double tScaleWarm = getSetting<double>(events, {"Thermostats", "temperatureScaleFactorWarm"});
+    double tScaleCold = getSetting<double>(events, {"Thermostats", "temperatureScaleFactorCold"});
 
-    double initialDelta = (double) root["solver"]["initialDelta"];
+    double tWidth = getSetting<double>(events, {"Thermostats", "widthFactor"});
+
+    double initialDelta = getSetting<double>(root, {"solver", "initialDelta"});
 
     /*
      * Creating the main mesh
