@@ -1,3 +1,4 @@
+
 #include "mainmesh.h"
 
 #include <assert.h>
@@ -5,10 +6,20 @@
 #include "../../Event/event.h"
 #include "../../Ensemble/ensemble.h"
 
+struct sortByPriority
+{
+    inline bool operator() (const Event* event1, const Event* event2)
+    {
+        return (event1->getPriority() < event2->getPriority());
+    }
+};
+
 
 MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble):
     MeshField(topology, ensemble, "MainMesh")
 {
+
+    m_isMainMesh = true;
 
     setOutputPath("/tmp/");
 
@@ -50,8 +61,13 @@ void MainMesh::eventLoop(int N)
 
     observables.zeros(N, Event::getCounter());
 
-
     initializeEvents(loopCounter, N);
+
+    sortEvents();
+    for (Event* event : allEvents) {
+        cout << event->getPriority() << endl;
+    }
+    exit(1);
 
     while (*loopCounter < N) {
 
@@ -78,6 +94,16 @@ void MainMesh::setOutputPath(std::string path)
     }
 
     outputPath = path + "mdEventsOut.arma";
+}
+
+void MainMesh::sendToTop(Event &event)
+{
+    allEvents.push_back(&event);
+}
+
+void MainMesh::sortEvents()
+{
+    std::sort(allEvents.begin(), allEvents.end(), sortByPriority());
 }
 
 

@@ -29,7 +29,11 @@ protected:
 
     double volume;
 
+    bool m_isMainMesh;
+
     Ensemble *ensemble;
+
+    MeshField* parent;
 
     std::vector<int> atoms;
     std::vector<Event*> events;
@@ -37,6 +41,8 @@ protected:
 
     static int * loopCounter;
     static mat observables;
+
+    virtual void sendToTop(Event & event);
 
     void storeActiveEvents();
     bool checkSubFields(int i);
@@ -79,6 +85,18 @@ public:
     const vec::fixed<ENS_DIM> shape;
 
     const std::string description;
+
+    bool isMainMesh () {
+        return m_isMainMesh;
+    }
+
+    void setParent(MeshField* parent) {
+        this->parent = parent;
+    }
+
+    MeshField* getParent () {
+        return parent;
+    }
 
     void setTopology(const mat & topology, bool recursive=true);
 

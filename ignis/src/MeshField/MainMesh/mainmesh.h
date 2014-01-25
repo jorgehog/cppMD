@@ -23,10 +23,16 @@ public:
 
 private:
 
+    void sendToTop(Event &event);
+
+    void sortEvents();
+
     void updateContainments();
     void dumpEventsToFile();
 
     std::string outputPath;
+
+    std::vector<Event*> allEvents;
 
 
 };

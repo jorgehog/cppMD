@@ -1,6 +1,8 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#define UNSET_EVENT_TIME -1
+
 #include "../MeshField/meshfield.h"
 
 #include <iostream>
@@ -18,6 +20,9 @@ protected:
 
     static int counter;
     int id;
+
+    static int priorityCounter;
+    int priority;
 
     int address; //! This event's index in meshfield's event array
 
@@ -40,6 +45,9 @@ protected:
         return meshField->getAtoms();
     }
 
+    int onsetTime = UNSET_EVENT_TIME;
+
+    int offsetTime = UNSET_EVENT_TIME;
 
 public:
 
@@ -48,6 +56,10 @@ public:
 
     int getId() {
         return id;
+    }
+
+    static uint getPriorityCounter() {
+        return priorityCounter;
     }
 
     std::string getType(){
@@ -61,6 +73,19 @@ public:
     static int getCounter(){
         return counter;
     }
+
+    int getOnsetTime() {
+        return onsetTime;
+    }
+
+    int getOffsetTime() {
+        return offsetTime;
+    }
+
+    int getPriority () const {
+        return priority;
+    }
+
 
     bool notSilent(){
         return doOutput;
@@ -107,12 +132,13 @@ public:
         address = i;
     }
 
+    void setPriority();
+
     std::string dumpString();
 
 };
 
 
-#define UNSET_EVENT_TIME -1
 
 class TriggerEvent : public Event {
 public:
@@ -122,28 +148,26 @@ public:
 
     void setTrigger(int t){
         assert(t >= 0);
-        trigger = t;
+
+        onsetTime = t;
+        offsetTime = t;
+
     }
 
     void executeEvent() {
 
-        assert(trigger != UNSET_EVENT_TIME);
+        assert(onsetTime != UNSET_EVENT_TIME);
 
         doOutput = false;
 
-        if (*loopCycle == trigger){
+        if (*loopCycle == onsetTime){
             execute();
             doOutput = true;
-        } else if (*loopCycle == trigger + 1) {
+        } else if (*loopCycle == onsetTime + 1) {
             meshField->removeEvent(this->address);
         }
 
     }
-
-protected:
-
-    int trigger = UNSET_EVENT_TIME;
-
 };
 
 
@@ -204,18 +228,7 @@ public:
 
     }
 
-    int getOnsetTime() {
-        return onsetTime;
-    }
-
-    int getOffsetTime() {
-        return offsetTime;
-    }
-
 protected:
-
-    int onsetTime = UNSET_EVENT_TIME;
-    int offsetTime = UNSET_EVENT_TIME;
 
     bool doOutputOrig;
 

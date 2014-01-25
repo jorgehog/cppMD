@@ -5,6 +5,7 @@
 #include "../Event/event.h"
 
 MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::string description):
+    m_isMainMesh(false),
     description(description)
 {
     this->ensemble = &ensemble;
@@ -12,7 +13,6 @@ MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::strin
     setTopology(topology, false);
 
 }
-
 
 
 bool MeshField::isWithinThis(int i) {
@@ -56,6 +56,7 @@ void MeshField::initializeEvents(int *loopCycle, int N)
 
     for (Event* event : events){
 
+        sendToTop(*event);
         event->setN(N);
         event->setLoopCyclePtr(loopCycle);
 
@@ -95,6 +96,11 @@ void MeshField::resetEvents()
     for (Event* event : events){
         event->reset();
     }
+}
+
+void MeshField::sendToTop(Event &event)
+{
+    parent->sendToTop(event);
 }
 
 void MeshField::storeActiveEvents()
@@ -214,6 +220,9 @@ void MeshField::setTopology(const mat &topology, bool recursive)
 
 void MeshField::addEvent(Event & event)
 {
+
+    event.setPriority();
+
     event.setMeshField(this);
 
     event.setEnsemble(ensemble);
@@ -238,6 +247,7 @@ void MeshField::addSubField(MeshField  & subField)
         return;
     }
 
+    subField.setParent(this);
     subFields.push_back(&subField);
 
 }

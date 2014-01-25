@@ -3,7 +3,10 @@
 #include <sstream>
 #include <iomanip>
 
+#define UNSET_PRIORITY -2
+
 Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
+    priority(UNSET_PRIORITY),
     value(new double(0)),
     type(type),
     unit(unit),
@@ -14,6 +17,13 @@ Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
     if (toFile) {
         id = counter++;
     }
+}
+
+void Event::setPriority()
+{
+    assert(priority == UNSET_PRIORITY && "Priority of event set twice.");
+    priority = priorityCounter++;
+
 }
 
 
@@ -41,4 +51,4 @@ std::string Event::dumpString()
 }
 
 int Event::counter = 0;
-
+int Event::priorityCounter = 0;
