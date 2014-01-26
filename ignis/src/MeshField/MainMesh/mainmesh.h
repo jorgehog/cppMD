@@ -3,6 +3,8 @@
 
 #include "../meshfield.h"
 
+namespace ignis
+{
 class MainMesh : public MeshField
 {
 
@@ -10,7 +12,7 @@ public:
     MainMesh(const mat & topology, Ensemble &ensemble);
 
     uint getPopulation() const {
-        return ENS_N;
+        return IGNIS_N;
     }
 
     void eventLoop(uint N);
@@ -42,5 +44,6 @@ private:
 
 
 };
+}
 
 #endif // MAINMESH_H

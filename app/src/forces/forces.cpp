@@ -32,7 +32,7 @@ void Force::leastDistance(vec &leastRel, double &leastRel2, const int &i, const 
 
             vec leastRelTest = orig - ensemble->pos.col(j);
             double leastRel2Test = 0;
-            for (int k = 0; k < ENS_DIM; ++k) {
+            for (int k = 0; k < IGNIS_DIM; ++k) {
                 leastRel2Test += leastRelTest(k)*leastRelTest(k);
             }
 
@@ -57,12 +57,12 @@ void TwoBodyForce::execute()
 
     ensemble->forces.zeros();
 
-    for (int i = 0; i < ENS_N; ++i) {
-        for (int j = i+1; j < ENS_N; ++j) {
+    for (int i = 0; i < IGNIS_N; ++i) {
+        for (int j = i+1; j < IGNIS_N; ++j) {
             leastDistance(rRel, rRel2, i, j);
             force = getForce(i, j);
 
-            for (int k = 0; k < ENS_DIM; ++k) {
+            for (int k = 0; k < IGNIS_DIM; ++k) {
                 ensemble->forces(k, i) += force(k);
                 ensemble->forces(k, j) -= force(k);
 

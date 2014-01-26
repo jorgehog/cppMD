@@ -14,17 +14,17 @@ void mdSolver::initialize()
 //    s.setLoopCyclePtr(&KS);
 //    s.setMeshField(meshField);
 
-    double dx = meshField->shape(0)/ENS_NX;
-    double dy = meshField->shape(1)/ENS_NY;
+    double dx = meshField->shape(0)/IGNIS_NX;
+    double dy = meshField->shape(1)/IGNIS_NY;
 
-#if ENS_DIM == 3
+#if IGNIS_DIM == 3
     double dz = mainMesh->shape(2)/ENS_NZ;
     for (int k = 0; k < ENS_NZ; ++k) {
 #endif
 
         int n = -1;
-        for (int i = 0; i < ENS_NX; ++i) {
-            for (int j = 0; j < ENS_NY; ++j) {
+        for (int i = 0; i < IGNIS_NX; ++i) {
+            for (int j = 0; j < IGNIS_NY; ++j) {
                 n++;
 
                 ensemble->pos(0, n) = (i + 0.5*(j % 2))*dx;
@@ -32,7 +32,7 @@ void mdSolver::initialize()
 
 //                s.execute();
 
-#if ENS_DIM == 3
+#if IGNIS_DIM == 3
                 ensemble->pos(2, n) = k*dz;
             }
 #endif
@@ -43,8 +43,8 @@ void mdSolver::initialize()
     double max = 1.0;
 
     ensemble->vel.randn();
-    for (int i = 0; i < ENS_N; ++i) {
-        for (int k = 0; k < ENS_DIM; ++k) {
+    for (int i = 0; i < IGNIS_N; ++i) {
+        for (int k = 0; k < IGNIS_DIM; ++k) {
 
             ensemble->vel(k, i) *= sqrtkT0;
 

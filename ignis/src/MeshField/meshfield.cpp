@@ -4,6 +4,8 @@
 #include "../Ensemble/ensemble.h"
 #include "../Event/event.h"
 
+using namespace ignis;
+
 MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::string description):
     m_isMainMesh(false),
     volume(0),
@@ -18,7 +20,7 @@ MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::strin
 
 bool MeshField::isWithinThis(uint i) {
 
-    for (uint j = 0; j < ENS_DIM; ++j) {
+    for (uint j = 0; j < IGNIS_DIM; ++j) {
         if (ensemble->pos(j, i) < topology(j, 0)){
             return false;
         } else if (ensemble->pos(j, i) > topology(j, 1)) {
@@ -126,7 +128,7 @@ bool MeshField::notCompatible(MeshField & subField)
     const mat & sft = subField.topology;
     const mat & tft = this->topology;
 
-#if ENS_DIM == 2
+#if IGNIS_DIM == 2
     bool outsideMesh =  (sft(0, 0) < tft(0, 0)) ||
             (sft(0, 1) > tft(0, 1)) ||
             (sft(1, 0) < tft(1, 0)) ||
@@ -186,7 +188,7 @@ void MeshField::setTopology(const mat &topology, bool recursive)
     new_volume = (double*)(&volume);
 
     *new_volume = 1;
-    for (uint i = 0; i < ENS_DIM; ++i) {
+    for (uint i = 0; i < IGNIS_DIM; ++i) {
         *new_volume *= shape(i);
     }
 
@@ -240,11 +242,11 @@ void MeshField::stretchField(double deltaL, uint xyz)
 
 void MeshField::scaleField(const vec & oldShape, const mat & oldTopology, const mat & newTopology){
 
-    mat newSubTopology(ENS_DIM, 2);
+    mat newSubTopology(IGNIS_DIM, 2);
 
     double oldCOM, newCOM, shapeFac, newShape_i, newSubShape_i;
 
-    for (uint i = 0; i < ENS_DIM; ++i) {
+    for (uint i = 0; i < IGNIS_DIM; ++i) {
 
         newShape_i = newTopology(i, 1) - newTopology(i, 0);
         shapeFac = newShape_i/oldShape(i);

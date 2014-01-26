@@ -5,6 +5,7 @@
 
 using namespace arma;
 using namespace libconfig;
+using namespace ignis;
 
 #ifdef USE_MPI
 #include <mpi.h>
@@ -98,8 +99,8 @@ int main()
 
     Ensemble ensemble(masses);
 
-    double Lx = ENS_NX*m;
-    double Ly = ENS_NY*m;
+    double Lx = IGNIS_NX*m;
+    double Ly = IGNIS_NY*m;
 
     mat topology(2, 2);
     topology << 0 << Lx << endr << 0 << Ly;

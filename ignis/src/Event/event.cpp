@@ -1,19 +1,21 @@
 #include "event.h"
 
+#include "../defines.h"
+
 #include <sstream>
 #include <iomanip>
 
-#define UNSET_PRIORITY 999999999
+using namespace ignis;
 
 Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
     type(type),
-    priority(UNSET_PRIORITY),
+    priority(IGNIS_UNSET_UINT),
     value(new double(0)),
     valueInitialized(false),
     doOutput(doOutput),
     toFile(toFile),
     unit(unit),
-    onsetTime(0)
+    onsetTime()
 {
 
 }
@@ -39,7 +41,7 @@ void Event::setOutputVariables()
 
 void Event::setPriority()
 {
-    assert(priority == UNSET_PRIORITY && "Priority of event set twice.");
+    assert(priority == IGNIS_UNSET_UINT && "Priority of event set twice.");
     priority = priorityCounter++;
 
 }

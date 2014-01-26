@@ -1,7 +1,8 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#define UNSET_EVENT_TIME 999999999
+
+#include "../defines.h"
 
 #include "../MeshField/meshfield.h"
 
@@ -10,6 +11,9 @@
 
 #include <assert.h>
 
+
+namespace ignis
+{
 
 struct Ensemble;
 
@@ -60,9 +64,9 @@ protected:
     virtual void execute() = 0;
 
 
-    uint onsetTime = UNSET_EVENT_TIME;
+    uint onsetTime = IGNIS_UNSET_UINT;
 
-    uint offsetTime = UNSET_EVENT_TIME;
+    uint offsetTime = IGNIS_UNSET_UINT;
 
 public:
 
@@ -197,7 +201,7 @@ public:
 
     void executeEvent() {
 
-        assert(onsetTime != UNSET_EVENT_TIME);
+        assert(onsetTime != IGNIS_UNSET_UINT);
 
         doOutput = false;
 
@@ -230,7 +234,7 @@ public:
 
     void setOnsetTime(uint onsetTime){
 
-        if (onsetTime == UNSET_EVENT_TIME) return;
+        if (onsetTime == IGNIS_UNSET_UINT) return;
 
         this->onsetTime = onsetTime;
 
@@ -238,9 +242,9 @@ public:
 
     void setOffsetTime(uint offTime) {
 
-        if (offTime == UNSET_EVENT_TIME) return;
+        if (offTime == IGNIS_UNSET_UINT) return;
 
-        assert((onsetTime != UNSET_EVENT_TIME) && ("onTime must be set before offTime."));
+        assert((onsetTime != IGNIS_UNSET_UINT) && ("onTime must be set before offTime."));
         assert(offTime > onsetTime && "Event must initialize before the shutdown.");
 
         offsetTime = offTime;
@@ -270,8 +274,10 @@ protected:
 
     bool doOutputOrig;
 
-    uint eventLength = UNSET_EVENT_TIME;
+    uint eventLength = IGNIS_UNSET_UINT;
 
     uint nTimesExecuted;
 };
+}
+
 #endif // EVENT_H

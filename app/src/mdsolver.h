@@ -4,6 +4,8 @@
 #include <ignis.h>
 #include <math.h>
 
+using namespace ignis;
+
 class mdSolver : public Event
 {
 public:

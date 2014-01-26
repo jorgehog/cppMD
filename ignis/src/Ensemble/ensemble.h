@@ -1,19 +1,21 @@
 #ifndef MD_ENSEMBLE_H
 #define MD_ENSEMBLE_H
 
+#include "../defines.h"
+
 #include <armadillo>
 
 using namespace arma;
 
-#include "../defines.h"
-
+namespace ignis
+{
 struct Ensemble
 {
 
-    mat::fixed<ENS_DIM, ENS_N> pos;
-    mat::fixed<ENS_DIM, ENS_N> vel;
-    mat::fixed<ENS_DIM, ENS_N> forces;
-    cube::fixed<ENS_N, ENS_N, ENS_DIM> forceVectors;
+    mat::fixed<IGNIS_DIM, IGNIS_N> pos;
+    mat::fixed<IGNIS_DIM, IGNIS_N> vel;
+    mat::fixed<IGNIS_DIM, IGNIS_N> forces;
+    cube::fixed<IGNIS_N, IGNIS_N, IGNIS_DIM> forceVectors;
 
     const vec masses;
 
@@ -22,5 +24,6 @@ struct Ensemble
     Ensemble(const vec & masses) : masses(masses), nSpecies(masses.n_elem) {}
 
 };
+}
 
 #endif // MD_ENSEMBLE_H

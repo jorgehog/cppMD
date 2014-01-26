@@ -3,31 +3,31 @@
 
 #include "../ignisDefines.h"
 
-#ifndef ENS_DIM
-#define ENS_DIM 2
+#ifndef IGNIS_DIM
+#define IGNIS_DIM 2
 #endif
 
-#ifndef ENS_NX
-#define ENS_NX 10
+#ifndef IGNIS_NX
+#define IGNIS_NX 10
 #endif
 
-#ifndef ENS_NY
-#define ENS_NY 10
+#ifndef IGNIS_NY
+#define IGNIS_NY 10
 #endif
 
-#ifndef ENS_NZ
-#define ENS_NZ 10
+#ifndef IGNIS_NZ
+#define IGNIS_NZ 10
 #endif
 
 
-#if ENS_DIM == 3
+#if IGNIS_DIM == 3
 
-#define ENS_NZ 100
-#define ENS_N ENS_NX*ENS_NY*ENS_NZ
+#define IGNIS_NZ 100
+#define IGNIS_N IGNIS_NX*IGNIS_NY*IGNIS_NZ
 
 #else
 
-#define ENS_N ENS_NX*ENS_NY
+#define IGNIS_N IGNIS_NX*IGNIS_NY
 
 #endif
 
@@ -36,8 +36,8 @@
  *
  */
 
-#if ENS_DIM == 2 && defined (ENS_PERIODIC_Z)
-#undef ENS_PERIODIC_Z
+#if IGNIS_DIM == 2 && defined (IGNIS_PERIODIC_Z)
+#undef IGNIS_PERIODIC_Z
 #endif
 
 #define quickPrint(expr) \
@@ -46,5 +46,10 @@
 #define IGNIS_X 0
 #define IGNIS_Y 1
 #define IGNIS_Z 2
+
+#define IGNIS_UNSET_UINT 913371337
+
+#define toStr boost::lexical_cast<std::string>
+
 
 #endif // DEFINES_H

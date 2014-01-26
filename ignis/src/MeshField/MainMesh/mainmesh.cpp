@@ -6,6 +6,8 @@
 #include "../../Event/event.h"
 #include "../../Ensemble/ensemble.h"
 
+using namespace ignis;
+
 struct sortByPriority
 {
     inline bool operator() (const Event* event1, const Event* event2)
@@ -23,7 +25,7 @@ MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble):
 
     setOutputPath("/tmp/");
 
-    for (uint i = 0; i < ENS_N; ++i) {
+    for (uint i = 0; i < IGNIS_N; ++i) {
         atoms.push_back(i);
     }
 
@@ -37,7 +39,7 @@ void MainMesh::updateContainments()
         subField->resetSubFields();
     }
 
-    for (uint i = 0; i < ENS_N; ++i) {
+    for (uint i = 0; i < IGNIS_N; ++i) {
 
         for (MeshField* subField : subFields){
             (void)subField->checkSubFields(i);

@@ -1,19 +1,19 @@
 #ifndef PREDEFINEDEVENTS_H
 #define PREDEFINEDEVENTS_H
 
-#ifndef NO_DCVIZ
-//#include <DCViz.h>
-#endif
-#include <assert.h>
-
-#include <boost/lexical_cast.hpp>
-#define toStr boost::lexical_cast<std::string>
 
 #include "../../defines.h"
+
 #include "../../Event/event.h"
 #include "../../Ensemble/ensemble.h"
 #include "../../MeshField/meshfield.h"
 #include "../../gears.h"
+
+#ifndef NO_DCVIZ
+#include <DCViz.h>
+#endif
+
+#include <boost/lexical_cast.hpp>
 
 
 /*
@@ -21,6 +21,9 @@
  * Event for handling periodic boundary conditions
  *
  */
+
+namespace ignis
+{
 
 class periodicScaling : public Event {
 public:
@@ -35,7 +38,7 @@ public:
 
         using namespace std;
 #if defined (ENS_PERIODIC_X) || defined (ENS_PERIODIC_Y) || defined (ENS_PERIODIC_Z)
-        for (uint i = 0; i < ENS_N; ++i) {
+        for (uint i = 0; i < IGNIS_N; ++i) {
 #ifdef ENS_PERIODIC_X
             if (ensemble->pos(0, i) < meshField->topology(0, 0)) {
                 ensemble->pos(0, i) += meshField->shape(0);
@@ -76,11 +79,11 @@ public:
     void execute() {
 
         double m;
-        for (uint i = 0; i < ENS_N; ++i) {
+        for (uint i = 0; i < IGNIS_N; ++i) {
 
             m = ensemble->masses(i%ensemble->nSpecies);
 
-            for (uint k = 0; k < ENS_DIM; ++k) {
+            for (uint k = 0; k < IGNIS_DIM; ++k) {
                 ensemble->vel(k, i) += ensemble->forces(k, i)*dt/(2*m);
                 ensemble->pos(k, i) += ensemble->vel(k, i)*dt;
             }
@@ -102,10 +105,10 @@ public:
     void execute() {
 
         double m;
-        for (uint i = 0; i < ENS_N; ++i) {
+        for (uint i = 0; i < IGNIS_N; ++i) {
 
             m = ensemble->masses(i%ensemble->nSpecies);
-            for (uint k = 0; k < ENS_DIM; ++k) {
+            for (uint k = 0; k < IGNIS_DIM; ++k) {
                 ensemble->vel(k, i) += ensemble->forces(k, i)*dt/(2*m);
             }
         }
@@ -132,8 +135,8 @@ public:
 
     void execute() {
         ensemble->pos.randu();
-        for (uint i = 0; i < ENS_N; ++i) {
-            for (uint j = 0; j < ENS_DIM; ++j) {
+        for (uint i = 0; i < IGNIS_N; ++i) {
+            for (uint j = 0; j < IGNIS_DIM; ++j) {
                 ensemble->pos(j, i) = meshField->topology(j, 0) + ensemble->pos(j, i)*meshField->shape(j);
             }
         }
@@ -171,8 +174,8 @@ protected:
 class BerendsenThermostat : public thermostat {
 public:
     BerendsenThermostat(const double & T0, const double & tau, const double & dt,
-                        uint onTime = UNSET_EVENT_TIME,
-                        uint offTime = UNSET_EVENT_TIME) :
+                        uint onTime = IGNIS_UNSET_UINT,
+                        uint offTime = IGNIS_UNSET_UINT) :
         thermostat(T0, tau, dt) {
         setOnsetTime(onTime);
         setOffsetTime(offTime);
@@ -184,7 +187,7 @@ public:
         for (const uint & i : meshField->getAtoms()) {
             ensemble->vel(0, i) *= gamma;
             ensemble->vel(1, i) *= gamma;
-#if ENS_DIM == 3
+#if IGNIS_DIM == 3
             ensemble->vel(2, i) *= gamma;
 #endif
         }
@@ -215,7 +218,7 @@ public:
     countAtoms() : Event("Counting atoms", "", true) {}
 
     void execute(){
-        setValue((meshField->getPopulation()/double(ENS_N))/(meshField->volume));
+        setValue((meshField->getPopulation()/double(IGNIS_N))/(meshField->volume));
     }
 
 };
@@ -237,14 +240,14 @@ public:
     //trigger = at which time should we trigger?
     //xyz = direction (0=x, 1=y ...)
     ContractMesh(double delta, uint xyz,
-                 uint onTime = UNSET_EVENT_TIME,
-                 uint offTime = UNSET_EVENT_TIME) :
+                 uint onTime = IGNIS_UNSET_UINT,
+                 uint offTime = IGNIS_UNSET_UINT) :
         OnsetEvent("CompressMesh"),
         delta(delta),
         xyz(xyz)
     {
 
-        assert(xyz < ENS_DIM);
+        assert(xyz < IGNIS_DIM);
         assert(delta > 0);
 
         setOnsetTime(onTime);
@@ -267,7 +270,7 @@ public:
 
         meshField->stretchField(deltaL, xyz);
 
-        for (uint i = 0; i < ENS_N; ++i) {
+        for (uint i = 0; i < IGNIS_N; ++i) {
             ensemble->pos(xyz, i) =  C*(1-localDelta) + localDelta*ensemble->pos(xyz, i);
         }
 
@@ -286,8 +289,8 @@ public:
 
     ExpandMesh(double delta, uint xyz,
                bool pull = false,
-               uint onTime = UNSET_EVENT_TIME,
-               uint offTime = UNSET_EVENT_TIME) :
+               uint onTime = IGNIS_UNSET_UINT,
+               uint offTime = IGNIS_UNSET_UINT) :
         ContractMesh(delta, xyz, onTime, offTime),
         pull(pull)
     {
@@ -307,7 +310,7 @@ public:
         double C = meshField->topology(xyz, 0) + L/2; //The centerpoint
         double localDelta = 1 - deltaL/(2*L);
 
-        for (uint i = 0; i < ENS_N; ++i) {
+        for (uint i = 0; i < IGNIS_N; ++i) {
             ensemble->pos(xyz, i) =  C*(1-localDelta) + localDelta*ensemble->pos(xyz, i);
         }
 
@@ -336,7 +339,7 @@ public:
         topology0 = meshField->topology;
         volume0 = meshField->volume;
 
-        k = (pow(ratio, 1.0/ENS_DIM) - 1)/eventLength;
+        k = (pow(ratio, 1.0/IGNIS_DIM) - 1)/eventLength;
 
     }
 
@@ -365,7 +368,7 @@ protected:
         double vNew = meshField->volume;
         assert(vNew != 0 && "Volume changed to zero");
 
-        double scale = pow(vNew/vPrev, 1.0/ENS_DIM);
+        double scale = pow(vNew/vPrev, 1.0/IGNIS_DIM);
         for (const uint & i : meshField->getAtoms()) {
             ensemble->pos.col(i) *= scale;
         }
@@ -393,7 +396,7 @@ private:
     std::string path;
     uint freq;
 
-    mat::fixed<ENS_DIM, ENS_N> scaledPos;
+    mat::fixed<IGNIS_DIM, IGNIS_N> scaledPos;
 
 };
 
@@ -505,7 +508,7 @@ public:
 
         area = 1;
 
-        for (uint i = 0; i < ENS_DIM; ++i) {
+        for (uint i = 0; i < IGNIS_DIM; ++i) {
             if (i != xyz) {
                 area *= meshField->shape(i);
             }
@@ -586,7 +589,7 @@ public:
 class diffusionConstant : public OnsetEvent {
 public:
 
-    diffusionConstant(double dt) : OnsetEvent("DiffusionConstant", "D0", true), fac(dt/(ENS_DIM)), D(0) {}
+    diffusionConstant(double dt) : OnsetEvent("DiffusionConstant", "D0", true), fac(dt/(IGNIS_DIM)), D(0) {}
 
     void initialize() {
         v0 = ensemble->vel;
@@ -597,7 +600,7 @@ public:
         double dD = 0;
 
         for (const uint & i : meshField->getAtoms()) {
-            for (uint j = 0; j < ENS_DIM; ++j) {
+            for (uint j = 0; j < IGNIS_DIM; ++j) {
                 dD += v0(j, i)*ensemble->vel(j, i);
             }
         }
@@ -612,7 +615,7 @@ public:
 
 private:
 
-    mat::fixed<ENS_DIM, ENS_N> v0;
+    mat::fixed<IGNIS_DIM, IGNIS_N> v0;
     double fac;
     double D;
 
@@ -650,5 +653,7 @@ private:
     double avgT2;
 
 };
+
+}
 
 #endif // PREDEFINEDEVENTS_H

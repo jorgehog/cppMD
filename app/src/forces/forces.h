@@ -5,6 +5,7 @@
 #include <armadillo>
 
 using namespace arma;
+using namespace ignis;
 
 class mdSolver;
 class SolverEvent;
@@ -20,7 +21,7 @@ public:
 protected:
 
 
-    vec::fixed<ENS_DIM> force;
+    vec::fixed<IGNIS_DIM> force;
     ivec::fixed<3> ldi; //least distance iterator
 
     void leastDistance(vec & leastRel, double &leastRel2, const int & i, const int & j);
@@ -39,7 +40,7 @@ public:
 protected:
 
     double rRel2;
-    vec::fixed<ENS_DIM> rRel;
+    vec::fixed<IGNIS_DIM> rRel;
 
 };
 

@@ -1,19 +1,24 @@
 #ifndef GEARS_H
 #define GEARS_H
 
+
+#include "defines.h"
+
+#include "MeshField/meshfield.h"
+#include "Ensemble/ensemble.h"
+
 #include <armadillo>
 
 using namespace arma;
 
-#include "defines.h"
-#include "MeshField/meshfield.h"
-#include "Ensemble/ensemble.h"
+namespace ignis
+{
 
 namespace gears {
 
 inline vec getTotalLinearMomentum(Ensemble* ensemble) {
 
-    vec pTot = zeros<vec>(ENS_DIM);
+    vec pTot = zeros<vec>(IGNIS_DIM);
 
      //retrieve ensemble values;
      const vec & masses = ensemble->masses;
@@ -21,7 +26,7 @@ inline vec getTotalLinearMomentum(Ensemble* ensemble) {
      const uint & N = ensemble->nSpecies;
 
      //Calculates total linear momentum
-     for (uint k = 0; k < ENS_N; ++k) {
+     for (uint k = 0; k < IGNIS_N; ++k) {
          pTot += masses(k%N)*vel.col(k);
      }
 
@@ -40,11 +45,11 @@ inline void cancelLinearMomentum(Ensemble* ensemble)
 
     vec pTot = getTotalLinearMomentum(ensemble);
 
-    pTot /= ENS_N;
+    pTot /= IGNIS_N;
 
     //subtract the velocity in such a way that the momentum is zero.
-    for (uint i = 0; i < ENS_N; ++i) {
-        for (uint j = 0; j < ENS_DIM; ++j) {
+    for (uint i = 0; i < IGNIS_N; ++i) {
+        for (uint j = 0; j < IGNIS_DIM; ++j) {
             vel(j, i) -= pTot(j)/masses(i%N);
         }
     }
@@ -64,7 +69,7 @@ inline double getKineticEnergy(const MeshField * mf){
     for (const uint & k : mf->getAtoms()) {
         vVecSquared = ensemble->vel(0, k)*ensemble->vel(0, k)
                 + ensemble->vel(1, k)*ensemble->vel(1, k);
-#if ENS_DIM == 3
+#if IGNIS_DIM == 3
         vVecSquared += ensemble->vel(2, k)*ensemble->vel(2, k);
 #endif
         Ek += masses(k%N)*vVecSquared;
@@ -80,8 +85,8 @@ inline double getTemperature(MeshField * mf){
 
 }
 
-
-
 } //End namespace gears
+
+}
 
 #endif // GEARS_H

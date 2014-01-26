@@ -69,11 +69,11 @@ private:
     double origWidth;
 
     void setHeight(){
-        origHeight = mainMesh->shape(1)/(ENS_NY);
+        origHeight = mainMesh->shape(1)/(IGNIS_NY);
     }
 
     void setWidth() {
-        origWidth = mainMesh->shape(0)/(ENS_NX);
+        origWidth = mainMesh->shape(0)/(IGNIS_NX);
     }
 
     double sizeFac = 0.25;

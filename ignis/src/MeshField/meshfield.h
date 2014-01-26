@@ -1,14 +1,20 @@
 #ifndef MD_MESHFIELD_H
 #define MD_MESHFIELD_H
 
-#include "../defines.h"
 
-#include <armadillo>
-using namespace arma;
+#include "../defines.h"
 
 #include <string>
 #include <vector>
 #include <exception>
+
+#include <armadillo>
+
+using namespace arma;
+
+
+namespace ignis
+{
 
 struct Ensemble;
 class Event;
@@ -79,9 +85,9 @@ public:
 
     const double volume;
 
-    const mat::fixed<ENS_DIM, 2> topology;
+    const mat::fixed<IGNIS_DIM, 2> topology;
 
-    const vec::fixed<ENS_DIM> shape;
+    const vec::fixed<IGNIS_DIM> shape;
 
     void setTopology(const mat & topology, bool recursive=true);
 
@@ -151,6 +157,7 @@ public:
     friend class ExpandMesh;
 
 };
+}
 
 
 #endif // MD_MESHFIELD_H
