@@ -49,12 +49,18 @@ void MainMesh::updateContainments()
 
 void MainMesh::dumpEventsToFile()
 {
-//    storeActiveEvents();
     for (Event* event: allEvents) {
         event->storeEvent();
     }
 
     Event::saveEventMatrix(outputPath);
+}
+
+void MainMesh::resetEvents()
+{
+    for (Event* event : allEvents){
+        event->reset();
+    }
 }
 
 void MainMesh::eventLoop(uint N)
@@ -70,21 +76,18 @@ void MainMesh::eventLoop(uint N)
 
     sortEvents();
 
+    //SPEEDUP: STORE OUTPUT, TOFILE EVENTS IN OWN ARRAY AND LOOP THIS ONLY INSTEAD OF IFTESTING.
     while (*loopCycle < N) {
 
-                for (int i = allEvents.size()-1; i >= 0; --i) {
-                    if (*loopCycle == allEvents.at(i)->getOffsetTime()+1) {
-                        allEvents.erase(allEvents.begin() + i);
-                    }
-                }
+        for (int i = allEvents.size()-1; i >= 0; --i) {
+            if (*loopCycle == allEvents.at(i)->getOffsetTime()+1) {
+                allEvents.erase(allEvents.begin() + i);
+            }
+        }
 
         updateContainments();       //1. Find which atoms are in which meshes
 
-//        executeEvents();            //2. Let each mesh execute their events on these atoms
-
-                for(Event* event : allEvents) {
-                    event->executeEvent();
-                }
+        executeEvents();           //2. Execute each active event.
 
         dumpEvents();               //3. Let each event dump their output
         std::cout << std::endl;
@@ -117,7 +120,30 @@ void MainMesh::sendToTop(Event &event)
 
 void MainMesh::sortEvents()
 {
-    std::sort(allEvents.begin(), allEvents.end(), sortByPriority());
+    std::sort(allEvents.begin(),
+              allEvents.end(),
+              sortByPriority());
+}
+
+void MainMesh::executeEvents()
+{
+    for(Event* event : allEvents)
+    {
+        event->executeEvent();
+    }
+}
+
+void MainMesh::dumpEvents()
+{
+    for (Event* event : allEvents)
+    {
+        if (event->notSilent())
+        {
+            cout << event->dumpString() << endl;
+        }
+    }
+
+    cout << endl;
 }
 
 

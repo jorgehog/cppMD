@@ -12,7 +12,8 @@ Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
     valueInitialized(false),
     doOutput(doOutput),
     toFile(toFile),
-    unit(unit)
+    unit(unit),
+    onsetTime(0)
 {
 
 }

@@ -202,10 +202,14 @@ public:
         doOutput = false;
 
         if (*loopCycle == onsetTime){
+
+            if (onsetTime != 0)
+            {
+                initialize();
+            }
+
             execute();
             doOutput = true;
-        } else if (*loopCycle == onsetTime + 1) {
-            meshField->removeEvent(this->address);
         }
 
     }
@@ -247,13 +251,9 @@ public:
 
     void executeEvent() {
 
-        assert(onsetTime != UNSET_EVENT_TIME);
+        assert(*loopCycle <= offsetTime && "Event was not properly removed.");
 
-        if (*loopCycle == offsetTime) {
-            meshField->removeEvent(this->address);
-        }
-
-        if (*loopCycle == onsetTime) {
+        if (*loopCycle == onsetTime && onsetTime != 0) {
             initialize();
         }
 

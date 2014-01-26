@@ -58,7 +58,9 @@ void MeshField::initializeEvents()
 
         sendToTop(*event);
 
-        event->initialize();
+        if (event->getOnsetTime() == 0) {
+            event->initialize();
+        }
     }
 
     for (MeshField* subfield : subFields)
@@ -66,17 +68,6 @@ void MeshField::initializeEvents()
         subfield->initializeEvents();
     }
 
-}
-
-void MeshField::dumpEvents()
-{
-    for (Event* event : events){
-        if (event->notSilent()) std::cout << event->dumpString() << std::endl;
-    }
-
-    for (MeshField* subfield : subFields){
-        subfield->dumpEvents();
-    }
 }
 
 bool MeshField::append(uint i)
@@ -91,45 +82,12 @@ bool MeshField::append(uint i)
 
 }
 
-void MeshField::executeEvents()
-{
-    for (Event* event : events){
-        event->executeEvent();
-    }
-
-    for (MeshField* subfield : subFields){
-        subfield->executeEvents();
-    }
-}
-
-void MeshField::resetEvents()
-{
-    for (MeshField* subfield : subFields){
-        subfield->resetEvents();
-    }
-
-    for (Event* event : events){
-        event->reset();
-    }
-}
 
 void MeshField::sendToTop(Event &event)
 {
     parent->sendToTop(event);
 }
 
-void MeshField::storeActiveEvents()
-{
-
-    for (MeshField* subfield : subFields){
-        subfield->storeActiveEvents();
-    }
-
-    for (Event* event : events){
-        event->storeEvent();
-    }
-
-}
 
 bool MeshField::checkSubFields(uint i)
 {

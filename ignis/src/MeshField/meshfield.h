@@ -48,17 +48,9 @@ protected:
     virtual void sendToTop(Event & event);
 
 
-    //These should all be executes from the MainMesh,
-    //As they recursively call all subMeshes.
+    //This should be executed from the MainMesh,
+    //As it recursively calls all subfields.
     void initializeEvents();
-
-    void executeEvents();
-
-    void dumpEvents();
-
-    void storeActiveEvents();
-
-    void resetEvents();
 
 
     bool append(uint i);

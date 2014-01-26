@@ -23,9 +23,17 @@ private:
 
     void sortEvents();
 
-    void updateContainments();
+    void executeEvents();
+
+    void dumpEvents();
 
     void dumpEventsToFile();
+
+    void resetEvents();
+
+
+    void updateContainments();
+
 
     std::string outputPath;
 
