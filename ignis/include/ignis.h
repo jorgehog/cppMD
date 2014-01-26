@@ -10,7 +10,7 @@
 #include "../src/Event/event.h"
 #include "../src/Event/predefinedEvents/predefinedevents.h"
 
-#ifdef NO_DCVIZ
+#ifdef USE_QT_GUI
 #include <QApplication>
 #include "../GUI/src/qtplatform.h"
 #include "../GUI/mainwindow.h"

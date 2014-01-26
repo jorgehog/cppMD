@@ -18,10 +18,10 @@ inline vec getTotalLinearMomentum(Ensemble* ensemble) {
      //retrieve ensemble values;
      const vec & masses = ensemble->masses;
      mat & vel = ensemble->vel;
-     const int & N = ensemble->nSpecies;
+     const uint & N = ensemble->nSpecies;
 
      //Calculates total linear momentum
-     for (int k = 0; k < ENS_N; ++k) {
+     for (uint k = 0; k < ENS_N; ++k) {
          pTot += masses(k%N)*vel.col(k);
      }
 
@@ -36,15 +36,15 @@ inline void cancelLinearMomentum(Ensemble* ensemble)
     //retrieve ensemble values;
     const vec & masses = ensemble->masses;
     mat & vel = ensemble->vel;
-    const int & N = ensemble->nSpecies;
+    const uint & N = ensemble->nSpecies;
 
     vec pTot = getTotalLinearMomentum(ensemble);
 
     pTot /= ENS_N;
 
     //subtract the velocity in such a way that the momentum is zero.
-    for (int i = 0; i < ENS_N; ++i) {
-        for (int j = 0; j < ENS_DIM; ++j) {
+    for (uint i = 0; i < ENS_N; ++i) {
+        for (uint j = 0; j < ENS_DIM; ++j) {
             vel(j, i) -= pTot(j)/masses(i%N);
         }
     }
@@ -59,11 +59,9 @@ inline double getKineticEnergy(const MeshField * mf){
     const Ensemble* ensemble = mf->getEnsemble();
 
     const vec & masses = ensemble->masses;
-    const int & N = ensemble->nSpecies;
+    const uint & N = ensemble->nSpecies;
 
-    const std::vector<int> & atoms = mf->getAtoms();
-
-    for (const int & k : atoms) {
+    for (const uint & k : mf->getAtoms()) {
         vVecSquared = ensemble->vel(0, k)*ensemble->vel(0, k)
                 + ensemble->vel(1, k)*ensemble->vel(1, k);
 #if ENS_DIM == 3

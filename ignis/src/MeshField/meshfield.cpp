@@ -6,6 +6,7 @@
 
 MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::string description):
     m_isMainMesh(false),
+    volume(0),
     description(description)
 {
     this->ensemble = &ensemble;
@@ -15,9 +16,9 @@ MeshField::MeshField(const mat &topology, Ensemble  & ensemble, const std::strin
 }
 
 
-bool MeshField::isWithinThis(int i) {
+bool MeshField::isWithinThis(uint i) {
 
-    for (int j = 0; j < ENS_DIM; ++j) {
+    for (uint j = 0; j < ENS_DIM; ++j) {
         if (ensemble->pos(j, i) < topology(j, 0)){
             return false;
         } else if (ensemble->pos(j, i) > topology(j, 1)) {
@@ -29,7 +30,7 @@ bool MeshField::isWithinThis(int i) {
 
 }
 
-void MeshField::removeEvent(int i)
+void MeshField::removeEvent(uint i)
 {
     events.erase(events.begin() + i);
 
@@ -50,16 +51,21 @@ void MeshField::resetSubFields()
 
 void MeshField::initializeEvents()
 {
-    for (MeshField* subfield : subFields){
+
+    for (Event* event : events)
+    {
+        event->setPriority();
+
+        sendToTop(*event);
+
+        event->initialize();
+    }
+
+    for (MeshField* subfield : subFields)
+    {
         subfield->initializeEvents();
     }
 
-    for (Event* event : events){
-
-        sendToTop(*event);
-        event->initialize();
-
-    }
 }
 
 void MeshField::dumpEvents()
@@ -71,6 +77,18 @@ void MeshField::dumpEvents()
     for (MeshField* subfield : subFields){
         subfield->dumpEvents();
     }
+}
+
+bool MeshField::append(uint i)
+{
+
+    if (isWithinThis(i)){
+        atoms.push_back(i);
+        return true;
+    }
+
+    return false;
+
 }
 
 void MeshField::executeEvents()
@@ -113,28 +131,29 @@ void MeshField::storeActiveEvents()
 
 }
 
-bool MeshField::checkSubFields(int i){
+bool MeshField::checkSubFields(uint i)
+{
 
     bool matchInSubField;
     bool matchedInSubLevel = false;
 
-    //bool verbose = false;
-
-    for (MeshField* subField : subFields){
+    for (MeshField* subField : subFields)
+    {
 
         matchInSubField = subField->checkSubFields(i);
         matchedInSubLevel = matchedInSubLevel || matchInSubField;
 
     }
 
-    if (matchedInSubLevel) {
+    if (matchedInSubLevel)
+    {
         atoms.push_back(i);
-    } else {
+    }
+    else
+    {
         matchedInSubLevel = append(i);
     }
 
-
-    //if (verbose) std::cout << i << " checked by " << description << "\t:  " << matchedInSubLevel << std::endl;
     return matchedInSubLevel;
 
 }
@@ -205,9 +224,12 @@ void MeshField::setTopology(const mat &topology, bool recursive)
     *vecPtr = topology.col(1) - topology.col(0);
 
     //Calculate the volume
-    volume = 1;
-    for (int i = 0; i < ENS_DIM; ++i) {
-        volume *= shape(i);
+    double *new_volume;
+    new_volume = (double*)(&volume);
+
+    *new_volume = 1;
+    for (uint i = 0; i < ENS_DIM; ++i) {
+        *new_volume *= shape(i);
     }
 
 }
@@ -215,8 +237,6 @@ void MeshField::setTopology(const mat &topology, bool recursive)
 
 void MeshField::addEvent(Event & event)
 {
-
-    event.setPriority();
 
     event.setMeshField(this);
 
@@ -249,10 +269,8 @@ void MeshField::addSubField(MeshField  & subField)
 
 }
 
-void MeshField::stretchField(double deltaL, int xyz)
+void MeshField::stretchField(double deltaL, uint xyz)
 {
-
-    assert((xyz >= 0) && (xyz < ENS_DIM) && "stretch direction out of bounds.");
 
     mat newTopology = topology;
     newTopology(xyz, 0) += deltaL/2;
@@ -268,7 +286,7 @@ void MeshField::scaleField(const vec & oldShape, const mat & oldTopology, const 
 
     double oldCOM, newCOM, shapeFac, newShape_i, newSubShape_i;
 
-    for (int i = 0; i < ENS_DIM; ++i) {
+    for (uint i = 0; i < ENS_DIM; ++i) {
 
         newShape_i = newTopology(i, 1) - newTopology(i, 0);
         shapeFac = newShape_i/oldShape(i);
@@ -285,8 +303,6 @@ void MeshField::scaleField(const vec & oldShape, const mat & oldTopology, const 
     }
 
     setTopology(newSubTopology);
-
-    //    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
 
 }
 

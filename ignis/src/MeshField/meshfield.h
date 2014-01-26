@@ -28,53 +28,55 @@ class MeshField
 
 protected:
 
-    double volume;
-
     bool m_isMainMesh;
+
+
+    MeshField* parent;
+
+    MainMesh* mainMesh;
+
 
     Ensemble *ensemble;
 
-    MeshField* parent;
-    MainMesh* mainMesh;
+    std::vector<uint> atoms;
 
-    std::vector<int> atoms;
     std::vector<Event*> events;
+
     std::vector<MeshField*> subFields;
 
-    static int * loopCycle;
 
     virtual void sendToTop(Event & event);
 
-    void storeActiveEvents();
-    bool checkSubFields(int i);
-    void resetSubFields();
 
     //These should all be executes from the MainMesh,
     //As they recursively call all subMeshes.
     void initializeEvents();
-    void resetEvents();
+
     void executeEvents();
+
     void dumpEvents();
 
-    std::exception * incorrectSubMeshPlacementException;
+    void storeActiveEvents();
+
+    void resetEvents();
 
 
-    bool append(int i) {
+    bool append(uint i);
 
-        if (isWithinThis(i)){
-            atoms.push_back(i);
-            return true;
-        }
-
-        return false;
-    }
+    bool checkSubFields(uint i);
 
 
     bool notCompatible(MeshField & subField);
 
+
+    void resetSubFields();
+
     void resetContents(){
         atoms.clear();
     }
+
+
+    std::exception * incorrectSubMeshPlacementException;
 
 
 public:
@@ -82,48 +84,60 @@ public:
     MeshField(const mat & topology, Ensemble &ensemble,
               const std::string description = "meshField");
 
+
+    const double volume;
+
     const mat::fixed<ENS_DIM, 2> topology;
+
     const vec::fixed<ENS_DIM> shape;
+
+    void setTopology(const mat & topology, bool recursive=true);
+
 
     const std::string description;
 
+
     bool isMainMesh () {
         return m_isMainMesh;
-    }
-
-    void setParent(MeshField* parent) {
-        this->parent = parent;
     }
 
     void setMainMesh(MainMesh* mainMesh) {
         this->mainMesh = mainMesh;
     }
 
+
+    void setParent(MeshField* parent) {
+        this->parent = parent;
+    }
+
     MeshField* getParent () {
         return parent;
     }
 
-    void setTopology(const mat & topology, bool recursive=true);
+
+    virtual bool isWithinThis(uint i);
 
     void addEvent(Event & event);
 
+    void removeEvent(uint i);
+
     void addSubField(MeshField &subField);
 
-    void stretchField(double l, int xyz);
+    void removeSubField(uint i){
+        subFields.erase(subFields.begin() + i);
+    }
+
+
+    void stretchField(double l, uint xyz);
 
     void scaleField(const vec & oldShape, const mat &oldTopology, const mat &newTopology);
 
-    virtual bool isWithinThis(int i);
 
-    const double & getVolume() const {
-        return volume;
-    }
-
-    virtual int getPopulation() const {
+    virtual uint getPopulation() const {
         return atoms.size();
     }
 
-    const std::vector<int> & getAtoms() const {
+    const std::vector<uint> & getAtoms() const {
         return atoms;
     }
 
@@ -131,19 +145,14 @@ public:
         return ensemble;
     }
 
-    std::vector<MeshField*> getSubfields(){
+    const std::vector<MeshField*> & getSubfields() const {
         return subFields;
     }
 
-    std::vector<Event*> getEvents(){
+    const std::vector<Event*> & getEvents() const {
         return events;
     }
 
-    void removeEvent(int i);
-
-    void removeSubMesh(int i){
-        subFields.erase(subFields.begin() + i);
-    }
 
     friend class MainMesh;
     friend class ContractMesh;

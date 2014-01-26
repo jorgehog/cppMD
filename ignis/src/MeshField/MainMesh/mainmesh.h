@@ -9,7 +9,7 @@ class MainMesh : public MeshField
 public:
     MainMesh(const mat & topology, Ensemble &ensemble);
 
-    int getPopulation() const {
+    uint getPopulation() const {
         return ENS_N;
     }
 
@@ -24,6 +24,7 @@ private:
     void sortEvents();
 
     void updateContainments();
+
     void dumpEventsToFile();
 
     std::string outputPath;

@@ -1,9 +1,11 @@
 TEMPLATE = lib 
 TARGET = ../lib/ignis
 
+DEFINES += NO_DCVIZ
+
 LIBS += -lpython2.7 -larmadillo -lconfig++
 
-INCLUDEPATH += /usr/include /usr/include/python2.7 /home/jorgehog/code/DCViz/include
+INCLUDEPATH += /usr/include/python2.7 /home/jorgehog/code/DCViz/include
 
 SOURCES += MeshField/meshfield.cpp \
     Event/event.cpp \

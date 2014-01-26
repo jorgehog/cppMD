@@ -23,7 +23,7 @@ MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble):
 
     setOutputPath("/tmp/");
 
-    for (int i = 0; i < ENS_N; ++i) {
+    for (uint i = 0; i < ENS_N; ++i) {
         atoms.push_back(i);
     }
 
@@ -37,7 +37,7 @@ void MainMesh::updateContainments()
         subField->resetSubFields();
     }
 
-    for (int i = 0; i < ENS_N; ++i) {
+    for (uint i = 0; i < ENS_N; ++i) {
 
         for (MeshField* subField : subFields){
             (void)subField->checkSubFields(i);
@@ -128,5 +128,6 @@ void MainMesh::sortEvents()
 {
     std::sort(allEvents.begin(), allEvents.end(), sortByPriority());
 }
+
 
 

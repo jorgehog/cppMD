@@ -53,11 +53,11 @@ int main()
     const Setting & epses  = getSurfaceSetting(ensembleParameters, "epses");
     const Setting & _masses = getSurfaceSetting(ensembleParameters, "masses");
 
-    for (int i = 0; i < nSpecies; ++i) {
+    for (uint i = 0; i < nSpecies; ++i) {
 
         masses(i) = (double)_masses[i];
 
-        for (int j = 0; j < nSpecies; ++j) {
+        for (uint j = 0; j < nSpecies; ++j) {
             sigmaTable(i, j) = 0.5*((double)sigmas[i] +
                                     (double)sigmas[j]);
 
@@ -71,7 +71,9 @@ int main()
     assert(masses(0) == 1. && "We are working in reduced units.");
 
 
+#ifndef NO_DCVIZ
     double delay = getSetting<double>(root, {"DCViz", "delay"});
+#endif
 
     const Setting & events = getSurfaceSetting(root, "Events");
 
@@ -162,7 +164,8 @@ int main()
 #ifndef NO_DCVIZ
     LauchDCViz launchDCViz(outputPath, delay);
     mainMesh.addEvent(launchDCViz);
-#else
+#endif
+#ifdef USE_QT_GUI
     (void) delay;
     QApplication app(argc, argv);
 
@@ -308,7 +311,7 @@ int main()
      */
 
     timer.tic();
-#ifndef NO_DCVIZ
+#ifndef USE_QT_GUI
     mainMesh.eventLoop(N);
 #else
 //    stall smoothify(1./60);
@@ -318,9 +321,9 @@ int main()
 #endif
     std::cout << "Execution time: " << timer.toc() << std::endl;
 
-#ifndef NO_DCVIZ
-    return 0;
-#else
+#ifdef USE_QT_GUI
     return app.exec();
+#else
+    return 0;
 #endif
 }

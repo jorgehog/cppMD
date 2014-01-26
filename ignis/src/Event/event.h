@@ -21,35 +21,44 @@ protected:
 
     static const uint *loopCycle;
 
-    static mat observables;
+
+    std::string type;
+
+
     static std::vector<std::string> outputTypes;
 
-    static uint counter;
-    uint id;
 
     static uint priorityCounter;
+
     uint priority;
 
     uint address; //! This event's index in meshfield's event array
 
+
+    static uint counter;
+
+    uint id;
+
     double* value;
-
-    MeshField* meshField;
-    Ensemble* ensemble;
-
-    std::string type;
-    std::string unit;
 
     bool valueInitialized;
 
     bool doOutput;
+
     bool toFile;
+
+    std::string unit;
+
+    static mat observables;
+
+
+    MeshField* meshField;
+
+    Ensemble* ensemble;
+
 
     virtual void execute() = 0;
 
-    std::vector<int> myAtoms () {
-        return meshField->getAtoms();
-    }
 
     uint onsetTime = UNSET_EVENT_TIME;
 
@@ -60,16 +69,41 @@ public:
     Event(std::string type = "Event", std::string unit = "", bool doOutput=false, bool toFile=false);
 
 
+    virtual void executeEvent() {
+        execute();
+    }
+
+    virtual void initialize(){}
+
+    virtual void reset(){}
+
+
     uint getId() {
         return id;
+    }
+
+
+    void setPriority();
+
+    uint getPriority () const {
+        return priority;
     }
 
     static uint getPriorityCounter() {
         return priorityCounter;
     }
 
+
     std::string getType(){
         return type;
+    }
+
+    bool shouldToFile(){
+        return toFile;
+    }
+
+    bool notSilent(){
+        return doOutput;
     }
 
     std::string getUnit() {
@@ -80,6 +114,7 @@ public:
         return counter;
     }
 
+
     uint getOnsetTime() {
         return onsetTime;
     }
@@ -88,50 +123,11 @@ public:
         return offsetTime;
     }
 
-    uint getPriority () const {
-        return priority;
-    }
-
-
-    bool notSilent(){
-        return doOutput;
-    }
-
-    void storeEvent();
-
-    virtual void executeEvent() {
-        execute();
-    }
-
-    void setOutputVariables();
-
-    static void initializeEventMatrix() {
-        assert(N!=0 && "Unset or empty number of cycles");
-
-        observables.zeros(N, getCounter());
-    }
-
-    static void dumpEventMatrixData(uint k) {
-        for (uint i = 0; i < getCounter(); ++i) {
-            cout << std::setw(30) << std::left << outputTypes.at(i) << "  " << std::setw(10) << observables(k, i) << endl;
-        }
-    }
-
-    static void saveEventMatrix(std::string path) {
-        observables.save(path);
-    }
-
-    virtual void initialize(){}
-
-    virtual void reset(){}
 
     virtual double getMeasurement(){
         return *value;
     }
 
-    bool shouldToFile(){
-        return toFile;
-    }
 
     void setValue(double value){
         valueInitialized = true;
@@ -158,7 +154,27 @@ public:
         address = i;
     }
 
-    void setPriority();
+
+
+    void storeEvent();
+
+    void setOutputVariables();
+
+    static void initializeEventMatrix() {
+        assert(N!=0 && "Unset or empty number of cycles");
+
+        observables.zeros(N, getCounter());
+    }
+
+    static void dumpEventMatrixData(uint k) {
+        for (uint i = 0; i < getCounter(); ++i) {
+            cout << std::setw(30) << std::left << outputTypes.at(i) << "  " << std::setw(10) << observables(k, i) << endl;
+        }
+    }
+
+    static void saveEventMatrix(std::string path) {
+        observables.save(path);
+    }
 
     std::string dumpString();
 
@@ -254,8 +270,8 @@ protected:
 
     bool doOutputOrig;
 
-    int eventLength = UNSET_EVENT_TIME;
+    uint eventLength = UNSET_EVENT_TIME;
 
-    int nTimesExecuted;
+    uint nTimesExecuted;
 };
 #endif // EVENT_H

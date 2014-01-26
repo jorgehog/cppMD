@@ -6,13 +6,13 @@
 #define UNSET_PRIORITY 999999999
 
 Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
+    type(type),
     priority(UNSET_PRIORITY),
     value(new double(0)),
-    type(type),
-    unit(unit),
     valueInitialized(false),
     doOutput(doOutput),
-    toFile(toFile)
+    toFile(toFile),
+    unit(unit)
 {
 
 }
