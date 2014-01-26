@@ -50,30 +50,50 @@ void MainMesh::updateContainments()
 void MainMesh::dumpEventsToFile()
 {
     storeActiveEvents();
+    //    for (Event* event: allEvents) {
+    //        if (event->shouldToFile()) {
+    //            observables(*loopCounter, event->getId()) = event->getMeasurement();
+    //        }
+    //    }
 
-    observables.save(outputPath);
+    Event::saveEventMatrix(outputPath);
 }
 
-void MainMesh::eventLoop(int N)
+void MainMesh::eventLoop(uint N)
 {
 
-    loopCounter = new int(0);
+    Event::setN(N);
+    Event::initializeEventMatrix();
 
-    observables.zeros(N, Event::getCounter());
+    uint* loopCycle = new uint(0);
+    Event::setLoopCyclePtr(loopCycle);
 
-    initializeEvents(loopCounter, N);
+    initializeEvents();
 
+    //    for (Event* event : allEvents) {
+    //        cout << event->getPriority() << "  " << event->getType() << endl;
+    //    }
     sortEvents();
-    for (Event* event : allEvents) {
-        cout << event->getPriority() << endl;
-    }
-    exit(1);
+    //    for (Event* event : allEvents) {
+    //        cout << event->getPriority() << "  " << event->getType() << endl;
+    //    }
+    //    exit(1);
 
-    while (*loopCounter < N) {
+    while (*loopCycle < N) {
+
+        //        for (uint i = allEvents.size()-1; i <= 0; ++i) {
+        //            if (*loopCycle == allEvents.at(i)->getOffsetTime()) {
+        //                allEvents.erase(allEvents.begin() + i);
+        //            }
+        //        }
 
         updateContainments();       //1. Find which atoms are in which meshes
 
         executeEvents();            //2. Let each mesh execute their events on these atoms
+
+        //        for(Event* event : allEvents) {
+        //            event->executeEvent();
+        //        }
 
         dumpEvents();               //3. Let each event dump their output
         std::cout << std::endl;
@@ -82,9 +102,12 @@ void MainMesh::eventLoop(int N)
 
         resetEvents();              //4. Reset.
 
-        *loopCounter = *loopCounter + 1;
+        *loopCycle = *loopCycle + 1;
 
     }
+
+    Event::dumpEventMatrixData(*loopCycle-1);
+
 }
 
 void MainMesh::setOutputPath(std::string path)

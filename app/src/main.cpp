@@ -15,7 +15,7 @@ using namespace libconfig;
 int main()
 {
 
-    srand(time(NULL));
+//    srand(time(NULL));
     wall_clock timer;
 
     Config cfg;
@@ -32,8 +32,8 @@ int main()
     const Setting & solver = getSurfaceSetting(root, "solver");
 
     double dt = getSurfaceSetting<double>(solver, "dt");
-    int N =     getSurfaceSetting<int>(solver, "N");
-    int therm = getSurfaceSetting<int>(solver, "therm");
+    uint N =     getSurfaceSetting<uint>(solver, "N");
+    uint therm = getSurfaceSetting<uint>(solver, "therm");
     double m =  getSurfaceSetting<double>(solver, "tightness");
     std::string outputPath = getSurfaceSetting<std::string>(solver, "outputPath");
 
@@ -43,7 +43,7 @@ int main()
 
 
     const Setting & ensembleParameters = getSurfaceSetting(root, "ensembleParameters");
-    int nSpecies = getSurfaceSetting<int>(ensembleParameters, "nSpecies");
+    uint nSpecies = getSurfaceSetting<uint>(ensembleParameters, "nSpecies");
 
     mat sigmaTable(nSpecies, nSpecies);
     mat epsTable(nSpecies, nSpecies);
@@ -75,12 +75,12 @@ int main()
 
     const Setting & events = getSurfaceSetting(root, "Events");
 
-    int compressionTime =        getSetting<int>(events,    {"Compression", "timeMinusTherm"}) + therm;
-    int compressionLength =      getSetting<int>(events,    {"Compression", "length"});
+    uint compressionTime =        getSetting<uint>(events,    {"Compression", "timeMinusTherm"}) + therm;
+    uint compressionLength =      getSetting<uint>(events,    {"Compression", "length"});
     double compressionDelta =    getSetting<double>(events, {"Compression", "delta"});
 
-    int expansionTime =        getSetting<int>(events, {"Expansion", "timeMinusCompressionTime"}) + compressionTime;
-    int expansionLength =      getSetting<int>(events, {"Expansion", "lengthOverCompressionLength"})*compressionLength;
+    uint expansionTime =        getSetting<uint>(events, {"Expansion", "timeMinusCompressionTime"}) + compressionTime;
+    uint expansionLength =      getSetting<uint>(events, {"Expansion", "lengthOverCompressionLength"})*compressionLength;
     double expansionDelta = getSetting<double>(events, {"Expansion", "delta"});
 
     double tScaleWarm = getSetting<double>(events, {"Thermostats", "temperatureScaleFactorWarm"});
@@ -105,7 +105,7 @@ int main()
     MainMesh mainMesh(topology, ensemble);
     mainMesh.setOutputPath(outputPath);
 
-    int therm10 = therm/10;
+    uint therm10 = therm/10;
     VolumeChange expansion(initialDelta, true);
     expansion.setOnsetTime(2*therm10-1);
     expansion.setOffsetTime(3*therm10-1);

@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iomanip>
 
-#define UNSET_PRIORITY -2
+#define UNSET_PRIORITY 999999999
 
 Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
     priority(UNSET_PRIORITY),
@@ -14,8 +14,25 @@ Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
     doOutput(doOutput),
     toFile(toFile)
 {
+
+}
+
+void Event::storeEvent()
+{
+    if (!toFile) {
+        return;
+    }
+
+    observables(*loopCycle, id) = *value;
+
+}
+
+void Event::setOutputVariables()
+{
     if (toFile) {
         id = counter++;
+        cout << type << endl;
+        outputTypes.push_back(type + ("@" + meshField->description));
     }
 }
 
@@ -50,5 +67,18 @@ std::string Event::dumpString()
     return s.str();
 }
 
-int Event::counter = 0;
-int Event::priorityCounter = 0;
+/*
+   Static member variables:
+*/
+
+const uint * Event::loopCycle;
+
+std::vector<std::string> Event::outputTypes;
+
+mat Event::observables;
+
+uint Event::N = 0;
+
+uint Event::counter = 0;
+
+uint Event::priorityCounter = 0;

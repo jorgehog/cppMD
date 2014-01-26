@@ -629,6 +629,11 @@ public:
 
         double T = t->getMeasurement();
 
+        if (T != T) {
+            setValue(0);
+            return;
+        }
+
         avgT += T;
         avgT2 += T*T;
 

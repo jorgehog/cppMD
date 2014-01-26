@@ -1,7 +1,7 @@
 TEMPLATE = lib 
 TARGET = ../lib/ignis
 
-LIBS += -larmadillo -lconfig++ -I/usr/include/python2.7 -lpython2.7
+LIBS += -lpython2.7 -larmadillo -lconfig++
 
 INCLUDEPATH += /usr/include /usr/include/python2.7 /home/jorgehog/code/DCViz/include
 

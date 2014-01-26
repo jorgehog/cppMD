@@ -13,11 +13,7 @@ public:
         return ENS_N;
     }
 
-    void eventLoop(int N);
-
-    const int *getLoopCounter(){
-        return loopCounter;
-    }
+    void eventLoop(uint N);
 
     void setOutputPath(std::string path);
 
@@ -33,6 +29,7 @@ private:
     std::string outputPath;
 
     std::vector<Event*> allEvents;
+
 
 
 };

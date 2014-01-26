@@ -12,6 +12,7 @@ using namespace arma;
 
 struct Ensemble;
 class Event;
+class MainMesh;
 
 class incorrectSubMeshPlacementException : public std::exception {
 
@@ -34,13 +35,13 @@ protected:
     Ensemble *ensemble;
 
     MeshField* parent;
+    MainMesh* mainMesh;
 
     std::vector<int> atoms;
     std::vector<Event*> events;
     std::vector<MeshField*> subFields;
 
-    static int * loopCounter;
-    static mat observables;
+    static int * loopCycle;
 
     virtual void sendToTop(Event & event);
 
@@ -50,7 +51,7 @@ protected:
 
     //These should all be executes from the MainMesh,
     //As they recursively call all subMeshes.
-    void initializeEvents(int *loopCycle, int N);
+    void initializeEvents();
     void resetEvents();
     void executeEvents();
     void dumpEvents();
@@ -92,6 +93,10 @@ public:
 
     void setParent(MeshField* parent) {
         this->parent = parent;
+    }
+
+    void setMainMesh(MainMesh* mainMesh) {
+        this->mainMesh = mainMesh;
     }
 
     MeshField* getParent () {

@@ -1,11 +1,13 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#define UNSET_EVENT_TIME -1
+#define UNSET_EVENT_TIME 999999999
 
 #include "../MeshField/meshfield.h"
 
 #include <iostream>
+#include <iomanip>
+
 #include <assert.h>
 
 
@@ -15,16 +17,20 @@ class Event
 {
 protected:
 
-    int N;
-    const int * loopCycle;
+    static uint N;
 
-    static int counter;
-    int id;
+    static const uint *loopCycle;
 
-    static int priorityCounter;
-    int priority;
+    static mat observables;
+    static std::vector<std::string> outputTypes;
 
-    int address; //! This event's index in meshfield's event array
+    static uint counter;
+    uint id;
+
+    static uint priorityCounter;
+    uint priority;
+
+    uint address; //! This event's index in meshfield's event array
 
     double* value;
 
@@ -45,16 +51,16 @@ protected:
         return meshField->getAtoms();
     }
 
-    int onsetTime = UNSET_EVENT_TIME;
+    uint onsetTime = UNSET_EVENT_TIME;
 
-    int offsetTime = UNSET_EVENT_TIME;
+    uint offsetTime = UNSET_EVENT_TIME;
 
 public:
 
     Event(std::string type = "Event", std::string unit = "", bool doOutput=false, bool toFile=false);
 
 
-    int getId() {
+    uint getId() {
         return id;
     }
 
@@ -70,19 +76,19 @@ public:
         return unit;
     }
 
-    static int getCounter(){
+    static uint getCounter(){
         return counter;
     }
 
-    int getOnsetTime() {
+    uint getOnsetTime() {
         return onsetTime;
     }
 
-    int getOffsetTime() {
+    uint getOffsetTime() {
         return offsetTime;
     }
 
-    int getPriority () const {
+    uint getPriority () const {
         return priority;
     }
 
@@ -91,8 +97,28 @@ public:
         return doOutput;
     }
 
+    void storeEvent();
+
     virtual void executeEvent() {
         execute();
+    }
+
+    void setOutputVariables();
+
+    static void initializeEventMatrix() {
+        assert(N!=0 && "Unset or empty number of cycles");
+
+        observables.zeros(N, getCounter());
+    }
+
+    static void dumpEventMatrixData(uint k) {
+        for (uint i = 0; i < getCounter(); ++i) {
+            cout << std::setw(30) << std::left << outputTypes.at(i) << "  " << std::setw(10) << observables(k, i) << endl;
+        }
+    }
+
+    static void saveEventMatrix(std::string path) {
+        observables.save(path);
     }
 
     virtual void initialize(){}
@@ -120,15 +146,15 @@ public:
         this->meshField = meshField;
     }
 
-    void setN(int N){
-        this->N = N;
+    static void setN(uint & N){
+        Event::N = N;
     }
 
-    void setLoopCyclePtr(const int* loopCycle){
-        this->loopCycle = loopCycle;
+    static void setLoopCyclePtr(const uint* loopCycle){
+        Event::loopCycle = loopCycle;
     }
 
-    void setAddress(int i) {
+    void setAddress(uint i) {
         address = i;
     }
 
@@ -146,11 +172,10 @@ public:
     TriggerEvent(std::string type = "TriggerEvent", std::string unit = "", bool doOutput=false) :
         Event(type, unit, doOutput) {}
 
-    void setTrigger(int t){
-        assert(t >= 0);
+    void setTrigger(uint t){
 
         onsetTime = t;
-        offsetTime = t;
+        offsetTime = t+1;
 
     }
 
@@ -183,23 +208,20 @@ public:
 
     }
 
-    void setOnsetTime(int onsetTime){
+    void setOnsetTime(uint onsetTime){
 
         if (onsetTime == UNSET_EVENT_TIME) return;
-
-        assert(onsetTime >= 0);
 
         this->onsetTime = onsetTime;
 
     }
 
-    void setOffsetTime(int offTime) {
+    void setOffsetTime(uint offTime) {
 
         if (offTime == UNSET_EVENT_TIME) return;
 
         assert((onsetTime != UNSET_EVENT_TIME) && ("onTime must be set before offTime."));
         assert(offTime > onsetTime && "Event must initialize before the shutdown.");
-        assert(offTime >= 0 && "event shutdown must be a positive value");
 
         offsetTime = offTime;
 

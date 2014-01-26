@@ -48,18 +48,15 @@ void MeshField::resetSubFields()
     resetContents();
 }
 
-void MeshField::initializeEvents(int *loopCycle, int N)
+void MeshField::initializeEvents()
 {
     for (MeshField* subfield : subFields){
-        subfield->initializeEvents(loopCycle, N);
+        subfield->initializeEvents();
     }
 
     for (Event* event : events){
 
         sendToTop(*event);
-        event->setN(N);
-        event->setLoopCyclePtr(loopCycle);
-
         event->initialize();
 
     }
@@ -111,9 +108,7 @@ void MeshField::storeActiveEvents()
     }
 
     for (Event* event : events){
-        if (event->shouldToFile()) {
-            observables(*loopCounter, event->getId()) = event->getMeasurement();
-        }
+        event->storeEvent();
     }
 
 }
@@ -225,6 +220,8 @@ void MeshField::addEvent(Event & event)
 
     event.setMeshField(this);
 
+    event.setOutputVariables();
+
     event.setEnsemble(ensemble);
 
     events.push_back(&event);
@@ -292,8 +289,4 @@ void MeshField::scaleField(const vec & oldShape, const mat & oldTopology, const 
     //    topology.save((std::string)"/home/jorgehog/tmp/" + (description + ".arma"));
 
 }
-
-mat MeshField::observables;
-int * MeshField::loopCounter;
-
 
