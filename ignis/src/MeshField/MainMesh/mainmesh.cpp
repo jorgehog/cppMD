@@ -49,12 +49,10 @@ void MainMesh::updateContainments()
 
 void MainMesh::dumpEventsToFile()
 {
-    storeActiveEvents();
-    //    for (Event* event: allEvents) {
-    //        if (event->shouldToFile()) {
-    //            observables(*loopCounter, event->getId()) = event->getMeasurement();
-    //        }
-    //    }
+//    storeActiveEvents();
+    for (Event* event: allEvents) {
+        event->storeEvent();
+    }
 
     Event::saveEventMatrix(outputPath);
 }
@@ -70,30 +68,23 @@ void MainMesh::eventLoop(uint N)
 
     initializeEvents();
 
-    //    for (Event* event : allEvents) {
-    //        cout << event->getPriority() << "  " << event->getType() << endl;
-    //    }
     sortEvents();
-    //    for (Event* event : allEvents) {
-    //        cout << event->getPriority() << "  " << event->getType() << endl;
-    //    }
-    //    exit(1);
 
     while (*loopCycle < N) {
 
-        //        for (uint i = allEvents.size()-1; i <= 0; ++i) {
-        //            if (*loopCycle == allEvents.at(i)->getOffsetTime()) {
-        //                allEvents.erase(allEvents.begin() + i);
-        //            }
-        //        }
+                for (int i = allEvents.size()-1; i >= 0; --i) {
+                    if (*loopCycle == allEvents.at(i)->getOffsetTime()+1) {
+                        allEvents.erase(allEvents.begin() + i);
+                    }
+                }
 
         updateContainments();       //1. Find which atoms are in which meshes
 
-        executeEvents();            //2. Let each mesh execute their events on these atoms
+//        executeEvents();            //2. Let each mesh execute their events on these atoms
 
-        //        for(Event* event : allEvents) {
-        //            event->executeEvent();
-        //        }
+                for(Event* event : allEvents) {
+                    event->executeEvent();
+                }
 
         dumpEvents();               //3. Let each event dump their output
         std::cout << std::endl;
