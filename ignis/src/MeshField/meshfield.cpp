@@ -51,7 +51,7 @@ void MeshField::resetSubFields()
     resetContents();
 }
 
-void MeshField::initializeEvents()
+void MeshField::prepareEvents()
 {
 
     for (Event* event : events)
@@ -66,7 +66,7 @@ void MeshField::initializeEvents()
 
     for (MeshField* subfield : subFields)
     {
-        subfield->initializeEvents();
+        subfield->prepareEvents();
     }
 
 }
@@ -264,4 +264,3 @@ void MeshField::scaleField(const vec & oldShape, const mat & oldTopology, const 
     setTopology(newSubTopology);
 
 }
-

@@ -53,7 +53,7 @@ protected:
 
     //This should be executed from the MainMesh,
     //As it recursively calls all subfields.
-    void initializeEvents();
+    void prepareEvents();
 
 
     bool append(uint i);

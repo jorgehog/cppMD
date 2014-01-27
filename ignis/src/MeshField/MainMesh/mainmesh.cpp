@@ -78,11 +78,8 @@ void MainMesh::dumpLoopChunkInfo()
 
 void MainMesh::dumpEventsToFile() const
 {
-#ifdef USE_NEW_METHOD
+
     for (Event* event: currentChunk->executeEvents) {
-#else
-    for (Event* event : allEvents) {
-#endif
         event->storeEvent();
     }
 
@@ -100,65 +97,27 @@ void MainMesh::eventLoop(uint N)
     Event::setNumberOfCycles(N);
     Event::setLoopCyclePtr(loopCycle);
 
-    initializeEvents();
+    prepareEvents();
 
     sortEvents();
 
     setupChunks();
-//    exit(1);
-
-    //    //SPEEDUP: STORE OUTPUT, TOFILE EVENTS IN OWN ARRAY AND LOOP THIS ONLY INSTEAD OF IFTESTING.
-#ifndef USE_NEW_METHOD
-    while (*loopCycle < N) {
-        cout << *loopCycle << endl;
-
-        for (Event* event: allEvents) {
-            if (*loopCycle == event->getOnsetTime()) {
-                event->initialize();
-            }
-        }
-
-        for (int i = allEvents.size()-1; i >= 0; --i) {
-            if (*loopCycle == allEvents.at(i)->getOffsetTime()+1) {
-                allEvents.erase(allEvents.begin() + i);
-            }
-        }
-
-        updateContainments();       //1. Find which atoms are in which meshes
-
-        executeEvents();            //2. Execute each active event.
-
-
-        *loopCycle = *loopCycle + 1;
-
-    }
-#else
 
     for (LoopChunk* loopChunk : allLoopChunks) {
 
         currentChunk = loopChunk;
 
-        for (Event* event : currentChunk->executeEvents) {
-            event->_initEvent();
-        }
+        initializeNewEvents();
 
         for (*loopCycle = currentChunk->start; *loopCycle <= currentChunk->end; ++(*loopCycle)) {
-            cout << *loopCycle << endl;
 
             updateContainments();
 
-            for (Event * event : currentChunk->executeEvents) {
-                event->executeEvent();
-            }
-
-            for (Event * event : currentChunk->executeEvents) {
-                event->reset();
-            }
+            executeEvents();
 
         }
 
     }
-#endif
 
     Event::dumpEventMatrixData(N-1);
 
@@ -202,6 +161,13 @@ void MainMesh::sortEvents()
               sortByPriority());
 }
 
+void MainMesh::initializeNewEvents()
+{
+    for (Event* event : currentChunk->executeEvents) {
+        event->_initEvent();
+    }
+}
+
 void MainMesh::setupChunks()
 {
 
@@ -227,7 +193,7 @@ void MainMesh::setupChunks()
     uint jStart = 0;
     uint offsetTime;
 
-    bool debug = false;
+    //    bool debug = false;
 
     for (uint i = 0; i < onsetTimes.n_elem; ++i) {
 
@@ -241,21 +207,21 @@ void MainMesh::setupChunks()
             end = offsetTimes(offsetTimes.n_elem - 1) + 1;
         }
 
-        if (debug) cout << "start at " << start << endl;
-        if (debug) cout << "end " << end << endl;
+        //        if (debug) cout << "start at " << start << endl;
+        //        if (debug) cout << "end " << end << endl;
 
         for (uint j = jStart; j < offsetTimes.n_elem; ++j) {
 
             offsetTime = offsetTimes(j);
 
-            if (debug) cout << "testing offsettime " << offsetTime << endl;
+            //            if (debug) cout << "testing offsettime " << offsetTime << endl;
 
             if (offsetTime <= end)
             {
-                if (debug) cout << "adding interval " << start << " - " << offsetTime << endl;
+                //                if (debug) cout << "adding interval " << start << " - " << offsetTime << endl;
                 allLoopChunks.push_back(new LoopChunk(start, offsetTime));
                 start = offsetTime + 1;
-                if (debug) cout << "next interval starting at " << start << endl;
+                //                if (debug) cout << "next interval starting at " << start << endl;
 
                 jStart = j+1;
 
@@ -269,11 +235,11 @@ void MainMesh::setupChunks()
 
         if (start < end)
         {
-            if (debug) cout << "adding remaining interval " << start << " - " << end << endl;
+            //            if (debug) cout << "adding remaining interval " << start << " - " << end << endl;
             allLoopChunks.push_back(new LoopChunk(start, end));
             start = end + 1;
         }
-        if (debug) cout << "------------------------\n";
+        //        if (debug) cout << "------------------------\n";
 
     }
 
@@ -302,12 +268,11 @@ void MainMesh::setupChunks()
 void MainMesh::executeEvents()
 {
 
-    for(Event* event : allEvents)
-    {
+    for (Event * event : currentChunk->executeEvents) {
         event->executeEvent();
     }
 
-    for (Event* event : allEvents){
+    for (Event * event : currentChunk->executeEvents) {
         event->reset();
     }
 
@@ -315,11 +280,8 @@ void MainMesh::executeEvents()
 
 void MainMesh::dumpEvents() const
 {
-#ifdef USE_NEW_METHOD
+
     for (Event* event : currentChunk->executeEvents)
-#else
-    for (Event* event : allEvents)
-#endif
     {
         if (event->notSilent())
         {

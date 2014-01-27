@@ -16,7 +16,7 @@ using namespace ignis;
 
 int main()
 {
-//    srand(time(NULL));
+    //    srand(time(NULL));
     wall_clock timer;
 
     Config cfg;
@@ -258,16 +258,16 @@ int main()
     mainMesh.addSubField(solidToLiquidBottom);
     mainMesh.addSubField(solidToLiquidTop);
 
-//    //DEBUG
-//    debugSubMeshResize debugMeshSize1(&mainMesh);
+    //    //DEBUG
+    //    debugSubMeshResize debugMeshSize1(&mainMesh);
 
-//    debugSubMeshResize debugMeshSize2(&mainMesh);
+    //    debugSubMeshResize debugMeshSize2(&mainMesh);
 
-//    debugSubMeshResize debugMeshSize3(&mainMesh);
+    //    debugSubMeshResize debugMeshSize3(&mainMesh);
 
-//    subFieldUpper.addEvent(debugMeshSize1);
-//    subFieldMiddle.addEvent(debugMeshSize2);
-//    subFieldLower.addEvent(debugMeshSize3);
+    //    subFieldUpper.addEvent(debugMeshSize1);
+    //    subFieldMiddle.addEvent(debugMeshSize2);
+    //    subFieldLower.addEvent(debugMeshSize3);
 
     double tTop = T0*tScaleWarm;
     double tMid = T0/tScaleCold;
@@ -318,8 +318,8 @@ int main()
 #ifndef USE_QT_GUI
     mainMesh.eventLoop(N);
 #else
-//    stall smoothify(1./60);
-//    mainMesh.addEvent(smoothify);
+    //    stall smoothify(1./60);
+    //    mainMesh.addEvent(smoothify);
     platform.startAdvanceTimer();
     MainWindow::startMDThread(N, &platform, &mainMesh);
 #endif

@@ -65,6 +65,8 @@ protected:
 
     virtual void execute() = 0;
 
+    uint nTimesExecuted;
+
     bool initialized;
 
 
@@ -77,9 +79,9 @@ public:
     Event(std::string type = "Event", std::string unit = "", bool doOutput=false, bool toFile=false);
 
 
-    virtual void executeEvent() {
-        cout << "Executing " << type << endl;
+    void executeEvent() {
         execute();
+        nTimesExecuted++;
     }
 
     void _initEvent() {
@@ -233,6 +235,13 @@ public:
 
     }
 
+    void setTrigger(uint t){
+
+        setOnsetTime(t);
+        setOffsetTime(t);
+
+    }
+
     bool _hasExecuteImpl() {
         //        return (&this->execute != &Event::execute);
         return true;
@@ -247,86 +256,6 @@ public:
 
 };
 
-
-
-class TriggerEvent : public Event {
-public:
-
-    TriggerEvent(std::string type = "TriggerEvent", std::string unit = "", bool doOutput=false) :
-        Event(type, unit, doOutput) {}
-
-    void setTrigger(uint t){
-
-        onsetTime = t;
-        offsetTime = t;
-
-    }
-
-    void executeEvent() {
-
-        assert(onsetTime != IGNIS_UNSET_UINT);
-
-#ifndef USE_NEW_METHOD
-        doOutput = false;
-
-        if (*loopCycle == onsetTime){
-
-            cout << "Executing " << type << endl;
-            execute();
-            doOutput = true;
-        }
-
-#else
-        cout << "Executing " << type << endl;
-        execute();
-#endif
-
-    }
-
-};
-
-
-
-class OnsetEvent : public Event {
-public:
-
-    OnsetEvent(std::string type = "OnsetEvent", std::string unit = "", bool doOutput=false, bool toFile=false) :
-        Event(type, unit, false, toFile),
-        doOutputOrig(doOutput),
-        nTimesExecuted(0)
-    {
-
-    }
-
-
-    void executeEvent() {
-
-        assert(*loopCycle <= offsetTime && "Event was not properly removed.");
-
-#ifndef USE_NEW_METHOD
-        if (*loopCycle >= onsetTime) {
-            cout << "Executing " << type << endl;
-            execute();
-            doOutput = doOutputOrig;
-            nTimesExecuted++;
-        }
-#else
-        cout << "Executing " << type << endl;
-        execute();
-        doOutput = doOutputOrig;
-        nTimesExecuted++;
-#endif
-
-
-    }
-
-protected:
-
-    bool doOutputOrig;
-
-
-    uint nTimesExecuted;
-};
 }
 
 #endif // EVENT_H

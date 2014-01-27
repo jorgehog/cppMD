@@ -6,13 +6,13 @@ using namespace arma;
 void mdSolver::initialize()
 {
 
-//    int KS = 0;
-//    int sad;
+    //    int KS = 0;
+    //    int sad;
 
-//    SaveToFile s(1);
-//    s.setEnsemble(ensemble);
-//    s.setLoopCyclePtr(&KS);
-//    s.setMeshField(meshField);
+    //    SaveToFile s(1);
+    //    s.setEnsemble(ensemble);
+    //    s.setLoopCyclePtr(&KS);
+    //    s.setMeshField(meshField);
 
     double dx = meshField->shape(0)/IGNIS_NX;
     double dy = meshField->shape(1)/IGNIS_NY;
@@ -30,7 +30,7 @@ void mdSolver::initialize()
                 ensemble->pos(0, n) = (i + 0.5*(j % 2))*dx;
                 ensemble->pos(1, n) = j*dy;
 
-//                s.execute();
+                //                s.execute();
 
 #if IGNIS_DIM == 3
                 ensemble->pos(2, n) = k*dz;

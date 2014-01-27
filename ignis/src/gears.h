@@ -20,17 +20,17 @@ inline vec getTotalLinearMomentum(Ensemble* ensemble) {
 
     vec pTot = zeros<vec>(IGNIS_DIM);
 
-     //retrieve ensemble values;
-     const vec & masses = ensemble->masses;
-     mat & vel = ensemble->vel;
-     const uint & N = ensemble->nSpecies;
+    //retrieve ensemble values;
+    const vec & masses = ensemble->masses;
+    mat & vel = ensemble->vel;
+    const uint & N = ensemble->nSpecies;
 
-     //Calculates total linear momentum
-     for (uint k = 0; k < IGNIS_N; ++k) {
-         pTot += masses(k%N)*vel.col(k);
-     }
+    //Calculates total linear momentum
+    for (uint k = 0; k < IGNIS_N; ++k) {
+        pTot += masses(k%N)*vel.col(k);
+    }
 
-     return pTot;
+    return pTot;
 
 }
 

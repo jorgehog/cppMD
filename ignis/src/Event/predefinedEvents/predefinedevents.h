@@ -152,10 +152,10 @@ public:
  *
  */
 
-class thermostat : public OnsetEvent {
+class thermostat : public Event {
 public:
     thermostat(const double & T0, const double & tau, const double & dt) :
-        OnsetEvent("Thermostat", "T0", true, true), T0(T0), tau(tau), dt(dt) {}
+        Event("Thermostat", "T0", true, true), T0(T0), tau(tau), dt(dt) {}
 
 protected:
 
@@ -233,7 +233,7 @@ public:
     }
 };
 
-class ContractMesh : public OnsetEvent {
+class ContractMesh : public Event {
 public:
 
     //delta = L_new/L_old -- fraction of shrink/expand
@@ -242,7 +242,7 @@ public:
     ContractMesh(double delta, uint xyz,
                  uint onTime = IGNIS_UNSET_UINT,
                  uint offTime = IGNIS_UNSET_UINT) :
-        OnsetEvent("CompressMesh"),
+        Event("CompressMesh"),
         delta(delta),
         xyz(xyz)
     {
@@ -323,11 +323,11 @@ private:
 
 };
 
-class VolumeChange : public OnsetEvent {
+class VolumeChange : public Event {
 public:
 
     VolumeChange(double ratio, bool recursive) :
-        OnsetEvent("VolumeChange"),
+        Event("VolumeChange"),
         ratio(ratio),
         recursive(recursive)
     {
@@ -422,10 +422,10 @@ private:
 };
 #endif
 
-class killMe : public TriggerEvent {
+class killMe : public Event {
 public:
 
-    killMe(uint when) : TriggerEvent() {setTrigger(when);}
+    killMe(uint when) : Event() {setTrigger(when);}
 
     void execute() {
         exit(1);
@@ -591,10 +591,10 @@ public:
 };
 
 
-class diffusionConstant : public OnsetEvent {
+class diffusionConstant : public Event {
 public:
 
-    diffusionConstant(double dt) : OnsetEvent("DiffusionConstant", "D0", true), fac(dt/(IGNIS_DIM)), D(0) {}
+    diffusionConstant(double dt) : Event("DiffusionConstant", "D0", true), fac(dt/(IGNIS_DIM)), D(0) {}
 
     void initialize() {
         v0 = ensemble->vel;
@@ -630,10 +630,10 @@ private:
 
 };
 
-class temperatureFluctuations : public OnsetEvent {
+class temperatureFluctuations : public Event {
 public:
 
-    temperatureFluctuations(thermostat *t) : OnsetEvent("TempFluct", "T0", true), t(t) {
+    temperatureFluctuations(thermostat *t) : Event("TempFluct", "T0", true), t(t) {
         setOnsetTime(t->getOnsetTime());
         setOffsetTime(t->getOffsetTime());
     }
