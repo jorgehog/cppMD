@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include "../../Event/event.h"
+#include "../../Event/intrinsicevents.h"
 #include "../../Ensemble/ensemble.h"
 
 using namespace ignis;
@@ -49,7 +50,7 @@ void MainMesh::updateContainments()
 
 }
 
-void MainMesh::dumpEventsToFile()
+void MainMesh::dumpEventsToFile() const
 {
     for (Event* event: allEvents) {
         event->storeEvent();
@@ -58,20 +59,15 @@ void MainMesh::dumpEventsToFile()
     Event::saveEventMatrix(outputPath);
 }
 
-void MainMesh::resetEvents()
-{
-    for (Event* event : allEvents){
-        event->reset();
-    }
-}
 
 void MainMesh::eventLoop(uint N)
 {
 
-    Event::setN(N);
-    Event::initializeEventMatrix();
+    addIntrinsicEvents();
 
     uint* loopCycle = new uint(0);
+
+    Event::setNumberOfCycles(N);
     Event::setLoopCyclePtr(loopCycle);
 
     initializeEvents();
@@ -89,20 +85,13 @@ void MainMesh::eventLoop(uint N)
 
         updateContainments();       //1. Find which atoms are in which meshes
 
-        executeEvents();           //2. Execute each active event.
-
-        dumpEvents();               //3. Let each event dump their output
-        std::cout << std::endl;
-
-        dumpEventsToFile();         //4. Dump the events to file if so is specified.
-
-        resetEvents();              //4. Reset.
+        executeEvents();            //2. Execute each active event.
 
         *loopCycle = *loopCycle + 1;
 
     }
 
-    Event::dumpEventMatrixData(*loopCycle-1);
+    Event::dumpEventMatrixData(N-1);
 
 }
 
@@ -120,6 +109,20 @@ void MainMesh::sendToTop(Event &event)
     allEvents.push_back(&event);
 }
 
+void MainMesh::addIntrinsicEvents()
+{
+
+    Event *_stdout = new _dumpEvents(this);
+    _stdout->setManualPriority();
+
+    Event *_fileio = new _dumpEventsToFile(this);
+    _fileio->setManualPriority();
+
+    addEvent(*_stdout);
+    addEvent(*_fileio);
+
+}
+
 void MainMesh::sortEvents()
 {
     std::sort(allEvents.begin(),
@@ -129,13 +132,19 @@ void MainMesh::sortEvents()
 
 void MainMesh::executeEvents()
 {
+
     for(Event* event : allEvents)
     {
         event->executeEvent();
     }
+
+    for (Event* event : allEvents){
+        event->reset();
+    }
+
 }
 
-void MainMesh::dumpEvents()
+void MainMesh::dumpEvents() const
 {
     for (Event* event : allEvents)
     {

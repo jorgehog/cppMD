@@ -12,11 +12,11 @@ Force::Force() :
 void Force::leastDistance(vec &leastRel, double &leastRel2, const int &i, const int &j)
 {
     //if we have no periodicity, we are done.
-#if !defined (ENS_PERIODIC_X) && !defined (ENS_PERIODIC_Y) && !defined (ENS_PERIODIC_Z)
+#if !defined (IGNIS_PERIODIC_X) && !defined (IGNIS_PERIODIC_Y) && !defined (IGNIS_PERIODIC_Z)
 
     leastRel = ensemble->pos.col(i) - ensemble->pos.col(j);
     leastRel2 = 0;
-    for (int k = 0; k < ENS_DIM; ++k) {
+    for (int k = 0; k < IGNIS_DIM; ++k) {
         leastRel2 += leastRel(k)*leastRel(k);
     }
 

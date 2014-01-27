@@ -5,6 +5,7 @@
 
 namespace ignis
 {
+
 class MainMesh : public MeshField
 {
 
@@ -19,19 +20,23 @@ public:
 
     void setOutputPath(std::string path);
 
+    void dumpEvents() const;
+
+    void dumpEventsToFile() const;
+
+
 private:
 
     void sendToTop(Event &event);
+
+
+    void addIntrinsicEvents();
+
 
     void sortEvents();
 
     void executeEvents();
 
-    void dumpEvents();
-
-    void dumpEventsToFile();
-
-    void resetEvents();
 
 
     void updateContainments();

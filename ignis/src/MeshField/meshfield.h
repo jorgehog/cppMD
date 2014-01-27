@@ -39,9 +39,6 @@ protected:
 
     MeshField* parent;
 
-    MainMesh* mainMesh;
-
-
     Ensemble *ensemble;
 
     std::vector<uint> atoms;
@@ -99,11 +96,6 @@ public:
         return m_isMainMesh;
     }
 
-    void setMainMesh(MainMesh* mainMesh) {
-        this->mainMesh = mainMesh;
-    }
-
-
     void setParent(MeshField* parent) {
         this->parent = parent;
     }
@@ -142,6 +134,7 @@ public:
     const Ensemble * getEnsemble () const {
         return ensemble;
     }
+
 
     const std::vector<MeshField*> & getSubfields() const {
         return subFields;

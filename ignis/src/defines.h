@@ -1,5 +1,5 @@
-#ifndef ENS_DEFINES_H
-#define ENS_DEFINES_H
+#ifndef IGNIS_DEFINES_H
+#define IGNIS_DEFINES_H
 
 #include "../ignisDefines.h"
 

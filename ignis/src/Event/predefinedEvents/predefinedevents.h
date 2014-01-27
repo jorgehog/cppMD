@@ -37,23 +37,23 @@ public:
     {
 
         using namespace std;
-#if defined (ENS_PERIODIC_X) || defined (ENS_PERIODIC_Y) || defined (ENS_PERIODIC_Z)
+#if defined (IGNIS_PERIODIC_X) || defined (IGNIS_PERIODIC_Y) || defined (IGNIS_PERIODIC_Z)
         for (uint i = 0; i < IGNIS_N; ++i) {
-#ifdef ENS_PERIODIC_X
+#ifdef IGNIS_PERIODIC_X
             if (ensemble->pos(0, i) < meshField->topology(0, 0)) {
                 ensemble->pos(0, i) += meshField->shape(0);
             }
             ensemble->pos(0, i) = meshField->topology(0, 0) +
                     fmod(ensemble->pos(0, i) - meshField->topology(0, 0), meshField->shape(0));
 #endif
-#ifdef ENS_PERIODIC_Y
+#ifdef IGNIS_PERIODIC_Y
             if (ensemble->pos(1, i) < meshField->topology(1, 0)) {
                 ensemble->pos(1, i) += meshField->shape(1);
             }
             ensemble->pos(1, i) = meshField->topology(1, 0) +
                     fmod(ensemble->pos(1, i) - meshField->topology(1, 0), meshField->shape(1));
 #endif
-#ifdef ENS_PERIODIC_Z
+#ifdef IGNIS_PERIODIC_Z
             if (ensemble->pos(2, i) < meshField->topology(2, 0)) {
                 ensemble->pos(2, i) += meshField->shape(2);
             }

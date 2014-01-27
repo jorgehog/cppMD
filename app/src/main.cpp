@@ -7,6 +7,7 @@ using namespace arma;
 using namespace libconfig;
 using namespace ignis;
 
+
 #ifdef USE_MPI
 #include <mpi.h>
 #endif
@@ -15,7 +16,6 @@ using namespace ignis;
 
 int main()
 {
-
 //    srand(time(NULL));
     wall_clock timer;
 

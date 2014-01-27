@@ -140,7 +140,7 @@ bool MeshField::notCompatible(MeshField & subField)
             (sft(1, 1) == tft(1, 1));
     bool inverted    =  (sft(0, 0) >= sft(0, 1)) ||
             (sft(1, 0) >= sft(1, 1));
-#elif ENS_DIM == 3
+#elif IGNIS_DIM == 3
     bool outsideMesh =  (sft(0, 0) < tft(0, 0)) ||
             (sft(0, 1) > tft(0, 1)) ||
             (sft(1, 0) < tft(1, 0)) ||

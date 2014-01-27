@@ -39,7 +39,9 @@ protected:
     uint address; //! This event's index in meshfield's event array
 
 
-    static uint counter;
+    static uint toFileCounter;
+
+    static uint totalCounter;
 
     uint id;
 
@@ -82,12 +84,14 @@ public:
     virtual void reset(){}
 
 
-    uint getId() {
+    uint getId() const {
         return id;
     }
 
 
     void setPriority();
+
+    void setManualPriority(uint p = IGNIS_UNSET_UINT);
 
     uint getPriority () const {
         return priority;
@@ -98,37 +102,37 @@ public:
     }
 
 
-    std::string getType(){
+    std::string getType() const {
         return type;
     }
 
-    bool shouldToFile(){
+    bool shouldToFile() const {
         return toFile;
     }
 
-    bool notSilent(){
+    bool notSilent() const {
         return doOutput;
     }
 
-    std::string getUnit() {
+    std::string getUnit() const {
         return unit;
     }
 
-    static uint getCounter(){
-        return counter;
+    static uint getCounter() {
+        return toFileCounter;
     }
 
 
-    uint getOnsetTime() {
+    uint getOnsetTime() const {
         return onsetTime;
     }
 
-    uint getOffsetTime() {
+    uint getOffsetTime() const {
         return offsetTime;
     }
 
 
-    virtual double getMeasurement(){
+    virtual double getMeasurement() const {
         return *value;
     }
 
@@ -146,7 +150,7 @@ public:
         this->meshField = meshField;
     }
 
-    static void setN(uint & N){
+    static void setNumberOfCycles(uint & N){
         Event::N = N;
     }
 

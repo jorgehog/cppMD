@@ -18,7 +18,8 @@ HEADERS += \
     Event/event.h \
     MeshField/MainMesh/mainmesh.h \
     Event/predefinedEvents/predefinedevents.h \
-    gears.h
+    gears.h \
+    Event/intrinsicevents.h
 
 QMAKE_CXX = g++
 ### MPI Settings

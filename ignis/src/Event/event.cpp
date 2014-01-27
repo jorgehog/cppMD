@@ -7,6 +7,7 @@
 
 using namespace ignis;
 
+
 Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
     type(type),
     priority(IGNIS_UNSET_UINT),
@@ -17,7 +18,7 @@ Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
     unit(unit),
     onsetTime()
 {
-
+    totalCounter++;
 }
 
 void Event::storeEvent()
@@ -33,7 +34,7 @@ void Event::storeEvent()
 void Event::setOutputVariables()
 {
     if (toFile) {
-        id = counter++;
+        id = toFileCounter++;
         cout << type << endl;
         outputTypes.push_back(type + ("@" + meshField->description));
     }
@@ -41,9 +42,27 @@ void Event::setOutputVariables()
 
 void Event::setPriority()
 {
-    assert(priority == IGNIS_UNSET_UINT && "Priority of event set twice.");
-    priority = priorityCounter++;
 
+    if (priority == IGNIS_UNSET_UINT)
+    {
+
+        priority = priorityCounter++;
+
+    }
+
+}
+
+void Event::setManualPriority(uint p)
+{
+    if (p == IGNIS_UNSET_UINT)
+    {
+        priority = totalCounter;
+    }
+
+    else
+    {
+        priority = p;
+    }
 }
 
 
@@ -82,6 +101,6 @@ mat Event::observables;
 
 uint Event::N = 0;
 
-uint Event::counter = 0;
-
+uint Event::totalCounter = 0;
+uint Event::toFileCounter = 0;
 uint Event::priorityCounter = 0;
