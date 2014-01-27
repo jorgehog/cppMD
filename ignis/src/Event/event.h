@@ -65,6 +65,8 @@ protected:
 
     virtual void execute() = 0;
 
+    bool initialized;
+
 
     uint onsetTime = IGNIS_UNSET_UINT;
 
@@ -76,7 +78,15 @@ public:
 
 
     virtual void executeEvent() {
+        cout << "Executing " << type << endl;
         execute();
+    }
+
+    void _initEvent() {
+        if (initialized) return;
+
+        initialized = true;
+        initialize();
     }
 
     virtual void initialize(){}
@@ -97,10 +107,13 @@ public:
         return priority;
     }
 
-    static uint getPriorityCounter() {
+    static const uint & getPriorityCounter() {
         return priorityCounter;
     }
 
+    static const uint & getTotalCounter() {
+        return totalCounter;
+    }
 
     std::string getType() const {
         return type;
@@ -162,6 +175,18 @@ public:
         address = i;
     }
 
+    void setExplicitTimes() {
+
+        if (onsetTime == IGNIS_UNSET_UINT) {
+            setOnsetTime(0);
+        }
+
+        if (offsetTime == IGNIS_UNSET_UINT) {
+            setOffsetTime(N-1);
+        }
+
+    }
+
 
 
     void storeEvent();
@@ -186,6 +211,40 @@ public:
 
     std::string dumpString();
 
+    void setOnsetTime(uint onsetTime){
+
+        if (onsetTime == IGNIS_UNSET_UINT) return;
+
+        this->onsetTime = onsetTime;
+
+    }
+
+    void setOffsetTime(uint offTime) {
+
+        if (offTime == IGNIS_UNSET_UINT) return;
+
+        assert((onsetTime != IGNIS_UNSET_UINT) && ("onTime must be set before offTime."));
+        assert(offTime > onsetTime && "Event must initialize before the shutdown.");
+        assert(offTime != 0 && "Event offtime must be greater than 0 to execute at all.");
+
+        offsetTime = offTime;
+
+        eventLength = offTime - onsetTime;
+
+    }
+
+    bool _hasExecuteImpl() {
+        //        return (&this->execute != &Event::execute);
+        return true;
+    }
+
+    bool _hasResetImpl() {
+        //        return (&this->reset != &Event::reset);
+        return true;
+    }
+
+    uint eventLength = IGNIS_UNSET_UINT;
+
 };
 
 
@@ -199,7 +258,7 @@ public:
     void setTrigger(uint t){
 
         onsetTime = t;
-        offsetTime = t+1;
+        offsetTime = t;
 
     }
 
@@ -207,20 +266,23 @@ public:
 
         assert(onsetTime != IGNIS_UNSET_UINT);
 
+#ifndef USE_NEW_METHOD
         doOutput = false;
 
         if (*loopCycle == onsetTime){
 
-            if (onsetTime != 0)
-            {
-                initialize();
-            }
-
+            cout << "Executing " << type << endl;
             execute();
             doOutput = true;
         }
 
+#else
+        cout << "Executing " << type << endl;
+        execute();
+#endif
+
     }
+
 };
 
 
@@ -236,40 +298,24 @@ public:
 
     }
 
-    void setOnsetTime(uint onsetTime){
-
-        if (onsetTime == IGNIS_UNSET_UINT) return;
-
-        this->onsetTime = onsetTime;
-
-    }
-
-    void setOffsetTime(uint offTime) {
-
-        if (offTime == IGNIS_UNSET_UINT) return;
-
-        assert((onsetTime != IGNIS_UNSET_UINT) && ("onTime must be set before offTime."));
-        assert(offTime > onsetTime && "Event must initialize before the shutdown.");
-
-        offsetTime = offTime;
-
-        eventLength = offTime - onsetTime;
-
-    }
 
     void executeEvent() {
 
         assert(*loopCycle <= offsetTime && "Event was not properly removed.");
 
-        if (*loopCycle == onsetTime && onsetTime != 0) {
-            initialize();
-        }
-
+#ifndef USE_NEW_METHOD
         if (*loopCycle >= onsetTime) {
+            cout << "Executing " << type << endl;
             execute();
             doOutput = doOutputOrig;
             nTimesExecuted++;
         }
+#else
+        cout << "Executing " << type << endl;
+        execute();
+        doOutput = doOutputOrig;
+        nTimesExecuted++;
+#endif
 
 
     }
@@ -278,7 +324,6 @@ protected:
 
     bool doOutputOrig;
 
-    uint eventLength = IGNIS_UNSET_UINT;
 
     uint nTimesExecuted;
 };

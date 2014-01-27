@@ -3,6 +3,8 @@
 
 #include "../ignisDefines.h"
 
+#define USE_NEW_METHOD
+
 #ifndef IGNIS_DIM
 #define IGNIS_DIM 2
 #endif

@@ -7,6 +7,8 @@
 #include "../../Event/intrinsicevents.h"
 #include "../../Ensemble/ensemble.h"
 
+#include <iomanip>
+
 using namespace ignis;
 
 struct sortByPriority
@@ -16,6 +18,8 @@ struct sortByPriority
         return (event1->getPriority() < event2->getPriority());
     }
 };
+
+
 
 
 MainMesh::MainMesh(const mat &topology, Ensemble  & ensemble):
@@ -50,9 +54,35 @@ void MainMesh::updateContainments()
 
 }
 
+void MainMesh::dumpLoopChunkInfo()
+{
+
+    using namespace std;
+
+    for (LoopChunk * loopChunk : allLoopChunks) {
+
+        cout << "Loopchunk interval: [" << loopChunk->start << " " << loopChunk->end << "]" << endl;
+        cout << "has " << loopChunk->executeEvents.size() << " events: " << endl;
+        for (Event* event : loopChunk->executeEvents) {
+            cout << "  " << setw(2) << right << event->getPriority() << "  "
+                 << setw(30) << left << event->getType()
+                 << "["
+                 << setw(5) << event->getOnsetTime() << " "
+                 << setw(5) << event->getOffsetTime()
+                 << "]"
+                 << endl;
+        }
+
+    }
+}
+
 void MainMesh::dumpEventsToFile() const
 {
-    for (Event* event: allEvents) {
+#ifdef USE_NEW_METHOD
+    for (Event* event: currentChunk->executeEvents) {
+#else
+    for (Event* event : allEvents) {
+#endif
         event->storeEvent();
     }
 
@@ -74,8 +104,19 @@ void MainMesh::eventLoop(uint N)
 
     sortEvents();
 
-    //SPEEDUP: STORE OUTPUT, TOFILE EVENTS IN OWN ARRAY AND LOOP THIS ONLY INSTEAD OF IFTESTING.
+    setupChunks();
+//    exit(1);
+
+    //    //SPEEDUP: STORE OUTPUT, TOFILE EVENTS IN OWN ARRAY AND LOOP THIS ONLY INSTEAD OF IFTESTING.
+#ifndef USE_NEW_METHOD
     while (*loopCycle < N) {
+        cout << *loopCycle << endl;
+
+        for (Event* event: allEvents) {
+            if (*loopCycle == event->getOnsetTime()) {
+                event->initialize();
+            }
+        }
 
         for (int i = allEvents.size()-1; i >= 0; --i) {
             if (*loopCycle == allEvents.at(i)->getOffsetTime()+1) {
@@ -87,9 +128,37 @@ void MainMesh::eventLoop(uint N)
 
         executeEvents();            //2. Execute each active event.
 
+
         *loopCycle = *loopCycle + 1;
 
     }
+#else
+
+    for (LoopChunk* loopChunk : allLoopChunks) {
+
+        currentChunk = loopChunk;
+
+        for (Event* event : currentChunk->executeEvents) {
+            event->_initEvent();
+        }
+
+        for (*loopCycle = currentChunk->start; *loopCycle <= currentChunk->end; ++(*loopCycle)) {
+            cout << *loopCycle << endl;
+
+            updateContainments();
+
+            for (Event * event : currentChunk->executeEvents) {
+                event->executeEvent();
+            }
+
+            for (Event * event : currentChunk->executeEvents) {
+                event->reset();
+            }
+
+        }
+
+    }
+#endif
 
     Event::dumpEventMatrixData(N-1);
 
@@ -112,14 +181,17 @@ void MainMesh::sendToTop(Event &event)
 void MainMesh::addIntrinsicEvents()
 {
 
+#ifdef IGNIS_VERBOSE
     Event *_stdout = new _dumpEvents(this);
     _stdout->setManualPriority();
+    addEvent(*_stdout);
+#endif
 
+#ifdef IGNIS_FILE_IO
     Event *_fileio = new _dumpEventsToFile(this);
     _fileio->setManualPriority();
-
-    addEvent(*_stdout);
     addEvent(*_fileio);
+#endif
 
 }
 
@@ -128,6 +200,103 @@ void MainMesh::sortEvents()
     std::sort(allEvents.begin(),
               allEvents.end(),
               sortByPriority());
+}
+
+void MainMesh::setupChunks()
+{
+
+    uvec onsetTimes(Event::getTotalCounter());
+    uvec offsetTimes(Event::getTotalCounter());
+
+    assert(Event::getTotalCounter() == allEvents.size() && "Mismatch in event sizes...");
+
+    uint k = 0;
+    for (Event* event : allEvents) {
+        onsetTimes(k) = event->getOnsetTime();
+        offsetTimes(k) = event->getOffsetTime();
+        k++;
+    }
+
+
+    onsetTimes = unique(onsetTimes);
+    offsetTimes = unique(offsetTimes);
+
+    uint start = onsetTimes(0);
+    uint end;
+
+    uint jStart = 0;
+    uint offsetTime;
+
+    bool debug = false;
+
+    for (uint i = 0; i < onsetTimes.n_elem; ++i) {
+
+        if (i != onsetTimes.n_elem - 1)
+        {
+            end = onsetTimes(i+1) - 1;
+        }
+
+        else
+        {
+            end = offsetTimes(offsetTimes.n_elem - 1) + 1;
+        }
+
+        if (debug) cout << "start at " << start << endl;
+        if (debug) cout << "end " << end << endl;
+
+        for (uint j = jStart; j < offsetTimes.n_elem; ++j) {
+
+            offsetTime = offsetTimes(j);
+
+            if (debug) cout << "testing offsettime " << offsetTime << endl;
+
+            if (offsetTime <= end)
+            {
+                if (debug) cout << "adding interval " << start << " - " << offsetTime << endl;
+                allLoopChunks.push_back(new LoopChunk(start, offsetTime));
+                start = offsetTime + 1;
+                if (debug) cout << "next interval starting at " << start << endl;
+
+                jStart = j+1;
+
+            }
+
+            else
+            {
+                break;
+            }
+        }
+
+        if (start < end)
+        {
+            if (debug) cout << "adding remaining interval " << start << " - " << end << endl;
+            allLoopChunks.push_back(new LoopChunk(start, end));
+            start = end + 1;
+        }
+        if (debug) cout << "------------------------\n";
+
+    }
+
+
+
+    for (Event* event : allEvents) {
+        for (LoopChunk* loopChunk : allLoopChunks) {
+            if (event->getOnsetTime() <= loopChunk->start && event->getOffsetTime() >= loopChunk->end) {
+
+                if (event->_hasExecuteImpl()) {
+                    loopChunk->executeEvents.push_back(event);
+                }
+
+                if (event->_hasResetImpl()) {
+                    loopChunk->resetEvents.push_back(event);
+                }
+
+            }
+        }
+    }
+
+    dumpLoopChunkInfo();
+
 }
 
 void MainMesh::executeEvents()
@@ -146,7 +315,11 @@ void MainMesh::executeEvents()
 
 void MainMesh::dumpEvents() const
 {
+#ifdef USE_NEW_METHOD
+    for (Event* event : currentChunk->executeEvents)
+#else
     for (Event* event : allEvents)
+#endif
     {
         if (event->notSilent())
         {

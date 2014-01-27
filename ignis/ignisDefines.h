@@ -7,4 +7,7 @@
 #define IGNIS_PERIODIC_X
 #define IGNIS_PERIODIC_Y
 
+#define IGNIS_VERBOSE
+#define IGNIS_FILE_IO
+
 #endif // IGNISDEFINES_H

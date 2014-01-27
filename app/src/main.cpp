@@ -198,6 +198,9 @@ int main()
     expansion2.setOffsetTime(expansionTime + expansionLength);
     mainMesh.addEvent(expansion2);
 
+    dummy a;
+    mainMesh.addEvent(a);
+
 
     /*
      * Creating and adding three subFields on the solver, each with their own thermostat.

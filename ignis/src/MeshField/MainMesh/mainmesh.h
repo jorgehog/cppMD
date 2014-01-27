@@ -6,6 +6,19 @@
 namespace ignis
 {
 
+struct LoopChunk
+{
+
+    uint start;
+    uint end;
+
+    std::vector<Event*> executeEvents;
+    std::vector<Event*> resetEvents;
+
+    LoopChunk(uint &i, uint &j) : start(i), end(j) {}
+
+};
+
 class MainMesh : public MeshField
 {
 
@@ -17,7 +30,18 @@ public:
     }
 
     void eventLoop(uint N);
+    struct LoopChunk
+    {
 
+        uint start;
+        uint end;
+
+        std::vector<Event*> executeEvents;
+        std::vector<Event*> resetEvents;
+
+        LoopChunk(uint i, uint j) : start(i), end(j) {}
+
+    };
     void setOutputPath(std::string path);
 
     void dumpEvents() const;
@@ -35,6 +59,8 @@ private:
 
     void sortEvents();
 
+    void setupChunks();
+
     void executeEvents();
 
 
@@ -45,6 +71,12 @@ private:
     std::string outputPath;
 
     std::vector<Event*> allEvents;
+
+    std::vector<LoopChunk*> allLoopChunks;
+
+    LoopChunk * currentChunk;
+
+    void dumpLoopChunkInfo();
 
 
 

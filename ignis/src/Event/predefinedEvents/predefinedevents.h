@@ -461,6 +461,11 @@ private:
 
 };
 
+class dummy : public Event {
+public:
+    void execute() {}
+};
+
 
 class stall : public Event {
 public:
@@ -606,6 +611,10 @@ public:
         }
 
         dD /= meshField->getPopulation();
+
+        if (dD != dD) {
+            return;
+        }
 
         D += dD*fac;
 

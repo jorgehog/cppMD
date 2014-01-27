@@ -60,9 +60,8 @@ void MeshField::initializeEvents()
 
         sendToTop(*event);
 
-        if (event->getOnsetTime() == 0) {
-            event->initialize();
-        }
+        event->setExplicitTimes();
+
     }
 
     for (MeshField* subfield : subFields)

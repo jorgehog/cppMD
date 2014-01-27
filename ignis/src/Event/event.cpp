@@ -16,7 +16,7 @@ Event::Event(std::string type, std::string unit, bool doOutput, bool toFile):
     doOutput(doOutput),
     toFile(toFile),
     unit(unit),
-    onsetTime()
+    initialized(false)
 {
     totalCounter++;
 }
@@ -35,7 +35,6 @@ void Event::setOutputVariables()
 {
     if (toFile) {
         id = toFileCounter++;
-        cout << type << endl;
         outputTypes.push_back(type + ("@" + meshField->description));
     }
 }
@@ -62,6 +61,7 @@ void Event::setManualPriority(uint p)
     else
     {
         priority = p;
+        //SHIFT GREATER EQUAL + 1
     }
 }
 
