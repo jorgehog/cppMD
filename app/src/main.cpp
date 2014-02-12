@@ -210,7 +210,7 @@ int main()
     mat topologyMiddle(2, 2);
     mat topologyLower (2, 2);
 
-    topologyLower  <<-1 << Lx << endr <<  0                 <<        tWidth*Ly;
+    topologyLower  << 0 << Lx << endr <<  0                 <<        tWidth*Ly;
     topologyMiddle << 0 << Lx << endr <<  (1 - tWidth)*Ly/2 <<  (1 + tWidth)*Ly/2;
     topologyUpper  << 0 << Lx << endr <<  (1 - tWidth)*Ly   <<               Ly;
 

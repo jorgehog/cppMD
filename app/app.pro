@@ -11,8 +11,12 @@ for(DIR, DIRS) {
      mkcommands += $$OUT_PWD/$$DIR
 }
 
+!equals(PWD, $${OUT_PWD}) {
 
-copydata.commands = $(COPY_DIR) $$PWD/infiles $$OUT_PWD
+	copydata.commands = $(COPY_DIR) $$PWD/infiles $$OUT_PWD
+
+}
+
 createDirs.commands = $(MKDIR) $$mkcommands
 
 first.depends = $(first) copydata createDirs
