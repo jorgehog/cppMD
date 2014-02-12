@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>viz/images/defaultpicture.png</file>
-        <file>viz/images/ball.png</file>
-        <file>viz/images/LithiumAtom.png</file>
-        <file>viz/images/Stylised_Lithium_Atom.png</file>
-    </qresource>
-</RCC>

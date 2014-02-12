@@ -1,0 +1,3 @@
+[submodule "ignis"]
+	path = ignis
+	url = git@github.com:jorgehog/ignis.git
