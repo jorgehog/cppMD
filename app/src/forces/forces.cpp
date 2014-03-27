@@ -14,7 +14,7 @@ void Force::leastDistance(vec &leastRel, double &leastRel2, const int &i, const 
     //if we have no periodicity, we are done.
 #if !defined (IGNIS_PERIODIC_X) && !defined (IGNIS_PERIODIC_Y) && !defined (IGNIS_PERIODIC_Z)
 
-    leastRel = ensemble->pos.col(i) - ensemble->pos.col(j);
+    leastRel = particles->pos.col(i) - particles->pos.col(j);
     leastRel2 = 0;
     for (int k = 0; k < IGNIS_DIM; ++k) {
         leastRel2 += leastRel(k)*leastRel(k);
@@ -27,10 +27,10 @@ void Force::leastDistance(vec &leastRel, double &leastRel2, const int &i, const 
 
     for (int c0 = 0; c0 < 3; ++c0) {
         for (int c1 = 0; c1 < 3; ++c1) {
-            orig(0) = ensemble->pos(0, i) + ldi(c0)*meshField->shape(0);
-            orig(1) = ensemble->pos(1, i) + ldi(c1)*meshField->shape(1);
+            orig(0) = particles->pos(0, i) + ldi(c0)*meshField->shape(0);
+            orig(1) = particles->pos(1, i) + ldi(c1)*meshField->shape(1);
 
-            vec leastRelTest = orig - ensemble->pos.col(j);
+            vec leastRelTest = orig - particles->pos.col(j);
             double leastRel2Test = 0;
             for (int k = 0; k < IGNIS_DIM; ++k) {
                 leastRel2Test += leastRelTest(k)*leastRelTest(k);
@@ -55,19 +55,21 @@ void Force::leastDistance(vec &leastRel, double &leastRel2, const int &i, const 
 void TwoBodyForce::execute()
 {
 
-    ensemble->forces.zeros();
+    particles->forces.zeros();
 
-    for (int i = 0; i < IGNIS_N; ++i) {
-        for (int j = i+1; j < IGNIS_N; ++j) {
+    cout << "fix me" << endl;
+    for (int i = 0; i < 0; ++i) {
+        cout << "fix me" << endl;
+        for (int j = i+1; j < 0; ++j) {
             leastDistance(rRel, rRel2, i, j);
             force = getForce(i, j);
 
             for (int k = 0; k < IGNIS_DIM; ++k) {
-                ensemble->forces(k, i) += force(k);
-                ensemble->forces(k, j) -= force(k);
+                particles->forces(k, i) += force(k);
+                particles->forces(k, j) -= force(k);
 
-                ensemble->forceVectors(i, j, k) = force(k);
-                ensemble->forceVectors(j, i, k) = -force(k);
+                particles->forceVectors(i, j, k) = force(k);
+                particles->forceVectors(j, i, k) = -force(k);
             }
         }
     }

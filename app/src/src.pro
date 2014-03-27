@@ -11,13 +11,13 @@ LIBS += -larmadillo -lconfig++ -lpython2.7 -L$$TOP_OUT_PWD/ignis/lib -lignis
 INCLUDEPATH += /usr/include/python2.7 $(HOME)/code/DCViz/include $$TOP_PWD/ignis/include $(HOME)/Dropbox/libs
 
 SOURCES += main.cpp \
-    mdsolver.cpp \
-    forces/forces.cpp
+           mdsolver.cpp \
+           forces/forces.cpp
 
-HEADERS += \
-    mdsolver.h \
-    forces/forces.h \
-    mdevents.h
+HEADERS += mdsolver.h \
+           forces/forces.h \
+           gears.h \
+           mdevents.h
 
 OTHER_FILES += configMD.cfg
 

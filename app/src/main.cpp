@@ -12,11 +12,16 @@ using namespace ignis;
 #include <mpi.h>
 #endif
 
-#include "cppMD.h"
+#include "mdsolver.h"
+
+#include "forces/forces.h"
+
+#include "mdevents.h"
+
 
 int main()
 {
-    //    srand(time(NULL));
+    srand(time(NULL));
     wall_clock timer;
 
     Config cfg;
@@ -43,16 +48,21 @@ int main()
     double tau = getSetting<double>(root, {"mainThermostat", "tauOverDt"})*dt;
 
 
-    const Setting & ensembleParameters = getSurfaceSetting(root, "ensembleParameters");
-    uint nSpecies = getSurfaceSetting<uint>(ensembleParameters, "nSpecies");
+
+    const Setting & particleParameters = getSurfaceSetting(root, "particleParameters");
+
+    const uint NX = getSurfaceSetting<uint>(particleParameters, "NX");
+    const uint NY = getSurfaceSetting<uint>(particleParameters, "NY");
+
+    const uint nSpecies = getSurfaceSetting<uint>(particleParameters, "nSpecies");
 
     mat sigmaTable(nSpecies, nSpecies);
     mat epsTable(nSpecies, nSpecies);
     vec masses(nSpecies);
 
-    const Setting & sigmas = getSurfaceSetting(ensembleParameters, "sigmas");
-    const Setting & epses  = getSurfaceSetting(ensembleParameters, "epses");
-    const Setting & _masses = getSurfaceSetting(ensembleParameters, "masses");
+    const Setting & sigmas = getSurfaceSetting(particleParameters, "sigmas");
+    const Setting & epses  = getSurfaceSetting(particleParameters, "epses");
+    const Setting & _masses = getSurfaceSetting(particleParameters, "masses");
 
     for (uint i = 0; i < nSpecies; ++i) {
 
@@ -97,15 +107,15 @@ int main()
      * Creating the main mesh
      */
 
-    Ensemble ensemble(masses);
+    Particles particles(masses);
 
-    double Lx = IGNIS_NX*m;
-    double Ly = IGNIS_NY*m;
+    double Lx = NX*m;
+    double Ly = NY*m;
 
     mat topology(2, 2);
     topology << 0 << Lx << endr << 0 << Ly;
 
-    MainMesh mainMesh(topology, ensemble);
+    MainMesh mainMesh(topology, particles);
     mainMesh.setOutputPath(outputPath);
 
     uint therm10 = therm/10;
@@ -124,7 +134,7 @@ int main()
      * Creating and adding events to the MainMesh
      */
 
-    mdSolver molecularDynamicsSolver(T0, dt);
+    mdSolver molecularDynamicsSolver(uvec({NX, NY}), T0, dt);
     mainMesh.addEvent(molecularDynamicsSolver);
 
 #ifndef NO_DCVIZ
@@ -172,7 +182,7 @@ int main()
 
     QtPlatform platform(argc, argv, NULL);
 
-    platform.setEnsemble(&ensemble);
+    platform.setparticles(&particles);
     platform.setMainMesh(&mainMesh);
 
     QGraphicsView view;
@@ -198,9 +208,6 @@ int main()
     expansion2.setOffsetTime(expansionTime + expansionLength);
     mainMesh.addEvent(expansion2);
 
-    dummy a;
-    mainMesh.addEvent(a);
-
 
     /*
      * Creating and adding three subFields on the solver, each with their own thermostat.
@@ -214,9 +221,9 @@ int main()
     topologyMiddle << 0 << Lx << endr <<  (1 - tWidth)*Ly/2 <<  (1 + tWidth)*Ly/2;
     topologyUpper  << 0 << Lx << endr <<  (1 - tWidth)*Ly   <<               Ly;
 
-    MeshField subFieldUpper (topologyUpper , ensemble, "heatUpper");
-    MeshField subFieldMiddle(topologyMiddle, ensemble, "coolMiddle");
-    MeshField subFieldLower (topologyLower , ensemble, "heatLower");
+    MeshField subFieldUpper (topologyUpper , particles, "heatUpper");
+    MeshField subFieldMiddle(topologyMiddle, particles, "coolMiddle");
+    MeshField subFieldLower (topologyLower , particles, "heatLower");
 
     density d1;
     density d2;
@@ -246,8 +253,8 @@ int main()
                            << topologyMiddle(1, 0) - pressureBoxHeight/2
                            << topologyMiddle(1, 0) + pressureBoxHeight/2;
 
-    MeshField solidToLiquidTop(topologyPressureTop, ensemble, "pressureTop");
-    MeshField solidToLiquidBottom(topologyPressureBottom, ensemble, "pressureBottom");
+    MeshField solidToLiquidTop(topologyPressureTop, particles, "pressureTop");
+    MeshField solidToLiquidBottom(topologyPressureBottom, particles, "pressureBottom");
 
     pressureMOP pT(1);
     pressureMOP pB(1);

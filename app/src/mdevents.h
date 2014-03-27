@@ -18,7 +18,8 @@ public:
     void execute() {
 
         double m;
-        for (uint i = 0; i < IGNIS_N; ++i) {
+        cout << "fix me" << endl;
+        for (uint i = 0; i < 0; ++i) {
 
             m = particles->masses(i%particles->nSpecies());
 
@@ -44,7 +45,8 @@ public:
     void execute() {
 
         double m;
-        for (uint i = 0; i < IGNIS_N; ++i) {
+        cout << "fix me" << endl;
+        for (uint i = 0; i < 0; ++i) {
 
             m = particles->masses(i%particles->nSpecies());
             for (uint k = 0; k < IGNIS_DIM; ++k) {
@@ -252,7 +254,7 @@ public:
 
 private:
 
-    mat::fixed<IGNIS_DIM, IGNIS_N> v0;
+    mat v0;
     double fac;
     double D;
 
