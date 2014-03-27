@@ -16,7 +16,8 @@ SOURCES += main.cpp \
 
 HEADERS += \
     mdsolver.h \
-    forces/forces.h
+    forces/forces.h \
+    mdevents.h
 
 OTHER_FILES += configMD.cfg
 
