@@ -82,7 +82,7 @@ int main()
     assert(masses(0) == 1. && "We are working in reduced units.");
 
 
-#ifndef NO_DCVIZ
+#ifdef USE_DCVIZ
     double delay = getSetting<double>(root, {"DCViz", "delay"});
 #endif
 
@@ -107,7 +107,7 @@ int main()
      * Creating the main mesh
      */
 
-    Particles particles(masses);
+    Particles particles(masses, NX, NY);
 
     double Lx = NX*m;
     double Ly = NY*m;
@@ -134,10 +134,10 @@ int main()
      * Creating and adding events to the MainMesh
      */
 
-    mdSolver molecularDynamicsSolver(uvec({NX, NY}), T0, dt);
+    mdSolver molecularDynamicsSolver(T0, dt);
     mainMesh.addEvent(molecularDynamicsSolver);
 
-#ifndef NO_DCVIZ
+#ifdef USE_DCVIZ
     SaveToFile saveToFile(outputPath, 1);
     mainMesh.addEvent(saveToFile);
 #endif
@@ -172,7 +172,7 @@ int main()
     mainMesh.addEvent(pTest);
 
 
-#ifndef NO_DCVIZ
+#ifdef USE_DCVIZ
     LauchDCViz launchDCViz(outputPath, delay);
     mainMesh.addEvent(launchDCViz);
 #endif
@@ -233,9 +233,10 @@ int main()
     subFieldMiddle.addEvent(d2);
     subFieldLower.addEvent(d3);
 
-    pressureMOP press(1);
-    subFieldMiddle.addEvent(press);
+//    pressureMOP press(1);
+//    subFieldMiddle.addEvent(press);
 
+    /*
     mat topologyPressureTop(2, 2);
     mat topologyPressureBottom(2, 2);
 
@@ -264,17 +265,8 @@ int main()
 
     mainMesh.addSubField(solidToLiquidBottom);
     mainMesh.addSubField(solidToLiquidTop);
+*/
 
-    //    //DEBUG
-    //    debugSubMeshResize debugMeshSize1(&mainMesh);
-
-    //    debugSubMeshResize debugMeshSize2(&mainMesh);
-
-    //    debugSubMeshResize debugMeshSize3(&mainMesh);
-
-    //    subFieldUpper.addEvent(debugMeshSize1);
-    //    subFieldMiddle.addEvent(debugMeshSize2);
-    //    subFieldLower.addEvent(debugMeshSize3);
 
     double tTop = T0*tScaleWarm;
     double tMid = T0/tScaleCold;

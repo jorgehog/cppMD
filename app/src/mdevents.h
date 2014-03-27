@@ -18,8 +18,8 @@ public:
     void execute() {
 
         double m;
-        cout << "fix me" << endl;
-        for (uint i = 0; i < 0; ++i) {
+
+        for (uint i = 0; i < positions->count(); ++i) {
 
             m = particles->masses(i%particles->nSpecies());
 
@@ -45,8 +45,8 @@ public:
     void execute() {
 
         double m;
-        cout << "fix me" << endl;
-        for (uint i = 0; i < 0; ++i) {
+
+        for (uint i = 0; i < positions->count(); ++i) {
 
             m = particles->masses(i%particles->nSpecies());
             for (uint k = 0; k < IGNIS_DIM; ++k) {

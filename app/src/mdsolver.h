@@ -10,11 +10,9 @@ class mdSolver : public Event
 {
 public:
 
-    mdSolver(const uvec & N, double T0, double dt);
+    mdSolver(double T0, double dt);
 
 private:
-
-    const uvec N;
 
     double sqrtkT0;
     double dt;

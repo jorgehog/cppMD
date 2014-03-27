@@ -57,14 +57,12 @@ void TwoBodyForce::execute()
 
     particles->forces.zeros();
 
-    cout << "fix me" << endl;
-    for (int i = 0; i < 0; ++i) {
-        cout << "fix me" << endl;
-        for (int j = i+1; j < 0; ++j) {
+    for (uint i = 0; i < positions->count(); ++i) {
+        for (uint j = i+1; j < positions->count(); ++j) {
             leastDistance(rRel, rRel2, i, j);
             force = getForce(i, j);
 
-            for (int k = 0; k < IGNIS_DIM; ++k) {
+            for (uint k = 0; k < IGNIS_DIM; ++k) {
                 particles->forces(k, i) += force(k);
                 particles->forces(k, j) -= force(k);
 

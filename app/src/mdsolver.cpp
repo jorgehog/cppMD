@@ -3,9 +3,8 @@
 #include <armadillo>
 using namespace arma;
 
-mdSolver::mdSolver(const uvec &N, double T0, double dt):
+mdSolver::mdSolver(double T0, double dt):
     Event("MDSolver"),
-    N(N),
     sqrtkT0(sqrt(T0)),
     dt(dt)
 {
@@ -15,17 +14,17 @@ mdSolver::mdSolver(const uvec &N, double T0, double dt):
 void mdSolver::initialize()
 {
 
-    double dx = meshField->shape(0)/N(0);
-    double dy = meshField->shape(1)/N(1);
+    double dx = meshField->shape(0)/particles->NX;
+    double dy = meshField->shape(1)/particles->NY;
 
 #if IGNIS_DIM == 3
-    double dz = meshField->shape(2)/N(2);
-    for (int k = 0; k < N(2); ++k) {
+    double dz = meshField->shape(2)/particles->NZ;
+    for (int k = 0; k < particles->NZ; ++k) {
 #endif
 
         int n = -1;
-        for (int i = 0; i < N(0); ++i) {
-            for (int j = 0; j < N(1); ++j) {
+        for (int i = 0; i < particles->NX; ++i) {
+            for (int j = 0; j < particles->NY; ++j) {
                 n++;
 
                 particles->pos(0, n) = (i + 0.5*(j % 2))*dx;
@@ -42,8 +41,8 @@ void mdSolver::initialize()
     double max = 1.0;
 
     particles->vel.randn();
-    cout << "fixme" << endl;
-    for (int i = 0; i < 0; ++i) {
+
+    for (int i = 0; i < particles->count(); ++i) {
         for (int k = 0; k < IGNIS_DIM; ++k) {
 
             particles->vel(k, i) *= sqrtkT0;

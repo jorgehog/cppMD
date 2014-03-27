@@ -22,8 +22,7 @@ inline vec getTotalLinearMomentum(Particles* particles) {
     const uint & N = particles->nSpecies();
 
     //Calculates total linear momentum
-    cout << "fix me" << endl;
-    for (uint k = 0; k < 0; ++k) {
+    for (uint k = 0; k < particles->count(); ++k) {
         pTot += masses(k%N)*vel.col(k);
     }
 
@@ -42,12 +41,10 @@ inline void cancelLinearMomentum(Particles* particles)
 
     vec pTot = getTotalLinearMomentum(particles);
 
-    cout << "fix me" << endl;
-    pTot /= 0;
+    pTot /= particles->count();
 
     //subtract the velocity in such a way that the momentum is zero.
-    cout << "fix me" << endl;
-    for (uint i = 0; i < 0; ++i) {
+    for (uint i = 0; i < particles->count(); ++i) {
         for (uint j = 0; j < IGNIS_DIM; ++j) {
             vel(j, i) -= pTot(j)/masses(i%N);
         }

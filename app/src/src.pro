@@ -1,3 +1,5 @@
+include(../../ignisdefines.pri)
+
 TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
@@ -6,9 +8,9 @@ CONFIG += GUI
 
 TARGET = MD
 
-LIBS += -larmadillo -lconfig++ -lpython2.7 -L$$TOP_OUT_PWD/ignis/lib -lignis
+LIBS += -larmadillo -lconfig++ -L$$TOP_OUT_PWD/ignis/lib -lignis
 
-INCLUDEPATH += /usr/include/python2.7 $(HOME)/code/DCViz/include $$TOP_PWD/ignis/include $(HOME)/Dropbox/libs
+INCLUDEPATH += $$TOP_PWD/ignis/include $(HOME)/Dropbox/libs
 
 SOURCES += main.cpp \
            mdsolver.cpp \
