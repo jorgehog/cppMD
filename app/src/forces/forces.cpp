@@ -1,7 +1,7 @@
 #include "forces.h"
 
 Force::Force() :
-    Event("Force")
+    MDEvent("Force")
 {
     ldi(0) = -1;
     ldi(1) = 0;
@@ -14,7 +14,7 @@ void Force::leastDistance(vec &leastRel, double &leastRel2, const int &i, const 
     //if we have no periodicity, we are done.
 #if !defined (IGNIS_PERIODIC_X) && !defined (IGNIS_PERIODIC_Y) && !defined (IGNIS_PERIODIC_Z)
 
-    leastRel = particles->pos.col(i) - particles->pos.col(j);
+    leastRel = MDEvent::particles().pos.col(i) - MDEvent::particles().pos.col(j);
     leastRel2 = 0;
     for (int k = 0; k < IGNIS_DIM; ++k) {
         leastRel2 += leastRel(k)*leastRel(k);
@@ -27,10 +27,10 @@ void Force::leastDistance(vec &leastRel, double &leastRel2, const int &i, const 
 
     for (int c0 = 0; c0 < 3; ++c0) {
         for (int c1 = 0; c1 < 3; ++c1) {
-            orig(0) = particles->pos(0, i) + ldi(c0)*meshField->shape(0);
-            orig(1) = particles->pos(1, i) + ldi(c1)*meshField->shape(1);
+            orig(0) = particles.pos(0, i) + ldi(c0)*meshField->shape(0);
+            orig(1) = particles.pos(1, i) + ldi(c1)*meshField->shape(1);
 
-            vec leastRelTest = orig - particles->pos.col(j);
+            vec leastRelTest = orig - particles.pos.col(j);
             double leastRel2Test = 0;
             for (int k = 0; k < IGNIS_DIM; ++k) {
                 leastRel2Test += leastRelTest(k)*leastRelTest(k);
@@ -55,19 +55,19 @@ void Force::leastDistance(vec &leastRel, double &leastRel2, const int &i, const 
 void TwoBodyForce::execute()
 {
 
-    particles->forces.zeros();
+    particles().forces.zeros();
 
-    for (uint i = 0; i < positions->count(); ++i) {
-        for (uint j = i+1; j < positions->count(); ++j) {
+    for (uint i = 0; i < particles().count(); ++i) {
+        for (uint j = i+1; j < particles().count(); ++j) {
             leastDistance(rRel, rRel2, i, j);
             force = getForce(i, j);
 
             for (uint k = 0; k < IGNIS_DIM; ++k) {
-                particles->forces(k, i) += force(k);
-                particles->forces(k, j) -= force(k);
+                particles().forces(k, i) += force(k);
+                particles().forces(k, j) -= force(k);
 
-                particles->forceVectors(i, j, k) = force(k);
-                particles->forceVectors(j, i, k) = -force(k);
+                particles().forceVectors(i, j, k) = force(k);
+                particles().forceVectors(j, i, k) = -force(k);
             }
         }
     }

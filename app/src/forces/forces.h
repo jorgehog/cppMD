@@ -1,20 +1,22 @@
 #ifndef FORCES_H
 #define FORCES_H
 
+#include "../mdevent.h"
+
 #include <ignis.h>
 #include <armadillo>
 
 using namespace arma;
 using namespace ignis;
 
-class mdSolver;
-class SolverEvent;
 
-class Force : public Event {
+class Force : public MDEvent
+{
 public:
     Force();
 
-    virtual void initialize() {
+    virtual void initialize()
+    {
         execute();
     }
 

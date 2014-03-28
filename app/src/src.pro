@@ -14,12 +14,14 @@ INCLUDEPATH += $$TOP_PWD/ignis/include $(HOME)/Dropbox/libs
 
 SOURCES += main.cpp \
            mdsolver.cpp \
-           forces/forces.cpp
+           forces/forces.cpp \
+    mdevent.cpp
 
 HEADERS += mdsolver.h \
            forces/forces.h \
            gears.h \
-           mdevents.h
+           mdevents.h \
+    mdevent.h
 
 OTHER_FILES += configMD.cfg
 

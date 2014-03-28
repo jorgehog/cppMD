@@ -107,7 +107,8 @@ int main()
      * Creating the main mesh
      */
 
-    Particles particles(masses, NX, NY);
+    MDParticles<20, 20> particles(masses);
+    MainMesh<double>::setCurrentParticles(particles);
 
     double Lx = NX*m;
     double Ly = NY*m;
@@ -115,20 +116,9 @@ int main()
     mat topology(2, 2);
     topology << 0 << Lx << endr << 0 << Ly;
 
-    MainMesh mainMesh(topology, particles);
+    MainMesh<double> mainMesh(topology);
     mainMesh.setOutputPath(outputPath);
 
-    uint therm10 = therm/10;
-    VolumeChange expansion(initialDelta, true);
-    expansion.setOnsetTime(2*therm10-1);
-    expansion.setOffsetTime(3*therm10-1);
-
-    VolumeChange compression(1./(initialDelta*m), true);
-    compression.setOnsetTime(5*therm10);
-    compression.setOffsetTime(8*therm10);
-
-    mainMesh.addEvent(expansion);
-    mainMesh.addEvent(compression);
 
     /*
      * Creating and adding events to the MainMesh
@@ -148,7 +138,7 @@ int main()
     LennardJonesForce lennardJonesForce(sigmaTable, epsTable);
     mainMesh.addEvent(lennardJonesForce);
 
-    periodicScaling periodicBoundaries;
+    periodicScaling<double> periodicBoundaries;
     mainMesh.addEvent(periodicBoundaries);
 
     VelocityVerletSecondHalf VelocityVerlet2(dt);
@@ -198,12 +188,12 @@ int main()
      *  Onset Events
      */
 
-    VolumeChange compression2(compressionDelta, true);
+    VolumeChange<double> compression2(compressionDelta, true);
     compression2.setOnsetTime(compressionTime);
     compression2.setOffsetTime(compressionTime + compressionLength);
     mainMesh.addEvent(compression2);
 
-    VolumeChange expansion2(expansionDelta, true);
+    VolumeChange<double> expansion2(expansionDelta, true);
     expansion2.setOnsetTime(expansionTime);
     expansion2.setOffsetTime(expansionTime + expansionLength);
     mainMesh.addEvent(expansion2);
@@ -221,9 +211,9 @@ int main()
     topologyMiddle << 0 << Lx << endr <<  (1 - tWidth)*Ly/2 <<  (1 + tWidth)*Ly/2;
     topologyUpper  << 0 << Lx << endr <<  (1 - tWidth)*Ly   <<               Ly;
 
-    MeshField subFieldUpper (topologyUpper , particles, "heatUpper");
-    MeshField subFieldMiddle(topologyMiddle, particles, "coolMiddle");
-    MeshField subFieldLower (topologyLower , particles, "heatLower");
+    MeshField<double> subFieldUpper (topologyUpper , "heatUpper");
+    MeshField<double> subFieldMiddle(topologyMiddle, "coolMiddle");
+    MeshField<double> subFieldLower (topologyLower , "heatLower");
 
     density d1;
     density d2;

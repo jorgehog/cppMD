@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mdevent.h"
+
 #include <ignis.h>
 
 #include "gears.h"
@@ -10,22 +12,22 @@ using namespace ignis;
  * Velocity verlet. Due to it's nature it has to be split to fit the event system.
  */
 
-class VelocityVerletFirstHalf : public Event {
+class VelocityVerletFirstHalf : public MDEvent {
 public:
 
-    VelocityVerletFirstHalf(double dt) : Event("VelVer1"), dt(dt) {}
+    VelocityVerletFirstHalf(double dt) : MDEvent("VelVer1"), dt(dt) {}
 
     void execute() {
 
         double m;
 
-        for (uint i = 0; i < positions->count(); ++i) {
+        for (uint i = 0; i < particles().count(); ++i) {
 
-            m = particles->masses(i%particles->nSpecies());
+            m = particles().masses(i%particles().nSpecies());
 
             for (uint k = 0; k < IGNIS_DIM; ++k) {
-                particles->vel(k, i) += particles->forces(k, i)*dt/(2*m);
-                particles->pos(k, i) += particles->vel(k, i)*dt;
+                particles().vel(k, i) += particles().forces(k, i)*dt/(2*m);
+                particles().pos(k, i) += particles().vel(k, i)*dt;
             }
 
         }
@@ -37,20 +39,20 @@ private:
 
 };
 
-class VelocityVerletSecondHalf : public Event {
+class VelocityVerletSecondHalf : public MDEvent {
 public:
 
-    VelocityVerletSecondHalf(double dt) : Event("VelVer2"), dt(dt) {}
+    VelocityVerletSecondHalf(double dt) : MDEvent("VelVer2"), dt(dt) {}
 
     void execute() {
 
         double m;
 
-        for (uint i = 0; i < positions->count(); ++i) {
+        for (uint i = 0; i < particles().count(); ++i) {
 
-            m = particles->masses(i%particles->nSpecies());
+            m = particles().masses(i%particles().nSpecies());
             for (uint k = 0; k < IGNIS_DIM; ++k) {
-                particles->vel(k, i) += particles->forces(k, i)*dt/(2*m);
+                particles().vel(k, i) += particles().forces(k, i)*dt/(2*m);
             }
         }
     }
@@ -69,10 +71,10 @@ private:
  *
  */
 
-class thermostat : public Event {
+class thermostat : public MDEvent {
 public:
     thermostat(const double & T0, const double & tau, const double & dt) :
-        Event("Thermostat", "T0", true, true), T0(T0), tau(tau), dt(dt) {}
+        MDEvent("Thermostat", "T0", true, true), T0(T0), tau(tau), dt(dt) {}
 
 protected:
 
@@ -81,7 +83,7 @@ protected:
     double dt;
 
     void setT(){
-        setValue(gears::getTemperature(meshField));
+        setValue(getTemperature());
     }
 
 
@@ -102,10 +104,10 @@ public:
         getGamma();
 
         for (const uint & i : meshField->getAtoms()) {
-            particles->vel(0, i) *= gamma;
-            particles->vel(1, i) *= gamma;
+            particles().vel(0, i) *= gamma;
+            particles().vel(1, i) *= gamma;
 #if IGNIS_DIM == 3
-            particles->vel(2, i) *= gamma;
+            particles().vel(2, i) *= gamma;
 #endif
         }
     }
@@ -123,10 +125,10 @@ protected:
 
 
 
-class pressureMOP : public Event {
+class pressureMOP : public MDEvent {
 public:
 
-    pressureMOP(uint xyz) : Event("Pressure", "P0", true, true), xyz(xyz) {}
+    pressureMOP(uint xyz) : MDEvent("Pressure", "P0", true, true), xyz(xyz) {}
 
     void initialize() {
         mat topology1 = meshField->topology;
@@ -135,8 +137,8 @@ public:
         topology1(xyz, 1) = topology1(xyz, 0) + meshField->shape(xyz)/2;
         topology2(xyz, 0) = topology1(xyz, 1);
 
-        box1 = new MeshField(topology1, *particles, "Method of Planes 1. field");
-        box2 = new MeshField(topology2, *particles, "Method of Planes 2. field");
+        box1 = new MeshField<double>(topology1, "Method of Planes 1. field");
+        box2 = new MeshField<double>(topology2, "Method of Planes 2. field");
 
         meshField->addSubField(*box1);
         meshField->addSubField(*box2);
@@ -155,9 +157,11 @@ public:
 
         double planeForce = 0;
 
-        for (const uint & i : box1->getAtoms()) {
-            for (const uint & j : box2->getAtoms()) {
-                planeForce += particles->forceVectors(i, j, xyz);
+        for (const uint & i : box1->getAtoms())
+        {
+            for (const uint & j : box2->getAtoms())
+            {
+                planeForce += particles().forceVectors(i, j, xyz);
             }
         }
 
@@ -176,29 +180,32 @@ private:
     uint xyz;
     double area;
 
-    MeshField* box1;
-    MeshField* box2;
+    MeshField<double> *box1;
+    MeshField<double> *box2;
 
 
 };
 
 
-class checkEnergyConservation : public Event {
+class checkEnergyConservation : public MDEvent {
 public:
 
-    checkEnergyConservation() : Event("energyConservation", "", true) {}
+    checkEnergyConservation() : MDEvent("energyConservation", "", true) {}
 
-    void initialize() {
-        EkPrev = gears::getKineticEnergy(meshField);
+    void initialize()
+    {
+        EkPrev = getKineticEnergy();
     }
 
-    void execute() {
-        Ek = gears::getKineticEnergy(meshField);
+    void execute()
+    {
+        Ek = getKineticEnergy();
 
         setValue((Ek-EkPrev)/EkPrev);
     }
 
-    void reset() {
+    void reset()
+    {
         EkPrev = Ek;
     }
 
@@ -207,13 +214,15 @@ private:
     double EkPrev;
 };
 
-class checkMomentumConservation : public Event {
+class checkMomentumConservation : public MDEvent
+{
 public:
 
-    checkMomentumConservation() : Event("momentumConservation", "", true) {}
+    checkMomentumConservation() : MDEvent("momentumConservation", "", true) {}
 
-    void execute() {
-        vec p = gears::getTotalLinearMomentum(particles);
+    void execute()
+    {
+        vec p = getTotalLinearMomentum();
 
         setValue(as_scalar(sum(p)));
     }
@@ -221,28 +230,31 @@ public:
 };
 
 
-class diffusionConstant : public Event {
+class diffusionConstant : public MDEvent {
 public:
 
-    diffusionConstant(double dt) : Event("DiffusionConstant", "D0", true), fac(dt/(IGNIS_DIM)), D(0) {}
+    diffusionConstant(double dt) : MDEvent("DiffusionConstant", "D0", true), fac(dt/(IGNIS_DIM)), D(0) {}
 
     void initialize() {
-        v0 = particles->vel;
+        v0 = particles().vel;
     }
 
     void execute() {
 
         double dD = 0;
 
-        for (const uint & i : meshField->getAtoms()) {
-            for (uint j = 0; j < IGNIS_DIM; ++j) {
-                dD += v0(j, i)*particles->vel(j, i);
+        for (const uint & i : meshField->getAtoms())
+        {
+            for (uint j = 0; j < IGNIS_DIM; ++j)
+            {
+                dD += v0(j, i)*particles().vel(j, i);
             }
         }
 
         dD /= meshField->getPopulation();
 
-        if (dD != dD) {
+        if (dD != dD)
+        {
             return;
         }
 
@@ -260,10 +272,11 @@ private:
 
 };
 
-class temperatureFluctuations : public Event {
+class temperatureFluctuations : public MDEvent {
 public:
 
-    temperatureFluctuations(thermostat *t) : Event("TempFluct", "T0", true), t(t) {
+    temperatureFluctuations(thermostat *t) : MDEvent("TempFluct", "T0", true), t(t)
+    {
         setOnsetTime(t->getOnsetTime());
         setOffsetTime(t->getOffsetTime());
     }
@@ -272,7 +285,8 @@ public:
 
         double T = t->getMeasurement();
 
-        if (T != T) {
+        if (T != T)
+        {
             setValue(0);
             return;
         }

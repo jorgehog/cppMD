@@ -1,12 +1,13 @@
-#ifndef MDSOLVER_H
-#define MDSOLVER_H
+#pragma once
+
+#include "mdevent.h"
 
 #include <ignis.h>
 #include <math.h>
 
 using namespace ignis;
 
-class mdSolver : public Event
+class mdSolver : public MDEvent
 {
 public:
 
@@ -21,5 +22,3 @@ private:
     void execute() {}
 
 };
-
-#endif // MDSOLVER_H
