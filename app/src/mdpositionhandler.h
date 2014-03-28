@@ -16,7 +16,12 @@ public:
         forceVectors.set_size(MD_N, MD_N, IGNIS_DIM);
     }
 
-    virtual double &at(const uint n, const uint d) const
+    double operator() (const uint n, const uint d) const
+    {
+        return pos(n, d);
+    }
+
+    double &operator() (const uint n, const uint d)
     {
         return pos(n, d);
     }
