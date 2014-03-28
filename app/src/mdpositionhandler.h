@@ -6,36 +6,25 @@
 
 using namespace arma;
 
-#if IGNIS_DIM == 2
-#define _MDParticles_Decl_ template<const uint _NX, const uint _NY, const uint _N = _NX*_NY>
-#define _MDParticles_Templ_ <_NX, _NY>
-#else
-#define _MDParticles_Decl_ template<const uint _NX, const uint _NY, const uint _NZ, const uint _N = _NX*_NY*_NZ>
-#define _MDParticles_Templ_ <_NX, _NY, _NZ>
-#endif
-
-#define _MDParticles_Type_ MDParticles _MDParticles_Templ_
-
-_MDParticles_Decl_
-class MDParticles : ignis::PositionHandler<double>
+class MDParticles : public ignis::PositionHandler<double>
 {
 public:
 
     MDParticles(const vec & masses) :
         masses(masses)
     {
-
+        forceVectors.set_size(MD_N, MD_N, IGNIS_DIM);
     }
 
     virtual double &at(const uint n, const uint d) const
     {
-        return *(pos.memptr()+ n*IGNIS_DIM + d);
+        return pos(n, d);
     }
 
 
     uint count() const
     {
-        return _N;
+        return MD_N;
     }
 
     const uint & nSpecies() const
@@ -45,29 +34,29 @@ public:
 
     uint NX() const
     {
-        return _NX;
+        return MD_NX;
     }
 
     uint NY() const
     {
-        return _NY;
+        return MD_NY;
     }
 
 #if IGNIS_DIM == 3
     uint NZ() const
     {
-        return _NZ;
+        return MD_NZ;
     }
 #endif
 
 
-    mat::fixed<IGNIS_DIM, _N> pos;
+    mat::fixed<IGNIS_DIM, MD_N> pos;
 
-    mat::fixed<IGNIS_DIM, _N> vel;
+    mat::fixed<IGNIS_DIM, MD_N> vel;
 
-    mat::fixed<IGNIS_DIM, _N> forces;
+    mat::fixed<IGNIS_DIM, MD_N> forces;
 
-    cube::fixed<_N, _N, IGNIS_DIM> forceVectors;
+    cube forceVectors;
 
     const vec masses;
 

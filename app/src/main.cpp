@@ -107,7 +107,7 @@ int main()
      * Creating the main mesh
      */
 
-    MDParticles<20, 20> particles(masses);
+    MDParticles particles(masses);
     MainMesh<double>::setCurrentParticles(particles);
 
     double Lx = NX*m;

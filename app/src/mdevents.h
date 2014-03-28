@@ -4,8 +4,6 @@
 
 #include <ignis.h>
 
-#include "gears.h"
-
 using namespace ignis;
 
 /*

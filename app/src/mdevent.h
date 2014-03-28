@@ -6,7 +6,7 @@
 
 using ignis::Event;
 
-class MDEvent : public Event<double, MDParticles<10, 10>>
+class MDEvent : public Event<double>
 {
 
 public:
@@ -18,6 +18,11 @@ public:
     }
 
 protected:
+
+    MDParticles & particles()
+    {
+        return *static_cast<MDParticles*>(&Event<double>::particles());
+    }
 
     vec getTotalLinearMomentum();
 

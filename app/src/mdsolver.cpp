@@ -23,8 +23,8 @@ void mdSolver::initialize()
 #endif
 
         int n = -1;
-        for (int i = 0; i < particles().NX(); ++i) {
-            for (int j = 0; j < particles().NY(); ++j) {
+        for (uint i = 0; i < particles().NX(); ++i) {
+            for (uint j = 0; j < particles().NY(); ++j) {
                 n++;
 
                 particles()(0, n) = (i + 0.5*(j % 2))*dx;
