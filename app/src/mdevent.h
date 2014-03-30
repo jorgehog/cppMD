@@ -12,7 +12,7 @@ class MDEvent : public Event<double>
 public:
 
     MDEvent(std::string type = "MDEvent", std::string unit = "", bool doOutput = false, bool toFile = false)
-        : Event(type, unit, doOutput, toFile)
+        : Event<double>(type, unit, doOutput, toFile)
     {
 
     }

@@ -27,11 +27,11 @@ void mdSolver::initialize()
             for (uint j = 0; j < particles().NY(); ++j) {
                 n++;
 
-                particles()(0, n) = (i + 0.5*(j % 2))*dx;
-                particles()(1, n) = j*dy;
+                particles()(n, 0) = (i + 0.5*(j % 2))*dx;
+                particles()(n, 1) = j*dy;
 
 #if IGNIS_DIM == 3
-                particles.pos(2, n) = k*dz;
+                particles(.pos))(n, 2) = k*dz;
             }
 #endif
 

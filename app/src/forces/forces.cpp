@@ -14,7 +14,7 @@ void Force::leastDistance(vec &leastRel, double &leastRel2, const int &i, const 
     //if we have no periodicity, we are done.
 #if !defined (IGNIS_PERIODIC_X) && !defined (IGNIS_PERIODIC_Y) && !defined (IGNIS_PERIODIC_Z)
 
-    leastRel = MDEvent::particles().pos.col(i) - MDEvent::particles().pos.col(j);
+    leastRel = particles().vec(i) - particles().vec(j);
     leastRel2 = 0;
     for (int k = 0; k < IGNIS_DIM; ++k) {
         leastRel2 += leastRel(k)*leastRel(k);

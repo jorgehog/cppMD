@@ -101,7 +101,7 @@ int main()
 
     double tWidth = getSetting<double>(events, {"Thermostats", "widthFactor"});
 
-    double initialDelta = getSetting<double>(root, {"solver", "initialDelta"});
+//    double initialDelta = getSetting<double>(root, {"solver", "initialDelta"});
 
     /*
      * Creating the main mesh
@@ -118,6 +118,8 @@ int main()
 
     MainMesh<double> mainMesh(topology);
     mainMesh.setOutputPath(outputPath);
+//    mainMesh.setSilent(true);
+//    mainMesh.setFileIOState(false);
 
 
     /*
@@ -188,40 +190,40 @@ int main()
      *  Onset Events
      */
 
-    VolumeChange<double> compression2(compressionDelta, true);
-    compression2.setOnsetTime(compressionTime);
-    compression2.setOffsetTime(compressionTime + compressionLength);
-    mainMesh.addEvent(compression2);
+//    VolumeChange<double> compression2(compressionDelta, true);
+//    compression2.setOnsetTime(compressionTime);
+//    compression2.setOffsetTime(compressionTime + compressionLength);
+//    mainMesh.addEvent(compression2);
 
-    VolumeChange<double> expansion2(expansionDelta, true);
-    expansion2.setOnsetTime(expansionTime);
-    expansion2.setOffsetTime(expansionTime + expansionLength);
-    mainMesh.addEvent(expansion2);
+//    VolumeChange<double> expansion2(expansionDelta, true);
+//    expansion2.setOnsetTime(expansionTime);
+//    expansion2.setOffsetTime(expansionTime + expansionLength);
+//    mainMesh.addEvent(expansion2);
 
 
     /*
      * Creating and adding three subFields on the solver, each with their own thermostat.
      */
 
-    mat topologyUpper (2, 2);
-    mat topologyMiddle(2, 2);
-    mat topologyLower (2, 2);
+//    mat topologyUpper (2, 2);
+//    mat topologyMiddle(2, 2);
+//    mat topologyLower (2, 2);
 
-    topologyLower  << 0 << Lx << endr <<  0                 <<        tWidth*Ly;
-    topologyMiddle << 0 << Lx << endr <<  (1 - tWidth)*Ly/2 <<  (1 + tWidth)*Ly/2;
-    topologyUpper  << 0 << Lx << endr <<  (1 - tWidth)*Ly   <<               Ly;
+//    topologyLower  << 0 << Lx << endr <<  0                 <<        tWidth*Ly;
+//    topologyMiddle << 0 << Lx << endr <<  (1 - tWidth)*Ly/2 <<  (1 + tWidth)*Ly/2;
+//    topologyUpper  << 0 << Lx << endr <<  (1 - tWidth)*Ly   <<               Ly;
 
-    MeshField<double> subFieldUpper (topologyUpper , "heatUpper");
-    MeshField<double> subFieldMiddle(topologyMiddle, "coolMiddle");
-    MeshField<double> subFieldLower (topologyLower , "heatLower");
+//    dField subFieldUpper (topologyUpper , "heatUpper");
+//    dField subFieldMiddle(topologyMiddle, "coolMiddle");
+//    dField subFieldLower (topologyLower , "heatLower");
 
-    density d1;
-    density d2;
-    density d3;
+//    density d1;
+//    density d2;
+//    density d3;
 
-    subFieldUpper.addEvent(d1);
-    subFieldMiddle.addEvent(d2);
-    subFieldLower.addEvent(d3);
+//    subFieldUpper.addEvent(d1);
+//    subFieldMiddle.addEvent(d2);
+//    subFieldLower.addEvent(d3);
 
 //    pressureMOP press(1);
 //    subFieldMiddle.addEvent(press);
@@ -258,46 +260,46 @@ int main()
 */
 
 
-    double tTop = T0*tScaleWarm;
-    double tMid = T0/tScaleCold;
-    double tLow = T0*tScaleWarm;
+//    double tTop = T0*tScaleWarm;
+//    double tMid = T0/tScaleCold;
+//    double tLow = T0*tScaleWarm;
 
-    BerendsenThermostat thermoUpper (tTop, tau, dt);
-    BerendsenThermostat thermoMiddle(tMid, tau, dt);
-    BerendsenThermostat thermoLower (tLow, tau, dt);
+//    BerendsenThermostat thermoUpper (tTop, tau, dt);
+//    BerendsenThermostat thermoMiddle(tMid, tau, dt);
+//    BerendsenThermostat thermoLower (tLow, tau, dt);
 
-    thermoUpper.setOnsetTime (therm);
-    thermoMiddle.setOnsetTime(therm);
-    thermoLower.setOnsetTime (therm);
+//    thermoUpper.setOnsetTime (therm);
+//    thermoMiddle.setOnsetTime(therm);
+//    thermoLower.setOnsetTime (therm);
 
-    subFieldUpper.addEvent (thermoUpper);
-    subFieldMiddle.addEvent(thermoMiddle);
-    subFieldLower.addEvent (thermoLower);
+//    subFieldUpper.addEvent (thermoUpper);
+//    subFieldMiddle.addEvent(thermoMiddle);
+//    subFieldLower.addEvent (thermoLower);
 
-    diffusionConstant DUpper(dt);
-    diffusionConstant DMiddle(dt);
-    diffusionConstant DLower(dt);
+//    diffusionConstant DUpper(dt);
+//    diffusionConstant DMiddle(dt);
+//    diffusionConstant DLower(dt);
 
-    DUpper.setOnsetTime(expansionTime + expansionLength + 500);
-    DMiddle.setOnsetTime(expansionTime + expansionLength + 500);
-    DLower.setOnsetTime(expansionTime + expansionLength + 500);
+//    DUpper.setOnsetTime(expansionTime + expansionLength + 500);
+//    DMiddle.setOnsetTime(expansionTime + expansionLength + 500);
+//    DLower.setOnsetTime(expansionTime + expansionLength + 500);
 
-    subFieldUpper.addEvent (DUpper);
-    subFieldMiddle.addEvent(DMiddle);
-    subFieldLower.addEvent (DLower);
+//    subFieldUpper.addEvent (DUpper);
+//    subFieldMiddle.addEvent(DMiddle);
+//    subFieldLower.addEvent (DLower);
 
-    temperatureFluctuations tFluctUpper(&thermoUpper);
-    temperatureFluctuations tFluctMiddle(&thermoMiddle);
-    temperatureFluctuations tFluctLower(&thermoLower);
+//    temperatureFluctuations tFluctUpper(&thermoUpper);
+//    temperatureFluctuations tFluctMiddle(&thermoMiddle);
+//    temperatureFluctuations tFluctLower(&thermoLower);
 
-    subFieldUpper.addEvent (tFluctUpper);
-    subFieldMiddle.addEvent(tFluctMiddle);
-    subFieldLower.addEvent (tFluctLower);
+//    subFieldUpper.addEvent (tFluctUpper);
+//    subFieldMiddle.addEvent(tFluctMiddle);
+//    subFieldLower.addEvent (tFluctLower);
 
 
-    mainMesh.addSubField(subFieldUpper);
-    mainMesh.addSubField(subFieldMiddle);
-    mainMesh.addSubField(subFieldLower);
+//    mainMesh.addSubField(subFieldUpper);
+//    mainMesh.addSubField(subFieldMiddle);
+//    mainMesh.addSubField(subFieldLower);
 
     /*
      * Lauching the solver

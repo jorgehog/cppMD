@@ -10,7 +10,7 @@ class MDParticles : public ignis::PositionHandler<double>
 {
 public:
 
-    MDParticles(const vec & masses) :
+    MDParticles(const arma::vec & masses) :
         masses(masses)
     {
         forceVectors.set_size(MD_N, MD_N, IGNIS_DIM);
@@ -18,14 +18,13 @@ public:
 
     double operator() (const uint n, const uint d) const
     {
-        return pos(n, d);
+        return pos(d, n);
     }
 
     double &operator() (const uint n, const uint d)
     {
-        return pos(n, d);
+        return pos(d, n);
     }
-
 
     uint count() const
     {
@@ -63,6 +62,6 @@ public:
 
     cube forceVectors;
 
-    const vec masses;
+    const arma::vec masses;
 
 };
