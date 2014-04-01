@@ -4,7 +4,7 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
-CONFIG += GUI
+CONFIG += DCViz
 
 TARGET = MD
 
@@ -49,6 +49,13 @@ QMAKE_CXXFLAGS += $$COMMON_CXXFLAGS
 QMAKE_CXXFLAGS_DEBUG += $$COMMON_CXXFLAGS -g
 
 QMAKE_CXXFLAGS_RELEASE += $$COMMON_CXXFLAGS -O3 -DARMA_NO_DEBUG -DNDEBUG
+
+DCViz {
+    LIBS += -lpython2.7
+    INCLUDEPATH += $(HOME)/code/DCViz/include /usr/include/python2.7
+    DEFINES += USE_DCVIZ
+}
+
 
 ccache {
     QMAKE_CXX = ccache $$QMAKE_CXX

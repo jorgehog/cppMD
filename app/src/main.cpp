@@ -51,9 +51,6 @@ int main()
 
     const Setting & particleParameters = getSurfaceSetting(root, "particleParameters");
 
-    const uint NX = getSurfaceSetting<uint>(particleParameters, "NX");
-    const uint NY = getSurfaceSetting<uint>(particleParameters, "NY");
-
     const uint nSpecies = getSurfaceSetting<uint>(particleParameters, "nSpecies");
 
     mat sigmaTable(nSpecies, nSpecies);
@@ -110,8 +107,8 @@ int main()
     MDParticles particles(masses);
     MainMesh<double>::setCurrentParticles(particles);
 
-    double Lx = NX*m;
-    double Ly = NY*m;
+    double Lx = MD_NX*m;
+    double Ly = MD_NY*m;
 
     mat topology(2, 2);
     topology << 0 << Lx << endr << 0 << Ly;
@@ -130,7 +127,7 @@ int main()
     mainMesh.addEvent(molecularDynamicsSolver);
 
 #ifdef USE_DCVIZ
-    SaveToFile saveToFile(outputPath, 1);
+    SaveToFile<double> saveToFile(outputPath, 1);
     mainMesh.addEvent(saveToFile);
 #endif
 
